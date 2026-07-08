@@ -18,6 +18,7 @@ dependencies = [
     "pydantic>=2.12.5",
     "pydantic-settings>=2.13.1",
     "pyproj>=3.7.2",
+    "shapely>=2.1.2",
 ]
 [project.urls]
 Homepage = "https://heigit.org/big-spatial-data-analytics/"

@@ -13,10 +13,10 @@ from starlette.status import (
 from ohsome_api.api import VERSION
 
 
-def test_features_extraction_post(client: TestClient, aoi_geojson_audimax: dict):
+def test_features_extraction_post(client: TestClient, aoi_audimax: dict):
     response = client.post(
         "/features/extraction.parquet",
-        json={"filter": "id:node/1702635807", "aoi": aoi_geojson_audimax},
+        json={"filter": "id:node/1702635807", "aoi": aoi_audimax},
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
@@ -75,12 +75,12 @@ def test_features_extraction_post(client: TestClient, aoi_geojson_audimax: dict)
 
 def test_features_extraction_post_clipped(
     client: TestClient,
-    aoi_geojson_audimax: dict,
+    aoi_audimax: dict,
 ):
     """Check if feature has been clipped."""
     response = client.post(
         "/features/extraction.parquet",
-        json={"filter": "id:way/25961914", "aoi": aoi_geojson_audimax},
+        json={"filter": "id:way/25961914", "aoi": aoi_audimax},
     )
     assert response.status_code == HTTP_200_OK
 
@@ -96,11 +96,12 @@ def test_features_extraction_post_clipped(
 
 
 def test_features_extraction_deleted_features(
-    client: TestClient, aoi_geojson_heigit: dict
+    client: TestClient,
+    aoi_heigit: dict,
 ):
     response = client.post(
         "/features/extraction.parquet",
-        json={"filter": "id:way/394983845", "aoi": aoi_geojson_heigit},
+        json={"filter": "id:way/394983845", "aoi": aoi_heigit},
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/vnd.apache.parquet"

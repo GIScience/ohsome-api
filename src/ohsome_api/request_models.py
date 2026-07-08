@@ -1,7 +1,8 @@
 # TODO: return request params in response?
+import json
 from datetime import datetime, timedelta, timezone
 from enum import StrEnum
-from typing import Literal, Self
+from typing import Annotated, Any, Literal, Self
 
 from geojson_pydantic import MultiPolygon, Polygon
 from ohsome_filter_to_sql import OhsomeFilter
@@ -15,6 +16,8 @@ from pydantic import (
     model_validator,
 )
 from pydantic.alias_generators import to_camel
+from shapely.geometry import mapping
+from shapely.wkt import loads as load_wkt
 
 td_adapter = TypeAdapter(timedelta)
 
@@ -44,31 +47,119 @@ class FilterRequestModel(RequestConfigModel):
     )
 
 
-class AoiRequestModel(RequestConfigModel):
-    aoi: Polygon | MultiPolygon = Field(
-        description="Area of interest as a GeoJSON Geometry (Polygon or MultiPolygon).",
+BBox = Annotated[
+    tuple[float, float, float, float],
+    Field(
+        title="BoundingBox",
+        description="Bounding Box (xmin, ymin, xmax, ymax)",
+        json_schema_extra={"example": (8.68812, 49.40390, 8.72362, 49.41582)},
+    ),
+]
+
+WKT = Annotated[
+    str,
+    Field(
+        title="WKT",
+        description="Well-Known Text (Polygon or MultiPolygon)",
         json_schema_extra={
-            "examples": [
-                {
-                    "type": "Polygon",
-                    "coordinates": [
-                        [
-                            [8.72362, 49.41582],
-                            [8.68812, 49.41582],
-                            [8.68812, 49.40390],
-                            [8.72362, 49.40390],
-                            [8.72362, 49.41582],
-                        ]
-                    ],
-                },
-            ]
+            "example": "POLYGON ((8.72362 49.41582,8.68812 49.41582,8.68812 49.4039,8.72362 49.4039,8.72362 49.41582))"  # noqa: E501
         },
+    ),
+]
+
+GeoJSONGeometry = Annotated[
+    Polygon | MultiPolygon,
+    Field(
+        title="GeoJSON Polygon or MultiPolygon",
+        json_schema_extra={
+            "example": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [8.72362, 49.41582],
+                        [8.68812, 49.41582],
+                        [8.68812, 49.40390],
+                        [8.72362, 49.40390],
+                        [8.72362, 49.41582],
+                    ]
+                ],
+            },
+        },
+    ),
+]
+
+
+class AoiRequestModel(RequestConfigModel):
+    aoi: GeoJSONGeometry | BBox | WKT = Field(
+        description=(
+            "Area of interest as a GeoJSON Geometry, Bounding Box or WKT. "
+            "As geometry only Polygon or MultiPolygon are allowed."
+        ),
     )
 
     @computed_field()
     @property
     def aoi_wkt(self) -> str:
-        return self.aoi.wkt
+        return self.aoi.wkt  # type: ignore
+
+    @classmethod
+    def bbox(cls, value: BBox) -> Polygon | MultiPolygon:  # noqa: C901
+        xmin, ymin, xmax, ymax = value
+        if xmin >= xmax or ymin >= ymax:
+            raise ValueError("min coordinate need to be smaller than max coordinate.")
+        if ymin < -90 or ymax > 90:
+            raise ValueError("y coordinate need to be between -90 and 90.")
+        if xmin <= -360 or xmax >= 360:
+            raise ValueError("x coordinate need to be between -360 and 360.")
+        if (xmax - xmin) >= 360:
+            xmin, xmax = -180.0, 180.0
+        if xmin >= -180 and xmax <= 180:
+            return Polygon.from_bounds(xmin, ymin, xmax, ymax)
+
+        polys = []
+        if xmin < -180:
+            polys.append(Polygon.from_bounds(xmin + 360, ymin, 180, ymax).coordinates)
+            polys.append(Polygon.from_bounds(-180, ymin, xmax, ymax).coordinates)
+        if xmax > 180:
+            polys.append(Polygon.from_bounds(xmin, ymin, 180, ymax).coordinates)
+            polys.append(Polygon.from_bounds(-180, ymin, xmax - 360, ymax).coordinates)
+
+        return MultiPolygon(coordinates=polys, type="MultiPolygon")
+
+    @field_validator("aoi", mode="before")
+    @classmethod
+    def parse_string_input(cls, value: Any) -> Any:  # noqa: ANN401
+        if not isinstance(value, str):
+            return value
+
+        value = value.strip()
+        # 1. Handle GeoJSON String (from GET parameters)
+        if (value.startswith("{") and value.endswith("}")) or (
+            value.startswith("[") and value.endswith("]")
+        ):
+            try:
+                return json.loads(value)
+            except Exception as e:
+                raise ValueError(f"Invalid JSON string: {e}") from e
+
+        return cls.try_transform_wkt_str_to_geojson(value)
+
+    @classmethod
+    def try_transform_wkt_str_to_geojson(cls, value: str) -> dict:
+        try:
+            return mapping(load_wkt(value))
+        except Exception as e:
+            raise ValueError(f"Input string is invalid WKT: {e}") from e
+
+    @field_validator("aoi")
+    @classmethod
+    def transform_bbox_to_geojson(
+        cls,
+        value: Polygon | MultiPolygon | BBox,
+    ) -> Polygon | MultiPolygon:
+        if isinstance(value, Polygon | MultiPolygon):
+            return value
+        return cls.bbox(value)
 
 
 class TimeRequestModel(RequestConfigModel):
@@ -126,7 +217,7 @@ class TimeRequestModel(RequestConfigModel):
         raise ValueError("End timestamp needs to be greater than start timestamp.")
 
 
-class TimeBinsRequestModel(TimeRequestModel):
+class TimeBinSizeRequestModel(TimeRequestModel):
     bin_size: str | None = Field(
         default=None,
         description="Bin size (ISO-8601 duration).",
@@ -142,7 +233,7 @@ class TimeBinsRequestModel(TimeRequestModel):
         return value
 
 
-class TimeSeriesRequestModel(TimeRequestModel):
+class TimeIntervalRequestModel(TimeRequestModel):
     interval: str | None = Field(
         default=None,
         description="Interval (ISO-8601 duration).",
@@ -158,12 +249,18 @@ class TimeSeriesRequestModel(TimeRequestModel):
         return value
 
 
-class RequestParametersModel(AoiRequestModel, FilterRequestModel):
-    pass
+class TimeSeriesRequestModel(RequestConfigModel):
+    time_series: TimeIntervalRequestModel = Field(
+        description=(
+            "Time series defined using a start/end timestamp (ISO-8601, UTC) "
+            "and a interval (ISO-8601 duration). "
+            "The interval between the last two timestamp might not fit given duration."
+        )
+    )
 
 
-class TimeBinsRequestParametersModel(AoiRequestModel, FilterRequestModel):
-    time_bins: TimeBinsRequestModel = Field(
+class TimeBinsRequestModel(RequestConfigModel):
+    time_bins: TimeBinSizeRequestModel = Field(
         description=(
             "Time bins defined using a start/end timestamp (ISO-8601, UTC) "
             "and a bin size (ISO-8601 duration). Last bin might not cover bin size."
@@ -171,11 +268,24 @@ class TimeBinsRequestParametersModel(AoiRequestModel, FilterRequestModel):
     )
 
 
-class TimeSeriesRequestParametersModel(AoiRequestModel, FilterRequestModel):
-    time_series: TimeSeriesRequestModel = Field(
-        description=(
-            "Time series defined using a start/end timestamp (ISO-8601, UTC) "
-            "and a interval (ISO-8601 duration). "
-            "The interval between the last two timestamp might not fit given duration."
-        )
-    )
+class RequestParametersModel(
+    AoiRequestModel,
+    FilterRequestModel,
+):
+    pass
+
+
+class TimeBinsRequestParametersModel(
+    AoiRequestModel,
+    FilterRequestModel,
+    TimeBinsRequestModel,
+):
+    pass
+
+
+class TimeSeriesRequestParametersModel(
+    AoiRequestModel,
+    FilterRequestModel,
+    TimeSeriesRequestModel,
+):
+    pass

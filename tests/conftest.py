@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Iterable
 
@@ -9,6 +10,7 @@ from testcontainers.core.image import DockerImage
 from testcontainers.postgres import PostgresContainer
 
 from ohsome_api.database import db
+from ohsome_api.request_models import BBox
 
 
 @pytest.fixture(scope="session")
@@ -102,6 +104,16 @@ def aoi_geojson_invalid_topology():
 
 
 @pytest.fixture
+def aoi_bbox_heigit() -> tuple[float, float, float, float]:
+    return (8.674585, 49.417888, 8.676354, 49.418922)
+
+
+@pytest.fixture
+def aoi_bbox_audimax() -> tuple[float, float, float, float]:
+    return (8.670919, 49.416393, 8.673839, 49.417686)
+
+
+@pytest.fixture
 def aoi_wkt_heigit(aoi_geojson_heigit: dict) -> str:
     parsed = parse_geometry_obj(aoi_geojson_heigit)
     return parsed.wkt
@@ -111,3 +123,49 @@ def aoi_wkt_heigit(aoi_geojson_heigit: dict) -> str:
 def aoi_wkt_audimax(aoi_geojson_audimax: dict) -> str:
     parsed = parse_geometry_obj(aoi_geojson_audimax)
     return parsed.wkt
+
+
+@pytest.fixture
+def aoi_str_geojson_heigit(aoi_geojson_heigit: dict) -> str:
+    return json.dumps(aoi_geojson_heigit)
+
+
+@pytest.fixture
+def aoi_str_geojson_audimax(aoi_geojson_audimax: dict) -> str:
+    return json.dumps(aoi_geojson_audimax)
+
+
+@pytest.fixture
+def aoi_str_bbox_heigit(aoi_bbox_heigit: BBox) -> str:
+    return json.dumps(aoi_bbox_heigit)
+
+
+@pytest.fixture
+def aoi_str_bbox_audimax(aoi_bbox_audimax: BBox) -> str:
+    return json.dumps(aoi_bbox_audimax)
+
+
+@pytest.fixture(
+    params=[
+        "aoi_geojson_heigit",
+        "aoi_bbox_heigit",
+        "aoi_wkt_heigit",
+        "aoi_str_geojson_heigit",
+        "aoi_str_bbox_heigit",
+    ],
+)
+def aoi_heigit(request: pytest.FixtureRequest) -> dict | tuple:
+    return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(
+    params=[
+        "aoi_geojson_audimax",
+        "aoi_bbox_audimax",
+        "aoi_wkt_audimax",
+        "aoi_str_geojson_audimax",
+        "aoi_str_bbox_audimax",
+    ],
+)
+def aoi_audimax(request: pytest.FixtureRequest) -> dict | tuple:
+    return request.getfixturevalue(request.param)

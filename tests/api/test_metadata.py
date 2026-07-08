@@ -7,6 +7,7 @@ from ohsome_api.api import VERSION
 def test_metadata(client: TestClient):
     response = client.get("/metadata")
     assert response.status_code == HTTP_200_OK
+    assert response.headers["content-type"] == "application/json"
     assert response.json() == {
         "apiVersion": VERSION,
         "attribution": {

@@ -3,7 +3,7 @@ from httpx import Response
 from starlette.status import HTTP_200_OK
 
 
-def test_features_as_json(client: TestClient, aoi_geojson_heigit: dict):
+def test_features_as_json(client: TestClient, aoi_heigit: dict):
     response = client.post(
         "/features/count.json",
         json={
@@ -13,7 +13,7 @@ def test_features_as_json(client: TestClient, aoi_geojson_heigit: dict):
                 "end": "2025-12-31",
                 "interval": "P1Y",
             },
-            "aoi": aoi_geojson_heigit,
+            "aoi": aoi_heigit,
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -29,7 +29,7 @@ def test_features_as_json(client: TestClient, aoi_geojson_heigit: dict):
     }
 
 
-def test_features_as_csv(client: TestClient, aoi_geojson_heigit: dict):
+def test_features_as_csv(client: TestClient, aoi_heigit: dict):
     response: Response = client.post(
         "/features/count.csv",
         json={
@@ -39,7 +39,7 @@ def test_features_as_csv(client: TestClient, aoi_geojson_heigit: dict):
                 "end": "2025-12-31",
                 "interval": "P1Y",
             },
-            "aoi": aoi_geojson_heigit,
+            "aoi": aoi_heigit,
         },
     )
     assert response.status_code == HTTP_200_OK
