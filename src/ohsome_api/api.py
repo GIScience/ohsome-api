@@ -31,7 +31,7 @@ METADATA_TAGS = [
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await db.connect()
     yield
     await db.disconnect()
@@ -68,7 +68,7 @@ app.include_router(currentness.router)
 
 @app.exception_handler(asyncpg.InternalServerError)
 async def postgres_internal_server_error_handler(
-    request: Request, exception: asyncpg.InternalServerError
+    _: Request, exception: asyncpg.InternalServerError
 ) -> JSONResponse:
     msg = str(exception)
     if "TopologyException" in msg:
