@@ -5,6 +5,72 @@
 Reference
 =========
 
+Time (Bins and Series)
+----------------------
+
+Time parameters allow to control the temporal scope.
+
+Timebins
+^^^^^^^^
+
+.. code-block:: text
+
+   Timebins: [===][===][===][===]
+   Bins:       1    2    3    4
+   Each bin contains all OSM data for its temporal duration
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 40 20 25
+
+   * - Parameter
+     - Description
+     - Format
+     -
+   * - start
+     - Start timestamp. Earliest allowed: 2007-10-08. Shorthand: 'earliest'.
+     - ISO-8601 (UTC)
+     - earliest, 2007-10-08T00:00:00Z
+   * - end
+     - End timestamp. Must be greater than start. Shorthand: 'latest'.
+     - ISO-8601 (UTC)
+     - latest, 2026-07-09T00:00:00Z
+   * - bin_size
+     - Temporal duration of each bin:
+     - ISO-8601 duration
+     - PT1H, P1D
+
+Timeseries
+^^^^^^^^^^
+
+.. code-block:: text
+
+   Timeseries: *----*-----*-----*
+   Snapshots:  1    2     3     4
+   Each * is a snapshot of OSM data at that point in the series
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 40 20 25
+
+   * - Parameter
+     - Description
+     - Format
+     - Example
+   * - start
+     - Start timestamp. Earliest allowed: 2007-10-08. Shorthand: 'earliest'.
+     - ISO-8601 (UTC)
+     - earliest, 2007-10-08T00:00:00Z
+   * - end
+     - End timestamp. Must be greater than start. Shorthand: 'latest'.
+     - ISO-8601 (UTC)
+     - latest, 2026-07-09T00:00:00Z
+   * - interval
+     - Temporal duration between each point in the series (snapshot).
+     - ISO-8601 duration
+     - PT1H, P1D
+
 Filter
 ------
 
