@@ -15,7 +15,12 @@ async def test_get_metadata():
 async def test_extract_features(aoi_wkt_audimax: str):
     ohsome_filter = "id:node/1702635807"
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
-    producer = extract_features(query_where_clause, query_args, aoi_wkt_audimax)
+    producer = extract_features(
+        query_where_clause,
+        query_args,
+        aoi_wkt_audimax,
+        clip=True,
+    )
     async for batch in producer:
         assert len(batch) == 1
         assert batch[0]["osm_type"] == "node"

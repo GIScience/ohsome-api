@@ -278,9 +278,16 @@ class TimeBinsRequestModel(RequestConfigModel):
     )
 
 
-class RequestParametersModel(
+class ExtractionRequestModel(RequestConfigModel):
+    clip: bool = Field(
+        default=True, description="Whether to clip extracted features with AOI or not."
+    )
+
+
+class ExtractionRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
+    ExtractionRequestModel,
 ):
     pass
 

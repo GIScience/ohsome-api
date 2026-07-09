@@ -73,6 +73,28 @@ def test_features_extraction_post(client: TestClient, aoi_audimax: dict):
     assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
 
 
+def test_features_extraction_post_not_clipped(
+    client: TestClient,
+    aoi_audimax: dict,
+):
+    """Check if feature has been clipped."""
+    response = client.post(
+        "/features/extraction.parquet",
+        json={"filter": "id:way/25961914", "aoi": aoi_audimax, "clip": False},
+    )
+    assert response.status_code == HTTP_200_OK
+
+    response_file = io.BytesIO(response.content)
+    table = parquet.read_table(response_file)
+    assert table.num_rows == 1
+    assert table["clipped"][0].as_py() is False
+
+    geom = table["geom"][0].as_py()
+    geom_clipped: Polygon = from_wkb(geom)
+    # 21 nodes derived from https://www.openstreetmap.org/way/25961914
+    assert len(geom_clipped.exterior.coords) == 21
+
+
 def test_features_extraction_post_clipped(
     client: TestClient,
     aoi_audimax: dict,

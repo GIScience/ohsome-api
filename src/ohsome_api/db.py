@@ -323,8 +323,16 @@ def extract_features(
     filter_where_clause: str,
     filter_args: tuple,
     aoi_wkt: str,
+    clip: bool,
 ) -> AsyncIterator[list[ExtractionRow]]:
     filter_args_count = len(filter_args)
+    if clip:
+        select_geom_sql = (
+            "ST_AsBinary(ST_Intersection(c.geom, aoi.geom)) as geom, "
+            "NOT ST_Within( c.geom, aoi.geom ) as clipped "
+        )
+    else:
+        select_geom_sql = "ST_AsBinary(c.geom) as geom, false as clipped "
     sql = f"""
         WITH aoi AS (
             SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) as geom
@@ -343,8 +351,7 @@ def extract_features(
                ST_YMin(c.geom) as ymin,
                ST_XMax(c.geom) as xmax,
                ST_YMax(c.geom) as ymax,
-               ST_AsBinary(ST_Intersection(c.geom, aoi.geom)) as geom,
-               NOT ST_Within( c.geom, aoi.geom ) as clipped
+               {select_geom_sql}
         FROM "{SCHEMA}".contributions as c, aoi
         WHERE status_geom_type = ANY(array[
            ('latest','Point')::"{SCHEMA}".status_geom_type_type,

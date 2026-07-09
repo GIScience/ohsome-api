@@ -159,11 +159,12 @@ async def get_features_columns(  # noqa: PLR0913
 async def extract_features_as_parquet(
     ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
+    clip: bool,
 ) -> AsyncIterator[bytes]:
     """Extract features from database batch wise."""
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
-    producer = db.extract_features(query_where_clause, query_args, aoi_wkt)
+    producer = db.extract_features(query_where_clause, query_args, aoi_wkt, clip)
 
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(producer)
@@ -184,11 +185,12 @@ async def extract_features_as_parquet(
 async def extract_features_as_arrow(
     ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
+    clip: bool,
 ) -> AsyncIterator[bytes]:
     """Extract features from database batch wise."""
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
-    producer = db.extract_features(query_where_clause, query_args, aoi_wkt)
+    producer = db.extract_features(query_where_clause, query_args, aoi_wkt, clip)
 
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(producer)

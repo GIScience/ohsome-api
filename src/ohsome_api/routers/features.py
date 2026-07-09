@@ -9,8 +9,8 @@ from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import MeasureEnum, SnapshotColumns
 from ohsome_api.request_models import (
+    ExtractionRequestParametersModel,
     MeasureRequestModel,
-    RequestParametersModel,
     TimeSeriesRequestParametersModel,
 )
 from ohsome_api.response_models import (
@@ -93,11 +93,12 @@ async def post_features_as_csv(
     tags=["Data Extraction"],
 )
 async def post_contributions_extract(
-    parameters: RequestParametersModel,
+    parameters: ExtractionRequestParametersModel,
 ) -> StreamingResponse:
     stream = await service.extract_features_as_parquet(
         parameters.ohsome_filter,
         parameters.aoi_wkt,
+        parameters.clip,
     )
     return StreamingResponse(
         stream,
@@ -113,11 +114,12 @@ async def post_contributions_extract(
     tags=["Data Extraction"],
 )
 async def post_contributions_extract_arrow(
-    parameters: RequestParametersModel,
+    parameters: ExtractionRequestParametersModel,
 ) -> StreamingResponse:
     stream = await service.extract_features_as_arrow(
         parameters.ohsome_filter,
         parameters.aoi_wkt,
+        parameters.clip,
     )
     return StreamingResponse(
         stream,
