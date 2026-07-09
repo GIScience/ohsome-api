@@ -171,14 +171,18 @@ class TimeRequestModel(RequestConfigModel):
         ),
         json_schema_extra={"examples": ["2026-01-01T00:00:00Z", "earliest"]},
     )
-    end: datetime = Field(
-        description="End timestamp (ISO-8601, UTC)",
+    end: datetime | Literal["latest"] = Field(
+        description=(
+            "End timestamp (ISO-8601, UTC). "
+            "To include the most recent data "
+            "'latest' can be used instead of a timestamp."
+        ),
         json_schema_extra={"examples": ["2026-04-17T00:00:00Z"]},
     )
 
-    @field_validator("start", "end", mode="before")
+    @field_validator("start", mode="before")
     @classmethod
-    def transform_literal_to_timestamp(
+    def transform_earliest_to_timestamp(
         cls,
         value: datetime | Literal["earliest"],
     ) -> datetime:
@@ -190,6 +194,9 @@ class TimeRequestModel(RequestConfigModel):
     @field_validator("start", "end")
     @classmethod
     def validate_timezone(cls, value: datetime) -> datetime:
+        if value == "latest":
+            return value
+
         # Allow only UTC.
         if value.tzinfo is None:
             return value.replace(tzinfo=timezone.utc)
@@ -210,6 +217,9 @@ class TimeRequestModel(RequestConfigModel):
     @model_validator(mode="after")
     def validate_end_greater_than_start(self) -> Self:
         assert isinstance(self.start, datetime)  # noqa: S101
+
+        if self.end == "latest":
+            return self
 
         if self.end > self.start:
             return self

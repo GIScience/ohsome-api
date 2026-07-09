@@ -8,7 +8,7 @@ from ohsome_api.service import get_currentness_row
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
 
 
-async def test_get_contributions_count(aoi_wkt_heigit: str):
+async def test_get_currentness_count(aoi_wkt_heigit: str):
     start = datetime(year=2025, month=1, day=1)
     end = start + timedelta(days=365)
     result = await get_currentness_row(
@@ -28,7 +28,27 @@ async def test_get_contributions_count(aoi_wkt_heigit: str):
     ]
 
 
-async def test_get_contributions_count_with_bin_size(aoi_wkt_heigit: str):
+async def test_get_currentness_count_latest(aoi_wkt_heigit: str):
+    start = datetime(year=2025, month=1, day=1)
+    end = "latest"
+    result = await get_currentness_row(
+        "building=* and building!=no and type:way",
+        start,
+        end,
+        bin_size=None,
+        aoi_wkt=aoi_wkt_heigit,
+        measure=MeasureEnum.COUNT,
+    )
+    assert result == [
+        TimeBinRow(
+            start=start,
+            end=datetime(2026, 5, 8, 20, 20, 44, tzinfo=timezone.utc),
+            value=4,
+        )
+    ]
+
+
+async def test_get_currentness_count_with_bin_size(aoi_wkt_heigit: str):
     start = datetime(year=2025, month=7, day=1, tzinfo=timezone.utc)
     end = datetime(year=2025, month=10, day=1, tzinfo=timezone.utc)
     result = await get_currentness_row(
@@ -59,7 +79,7 @@ async def test_get_contributions_count_with_bin_size(aoi_wkt_heigit: str):
     ]
 
 
-async def test_get_contributions_count_by_month(aoi_wkt_heigit: str):
+async def test_get_curretness_count_by_month(aoi_wkt_heigit: str):
     start = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
     end = start + timedelta(days=365)
     bin_2022 = await get_currentness_row(

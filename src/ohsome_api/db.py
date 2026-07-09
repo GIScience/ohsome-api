@@ -51,6 +51,11 @@ async def generate_timestamp_series(
     return results
 
 
+async def get_latest_timestamp() -> datetime:
+    sql = f'SELECT last_timestamp FROM "{SCHEMA}".contributions_state'  # noqa: S608
+    return (await db.fetch_row(sql))[0]
+
+
 async def get_metadata() -> dict[str, datetime]:
     sql = f"""
     WITH

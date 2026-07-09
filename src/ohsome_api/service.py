@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import AsyncIterator
+from typing import AsyncIterator, Literal
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
 from ohsome_api import db
-from ohsome_api.db import generate_timestamp_series
+from ohsome_api.db import generate_timestamp_series, get_latest_timestamp
 from ohsome_api.models import (
     ExtractionRow,
     MeasureEnum,
@@ -27,7 +27,7 @@ async def get_ohsomedb_metadata() -> Metadata:
 async def get_currentness_row(  # noqa: PLR0913
     ohsome_filter: OhsomeFilter,
     start: datetime,
-    end: datetime,
+    end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
     measure: MeasureEnum,
@@ -46,13 +46,17 @@ async def get_currentness_row(  # noqa: PLR0913
 async def get_currentness_columns(  # noqa: PLR0913
     ohsome_filter: OhsomeFilter,
     start: datetime,
-    end: datetime,
+    end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
     measure: MeasureEnum,
 ) -> TimeBinColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
+
+    if end == "latest":
+        end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, bin_size)
+
     return await db.get_currentness(
         query_where_clause,
         query_args,
@@ -67,7 +71,7 @@ async def get_currentness_columns(  # noqa: PLR0913
 async def get_users_activity_rows(
     ohsome_filter: OhsomeFilter,
     start: datetime,
-    end: datetime,
+    end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
 ) -> list[TimeBinRow]:
@@ -89,12 +93,16 @@ async def get_users_activity_rows(
 async def get_users_activity_columns(
     ohsome_filter: OhsomeFilter,
     start: datetime,
-    end: datetime,
+    end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
 ) -> TimeBinColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
+
+    if end == "latest":
+        end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, bin_size)
+
     return await db.get_users_activity(
         query_where_clause,
         query_args,
@@ -108,7 +116,7 @@ async def get_users_activity_columns(
 async def get_features_rows(  # noqa: PLR0913
     ohsome_filter: OhsomeFilter,
     start: datetime,
-    end: datetime,
+    end: datetime | Literal["latest"],
     interval: str | None,
     aoi_wkt: str,
     measure: MeasureEnum,
@@ -126,13 +134,17 @@ async def get_features_rows(  # noqa: PLR0913
 async def get_features_columns(  # noqa: PLR0913
     ohsome_filter: OhsomeFilter,
     start: datetime,
-    end: datetime,
+    end: datetime | Literal["latest"],
     interval: str | None,
     aoi_wkt: str,
     measure: MeasureEnum,
 ) -> SnapshotColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
+
+    if end == "latest":
+        end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, interval)
+
     return await db.get_features(
         query_where_clause,
         query_args,
