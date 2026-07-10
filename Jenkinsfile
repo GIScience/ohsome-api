@@ -10,6 +10,7 @@ pipeline {
         LATEST_AUTHOR = sh(returnStdout: true, script: 'git show -s --pretty=%an').trim()
         LATEST_COMMIT_ID = sh(returnStdout: true, script: 'git describe --tags --long  --always').trim()
         MAIN_BRANCH_REGEX = /(^main$)/
+        RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)(-(RC|beta-|alpha-)[0-9]+)?$/
 
         DOCKER_CREDENTIALS_ID = 'docker-heigit-ci-service'
         DOCKER_REPOSITORY = 'repo.heigit.org/heigit/ohsome-api'
@@ -105,6 +106,52 @@ pipeline {
             post {
                 failure {
                     rocket_releasedeployfail()
+                }
+            }
+        }
+
+        stage('Publish API Docs') {
+            when {
+                anyOf {
+                    expression {
+                        return env.BRANCH_NAME ==~ MAIN_BRANCH_REGEX
+                    }
+                    expression {
+                        return VERSION ==~ RELEASE_REGEX && env.TAG_NAME ==~ RELEASE_REGEX
+                    }
+                }
+            }
+            agent {
+                label 'builtin'
+            }
+            steps {
+                script {
+                    DOC_RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)$/
+                    DOCS_DEPLOYMENT = 'development'
+                    API_DOCS_PATH = 'staging'
+                    if (VERSION ==~ RELEASE_REGEX && env.TAG_NAME ==~ RELEASE_REGEX && VERSION ==~ DOC_RELEASE_REGEX) {
+                        DOCS_DEPLOYMENT = 'release'
+                        API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && uv version --short | awk -F \'.\' \'{ print "v" $1 }\'').trim()
+                    }
+                    publish_dir = "/var/lib/jenkins/apidocs/${REPO_NAME}/${API_DOCS_PATH}/"
+
+                    sh """
+                    cd docs/
+                    # install dependencies
+                    uv sync --group docs
+                    # compile
+                    uv run make html
+
+                    # publish
+                    rm -rf ${publish_dir}
+                    mkdir -p ${publish_dir}
+                    cp -r _build/* ${publish_dir}
+                    """
+                }
+            }
+            post {
+                failure {
+                    rocket_basicsend("Publishing of API Docs failed on ${env.BRANCH_NAME}")
                 }
             }
         }
