@@ -110,6 +110,45 @@ pipeline {
             }
         }
 
+        stage('Build API Docs') {
+            when {
+                anyOf {
+                    expression {
+                        return env.BRANCH_NAME ==~ MAIN_BRANCH_REGEX
+                    }
+                    expression {
+                        return VERSION ==~ RELEASE_REGEX && env.TAG_NAME ==~ RELEASE_REGEX
+                    }
+                }
+            }
+            steps {
+                script {
+                    DOC_RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)$/
+                    DOCS_DEPLOYMENT = 'development'
+                    API_DOCS_PATH = 'staging'
+                    if (VERSION ==~ RELEASE_REGEX && env.TAG_NAME ==~ RELEASE_REGEX && VERSION ==~ DOC_RELEASE_REGEX) {
+                        DOCS_DEPLOYMENT = 'release'
+                        API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && uv version --short | awk -F \'.\' \'{ print "v" $1 }\'').trim()
+                    }
+                    env.DOCS_PUBLISH_DIR = "/var/lib/jenkins/apidocs/${REPO_NAME}/${API_DOCS_PATH}/"
+
+                    sh """
+                    cd docs/
+                    # install dependencies
+                    uv sync --group docs
+                    # compile
+                    uv run make html
+                    """
+                    stash includes: 'docs/build/html/**', name: 'build_docs'
+                }
+            }
+            post {
+                failure {
+                    rocket_basicsend("Building of API Docs failed on ${env.BRANCH_NAME}")
+                }
+            }
+        }
+
         stage('Publish API Docs') {
             when {
                 anyOf {
@@ -126,26 +165,12 @@ pipeline {
             }
             steps {
                 script {
-                    DOC_RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)$/
-                    DOCS_DEPLOYMENT = 'development'
-                    API_DOCS_PATH = 'staging'
-                    if (VERSION ==~ RELEASE_REGEX && env.TAG_NAME ==~ RELEASE_REGEX && VERSION ==~ DOC_RELEASE_REGEX) {
-                        DOCS_DEPLOYMENT = 'release'
-                        API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && uv version --short | awk -F \'.\' \'{ print "v" $1 }\'').trim()
-                    }
-                    publish_dir = "/var/lib/jenkins/apidocs/${REPO_NAME}/${API_DOCS_PATH}/"
-
+                    unstash 'build_docs'
                     sh """
-                    cd docs/
-                    # install dependencies
-                    uv sync --group docs
-                    # compile
-                    uv run make html
-
                     # publish
-                    rm -rf ${publish_dir}
-                    mkdir -p ${publish_dir}
-                    cp -r _build/* ${publish_dir}
+                    rm -rf ${env.DOCS_PUBLISH_DIR}
+                    mkdir -p ${env.DOCS_PUBLISH_DIR}
+                    cp -r docs/build/html/* ${env.DOCS_PUBLISH_DIR}
                     """
                 }
             }
