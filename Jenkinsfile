@@ -29,7 +29,7 @@ pipeline {
                     echo env.TAG_NAME
                 }
                 script {
-                    sh 'uv sync --locked'
+                    sh 'uv sync --locked --all-groups'
                 }
             }
             post {
