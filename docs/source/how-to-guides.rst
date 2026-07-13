@@ -13,4 +13,4 @@ How to extract features with Python?
 
 How to extract OpenStreetMap data from the ohsome API with Python into a GeoDataFrame?
 
-.. literalinclude:: examples/extraction-geopandas.py
+.. literalinclude:: examples/extraction_geopandas.py

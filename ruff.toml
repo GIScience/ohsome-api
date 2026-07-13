@@ -27,4 +27,5 @@ max-statements = 17
 
 [lint.extend-per-file-ignores]
 "tests/*" = ["S101", "ANN201", "PLR"]
+"docs/*" = ["S101", "ANN201", "PLR"]
 "*" = ["SIM117", "TRY003", "PLR2004"]
