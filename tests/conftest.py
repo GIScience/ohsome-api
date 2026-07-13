@@ -52,6 +52,11 @@ async def database_pool():
     await db.disconnect()
 
 
+@pytest_asyncio.fixture
+async def expected_api_version():
+    return "2.0.0a0"
+
+
 @pytest.fixture
 def aoi_geojson_heigit():
     # Small bounding box around HeiGIT in Heidelberg, Germany

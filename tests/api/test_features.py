@@ -29,7 +29,9 @@ def test_features_as_json(client: TestClient, aoi_heigit: dict):
     }
 
 
-def test_features_as_csv(client: TestClient, aoi_heigit: dict):
+def test_features_as_csv(
+    client: TestClient, aoi_heigit: dict, expected_api_version: str
+):
     response: Response = client.post(
         "/features/count.csv",
         json={
@@ -46,7 +48,7 @@ def test_features_as_csv(client: TestClient, aoi_heigit: dict):
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
     assert (
         response.text
-        == """# apiVersion: 2.0.0a0
+        == f"""# apiVersion: {expected_api_version}
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: \xa9 OpenStreetMap contributors
 timestamp;value
