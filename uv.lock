@@ -564,7 +564,7 @@ wheels = [
 
 [[package]]
 name = "ohsome-api"
-version = "2.0.0a0"
+version = "2.0.0a1"
 source = { editable = "." }
 dependencies = [
     { name = "asyncpg" },
