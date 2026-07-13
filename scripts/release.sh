@@ -2,11 +2,10 @@
 
 set -e
 
-if [ $# -eq 0 ]
-  then
+if [ $# -eq 0 ]; then
     echo "Please supply one of the following values as argument:"
-	echo "major, minor, patch, stable, alpha, beta, rc, post, dev"
-	exit
+    echo "major, minor, patch, stable, alpha, beta, rc, post, dev"
+    exit
 fi
 
 OLD_VERSION=$(uv version --short)
