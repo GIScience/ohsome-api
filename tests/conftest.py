@@ -54,7 +54,7 @@ async def database_pool():
 
 @pytest_asyncio.fixture
 async def expected_api_version():
-    return "2.0.0a2"
+    return "2.0.0a3"
 
 
 @pytest.fixture
