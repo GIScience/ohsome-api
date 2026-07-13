@@ -1,2 +1,3 @@
 [pytest]
 addopts = ["--asyncio-mode=auto", "--cov=ohsome_api"]
+testpaths = ["tests"]
