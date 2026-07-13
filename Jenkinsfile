@@ -10,7 +10,7 @@ pipeline {
         LATEST_AUTHOR = sh(returnStdout: true, script: 'git show -s --pretty=%an').trim()
         LATEST_COMMIT_ID = sh(returnStdout: true, script: 'git describe --tags --long  --always').trim()
         MAIN_BRANCH_REGEX = /(^main$)/
-        RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)((rc|b|a-)[0-9]+)?$/
+        RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)((rc|b|a)[0-9]+)?$/
 
         DOCKER_CREDENTIALS_ID = 'docker-heigit-ci-service'
         DOCKER_REPOSITORY = 'repo.heigit.org/heigit/ohsome-api'
