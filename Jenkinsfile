@@ -10,7 +10,7 @@ pipeline {
         LATEST_AUTHOR = sh(returnStdout: true, script: 'git show -s --pretty=%an').trim()
         LATEST_COMMIT_ID = sh(returnStdout: true, script: 'git describe --tags --long  --always').trim()
         MAIN_BRANCH_REGEX = /(^main$)/
-        RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)(-(RC|beta-|alpha-)[0-9]+)?$/
+        RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)((rc|b|a-)[0-9]+)?$/
 
         DOCKER_CREDENTIALS_ID = 'docker-heigit-ci-service'
         DOCKER_REPOSITORY = 'repo.heigit.org/heigit/ohsome-api'
@@ -25,6 +25,7 @@ pipeline {
                     echo LATEST_COMMIT_ID
                     echo VERSION
 
+                    echo env.BRANCH_NAME
                     echo env.BUILD_NUMBER
                     echo env.TAG_NAME
                 }
@@ -46,8 +47,10 @@ pipeline {
             }
             steps {
                 script {
+                    // TODO add VCR_RECORD_MODE=none
                     sh 'pytest --maxfail=1 --cov-report=xml --cov=ohsome_api --cov-fail-under=80'
                 }
+                recordCoverage(tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']])
             }
             post {
                 failure {
@@ -91,7 +94,7 @@ pipeline {
             }
         }
 
-        stage('Build and Deploy Release Image') {
+        stage('Build and Deploy Image') {
             steps {
                 script {
                     docker.withRegistry('https://repo.heigit.org', DOCKER_CREDENTIALS_ID) {
@@ -99,6 +102,11 @@ pipeline {
                             sh 'uv version "$VERSION+$LATEST_COMMIT_ID"'
                             dockerImage = docker.build(DOCKER_REPOSITORY + ':' + env.BRANCH_NAME)
                             dockerImage.push()
+                        }
+                        if (VERSION ==~ RELEASE_REGEX && env.TAG_NAME ==~ RELEASE_REGEX) {
+                            dockerImage = docker.build(DOCKER_REPOSITORY + ':' + VERSION)
+                            dockerImage.push()
+                            dockerImage.push('latest')
                         }
                     }
                 }
