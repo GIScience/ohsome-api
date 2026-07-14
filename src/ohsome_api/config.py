@@ -43,7 +43,6 @@ class Config(BaseSettings):
         "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css"
     )
     external_docs_url: str = "https://docs.ohsome.org/ohsome-api/v2"
-
     model_config = SettingsConfigDict(
         env_prefix="OHSOME_API_",
         env_nested_delimiter="_",

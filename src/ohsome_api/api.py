@@ -46,7 +46,11 @@ app = FastAPI(
     redoc_url=None,
     version=VERSION,
     title=METADATA_PROJECT["Name"],
-    description=METADATA_PROJECT["Summary"],
+    description=(
+        METADATA_PROJECT["Summary"]
+        + f'<p><a class="link" href="{CONFIG.external_docs_url}">'
+        + "Read the documentation.</a></p>"
+    ),
     contact={
         "name": METADATA_PROJECT["Author"],
         "url": "https://heigit.org/big-spatial-data-analytics/",
