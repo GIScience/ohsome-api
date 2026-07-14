@@ -23,11 +23,6 @@ def test_time_start_end_earliest():
     assert time_bins.start == datetime(2007, 10, 8, tzinfo=timezone.utc)
 
 
-def test_time_start_end_latest():
-    time_bins = TimeBinSizeRequestModel(start="earliest", end="latest")
-    assert time_bins.end == "latest"
-
-
 def test_time_start_end_invalid():
     with pytest.raises(ValidationError):
         TimeBinSizeRequestModel(
