@@ -79,7 +79,7 @@ async def test_get_currentness_count_with_bin_size(aoi_wkt_heigit: str):
     ]
 
 
-async def test_get_curretness_count_by_month(aoi_wkt_heigit: str):
+async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
     start = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
     end = start + timedelta(days=365)
     bin_2022 = await get_currentness_row(
