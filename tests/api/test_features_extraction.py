@@ -13,7 +13,7 @@ from starlette.status import (
 from ohsome_api.api import VERSION
 
 
-def test_features_extraction_post(client: TestClient, aoi_audimax: dict):
+def test_features_extraction_post_latest(client: TestClient, aoi_audimax: dict):
     response = client.post(
         "/features/extraction.parquet",
         json={"filter": "id:node/1702635807", "aoi": aoi_audimax},
@@ -71,6 +71,28 @@ def test_features_extraction_post(client: TestClient, aoi_audimax: dict):
     assert metadata_api["version"] == VERSION
     assert metadata_api["attribution"]["url"] == "https://ohsome.org/copyrights"
     assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
+
+
+def test_features_extraction_post_history(client: TestClient, aoi_audimax: dict):
+    response = client.post(
+        "/features/extraction.parquet",
+        json={
+            "filter": "id:node/1702635807",
+            "aoi": aoi_audimax,
+            "time": "2017-09-23T00:00:00Z",
+        },
+    )
+    assert response.status_code == HTTP_200_OK
+
+    response_file = io.BytesIO(response.content)
+    table = parquet.read_table(response_file)
+
+    assert table["osm_id"][0].as_py() == 1702635807
+    assert table["osm_type"][0].as_py() == "node"
+    assert table["osm_version"][0].as_py() == 3
+    assert table["osm_user_name"][0].as_py() == "ezelo"
+    assert table["osm_changeset_id"][0].as_py() == 49417407
+    assert ("name", "Einstein trifft Dürer auf Reisen") in table["osm_tags"][0].as_py()
 
 
 def test_features_extraction_post_not_clipped(

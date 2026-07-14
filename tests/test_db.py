@@ -20,6 +20,7 @@ async def test_extract_features(aoi_wkt_audimax: str):
         query_args,
         aoi_wkt_audimax,
         clip=True,
+        time="latest",
     )
     async for batch in producer:
         assert len(batch) == 1
