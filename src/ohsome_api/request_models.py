@@ -193,7 +193,9 @@ class TimeRequestModel(RequestConfigModel):
 
     @field_validator("start", "end")
     @classmethod
-    def validate_timezone(cls, value: datetime) -> datetime:
+    def validate_timezone(
+        cls, value: datetime | Literal["latest"]
+    ) -> datetime | Literal["latest"]:
         if value == "latest":
             return value
 
