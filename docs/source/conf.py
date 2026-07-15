@@ -31,7 +31,7 @@ def read_metadata(path: Path) -> dict:
 pyproject_path = find_pyproject()
 metadata = read_metadata(pyproject_path)
 
-project = metadata["name"]
+project = "ohsome API"
 author = metadata["authors"][0]["name"]
 release = metadata["version"]
 
@@ -46,10 +46,20 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "alabaster"
 html_static_path = ["_static"]
 # html_logo = "_static/ohsome-logo.svg"
 html_favicon = "_static/heigit-favicon.svg"
 html_css_files = [
     "style.css",
 ]
+html_theme = "alabaster"
+html_theme_options = {
+    # "logo": "ohsome-logo.svg",
+    # "logo_name": True
+    "description": f"Version: <code>{release}</code>",
+    "extra_nav_links": {
+        # "Swagger UI": metadata["project.urls"][Documentation]
+        "Source Code": metadata["urls"]["Repository"],
+        "Contact": metadata["urls"]["Homepage"],
+    },
+}
