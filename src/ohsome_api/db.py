@@ -340,7 +340,8 @@ def extract_features(
            ('latest','Point')::"{SCHEMA}".status_geom_type_type,
            ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
            ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest','GeometryCollection')::"{SCHEMA}".status_geom_type_type
            ])
            AND 'latest' = ${filter_args_count + 2}  -- always true
         """
@@ -350,10 +351,12 @@ def extract_features(
            ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
            ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
            ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest', 'GeometryCollection')::"{SCHEMA}".status_geom_type_type,
            ('history','Point')::"{SCHEMA}".status_geom_type_type,
            ('history','LineString')::"{SCHEMA}".status_geom_type_type,
            ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+           ('history','GeometryCollection')::"{SCHEMA}".status_geom_type_type
            ])
            AND valid_from <= ${filter_args_count + 2}::timestamptz
            AND valid_to > ${filter_args_count + 2}::timestamptz
