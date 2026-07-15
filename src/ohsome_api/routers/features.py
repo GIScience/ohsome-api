@@ -99,7 +99,7 @@ async def post_contributions_extract(
         parameters.ohsome_filter,
         parameters.aoi_wkt,
         parameters.clip,
-        parameters.time,
+        parameters.timestamp,
     )
     return StreamingResponse(
         stream,
@@ -121,7 +121,7 @@ async def post_contributions_extract_arrow(
         parameters.ohsome_filter,
         parameters.aoi_wkt,
         parameters.clip,
-        parameters.time,
+        parameters.timestamp,
     )
     return StreamingResponse(
         stream,

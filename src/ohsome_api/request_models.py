@@ -284,7 +284,7 @@ class ExtractionRequestModel(RequestConfigModel):
     clip: bool = Field(
         default=True, description="Whether to clip extracted features with AOI or not."
     )
-    time: datetime | Literal["latest"] = Field(
+    timestamp: datetime | Literal["latest"] = Field(
         default="latest",
         description=(
             "Extraction timestamp (ISO-8601, UTC). "
@@ -294,7 +294,7 @@ class ExtractionRequestModel(RequestConfigModel):
         json_schema_extra={"examples": ["latest", "2026-04-17T00:00:00Z"]},
     )
 
-    @field_validator("time")
+    @field_validator("timestamp")
     @classmethod
     def validate_timezone(
         cls, value: datetime | Literal["latest"]
@@ -311,9 +311,9 @@ class ExtractionRequestModel(RequestConfigModel):
 
         raise ValueError("Only UTC timestamps are supported.")
 
-    @field_validator("time", mode="after")
+    @field_validator("timestamp", mode="after")
     @classmethod
-    def validate_time(cls, value: datetime) -> datetime:
+    def validate_timestamp(cls, value: datetime) -> datetime:
         if value >= datetime(2007, 10, 8, tzinfo=timezone.utc):
             return value
 

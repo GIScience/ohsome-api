@@ -79,7 +79,7 @@ def test_features_extraction_post_history(client: TestClient, aoi_audimax: dict)
         json={
             "filter": "id:node/1702635807",
             "aoi": aoi_audimax,
-            "time": "2017-09-23T00:00:00Z",
+            "timestamp": "2017-09-23T00:00:00Z",
         },
     )
     assert response.status_code == HTTP_200_OK
