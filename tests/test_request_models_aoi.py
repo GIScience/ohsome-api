@@ -5,12 +5,12 @@ from ohsome_api.request_models import AoiRequestModel
 
 
 def test_smoke_test(aoi_heigit: dict):
-    AoiRequestModel(aoi=aoi_heigit)  # type: ignore
+    AoiRequestModel(aoi=aoi_heigit)
 
 
 def test_geojson_none():
     with pytest.raises(ValidationError):
-        AoiRequestModel(aoi=None)  # type: ignore
+        AoiRequestModel(aoi=None)
 
 
 def test_bbox_invalid():
