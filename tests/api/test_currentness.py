@@ -171,16 +171,3 @@ def test_time_bins_with_bin_size_none(client: TestClient, aoi_geojson_heigit: di
         },
     )
     assert response.status_code == HTTP_200_OK
-
-
-# TODO: extract to own module
-def test_invalid_topology_aoi(client: TestClient, aoi_geojson_invalid_topology: dict):
-    response = client.post(
-        "/stats/currentness/area.json",
-        json={
-            "filter": "building=* and building!=no and type:way",
-            "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
-            "aoi": aoi_geojson_invalid_topology,
-        },
-    )
-    assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT

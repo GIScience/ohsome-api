@@ -4,8 +4,28 @@ from pydantic import ValidationError
 from ohsome_api.request_models import AoiRequestModel
 
 
-def test_smoke_test(aoi_heigit: dict):
+@pytest.fixture
+def aoi_geojson_invalid_topology():
+    return {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [8.674585743714516, 49.418922925485816],
+                [8.676354634855528, 49.417888246956096],
+                [8.674585743714516, 49.417888246956096],
+                [8.676354634855528, 49.418922925485816],
+                [8.674585743714516, 49.418922925485816],
+            ]
+        ],
+    }
+
+
+def test_smoke_test_heigit(aoi_heigit: dict):
     AoiRequestModel(aoi=aoi_heigit)
+
+
+def test_smoke_test_audimax(aoi_audimax: dict):
+    AoiRequestModel(aoi=aoi_audimax)
 
 
 def test_geojson_none():
@@ -75,3 +95,8 @@ def test_wkt_invalid():
 def test_wkt_valid_invalid_type():
     with pytest.raises(ValidationError):
         AoiRequestModel(aoi="LINESTRING (20 10, 5 20)")
+
+
+def test_geojson_invalid_topology(aoi_geojson_invalid_topology: dict):
+    with pytest.raises(ValueError):
+        AoiRequestModel.model_validate(aoi_geojson_invalid_topology)

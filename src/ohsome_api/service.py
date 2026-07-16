@@ -16,8 +16,6 @@ from ohsome_api.models import (
 )
 from ohsome_api.parquet import ArrowSink, ParquetSink
 
-# TODO: Should we pass AOI as some kind of Geom Type instead of str through to DB?
-
 
 async def get_ohsomedb_metadata() -> Metadata:
     metadata = await db.get_metadata()
