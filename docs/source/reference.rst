@@ -38,6 +38,7 @@ Timeseries
    Timeseries: *----*-----*-----*
    Snapshots:  1    2     3     4
    Each * is a snapshot of OSM data at that point in the series
+   Number of points are restricted to a maximum of 10000.
 
 .. list-table::
    :header-rows: 1
@@ -69,7 +70,7 @@ Timebins
    Timebins: [===][===][===][===]
    Bins:       1    2    3    4
    Each bin contains all OSM data for its temporal duration
-
+   Number of bins are restricted to a maximum of 10000.
 
 .. list-table::
    :header-rows: 1
