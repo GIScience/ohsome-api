@@ -124,11 +124,9 @@ class HealthCheck(BaseModel):
 
 @app.head("/health", include_in_schema=False)
 def head_health() -> None:
-    # TODO: actually perform a health check
     pass
 
 
 @app.get("/health", summary="Check health.", tags=["Health"])
 def get_health() -> HealthCheck:
-    # TODO: actually perform a health check
     return HealthCheck()

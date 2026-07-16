@@ -22,7 +22,7 @@ async def get_ohsomedb_metadata() -> Metadata:
     return Metadata(**metadata)
 
 
-async def get_currentness_row(  # noqa: PLR0913
+async def get_currentness_row(
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime | Literal["latest"],
@@ -41,7 +41,7 @@ async def get_currentness_row(  # noqa: PLR0913
     ]
 
 
-async def get_currentness_columns(  # noqa: PLR0913
+async def get_currentness_columns(
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime | Literal["latest"],
@@ -111,7 +111,7 @@ async def get_contributors_activity_columns(
     )
 
 
-async def get_features_rows(  # noqa: PLR0913
+async def get_features_rows(
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime | Literal["latest"],
@@ -129,7 +129,7 @@ async def get_features_rows(  # noqa: PLR0913
     ]
 
 
-async def get_features_columns(  # noqa: PLR0913
+async def get_features_columns(
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime | Literal["latest"],

@@ -1,4 +1,3 @@
-# TODO: return request params in response?
 import json
 from datetime import datetime, timedelta, timezone
 from enum import StrEnum

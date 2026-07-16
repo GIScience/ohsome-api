@@ -76,9 +76,7 @@ async def get_metadata() -> dict[str, datetime]:
     return dict(await db.fetch_row(sql))
 
 
-# TODO: decide what to do about too many arguments linter
-# TODO: fix complexity lint warning
-async def get_currentness(  # noqa: PLR0913
+async def get_currentness(
     filter_where_clause: str,
     filter_args: tuple,
     start: datetime,
@@ -161,7 +159,7 @@ async def get_currentness(  # noqa: PLR0913
     return zerofill_records_to_time_bin_columns(records, series)
 
 
-async def get_contributors_activity(  # noqa: PLR0913
+async def get_contributors_activity(
     filter_where_clause: str,
     filter_args: tuple,
     start: datetime,
@@ -219,9 +217,7 @@ def zerofill_records_to_time_bin_columns(
     return TimeBinColumns(start=start_timestamps, end=end_timestamps, value=values)
 
 
-# TODO: decide what to do about too many arguments linter
-# TODO: fix complexity lint warning
-async def get_features(  # noqa: PLR0913
+async def get_features(
     filter_where_clause: str,
     filter_args: tuple,
     start: datetime,
