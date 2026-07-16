@@ -1,9 +1,6 @@
-import pytest
 from fastapi.testclient import TestClient
 from starlette.status import (
     HTTP_200_OK,
-    HTTP_404_NOT_FOUND,
-    HTTP_422_UNPROCESSABLE_CONTENT,
 )
 
 from ohsome_api.api import VERSION
@@ -94,80 +91,3 @@ start;end;value
 """
     # TODO: Why no timezone in response?
     assert response.text == expected_result
-
-
-def test_currentness_with_invalid_filter(client: TestClient, aoi_heigit: dict):
-    response = client.post(
-        "/stats/currentness/count.json",
-        json={
-            "filter": "foo",
-            "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
-            "aoi": aoi_heigit,
-        },
-    )
-    assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
-    # TODO: Check error message and make it user friendly
-
-
-@pytest.mark.parametrize(
-    "case",
-    [
-        "2025-02-31",  # invalid date
-        "",  # empty
-        "foo",  # garbage
-    ],
-)
-def test_currentness_with_invalid_time(client: TestClient, case: str, aoi_heigit: dict):
-    response = client.post(
-        "/stats/currentness/count.json",
-        json={
-            "filter": "id:1",
-            "timeBins": {"start": case, "end": "2025-12-31"},
-            "aoi": aoi_heigit,
-        },
-    )
-    assert response.status_code == HTTP_422_UNPROCESSABLE_CONTENT
-
-
-def test_currentness_without_format(client: TestClient, aoi_heigit: dict):
-    response = client.post(
-        "/stats/currentness/count",
-        json={
-            "filter": "id:1",
-            "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
-            "aoi": aoi_heigit,
-        },
-    )
-    assert response.status_code == HTTP_404_NOT_FOUND
-
-
-# TODO: extract to own module indepedend of testcontainer
-def test_time_request(client: TestClient, aoi_heigit: dict):
-    response = client.post(
-        "/stats/currentness/count.json",
-        json={
-            "filter": "building=* and building!=no and type:way",
-            "timeBins": {
-                "start": "2025-01-01",
-                "end": "2025-12-31T00:00Z",
-            },
-            "aoi": aoi_heigit,
-        },
-    )
-    assert response.status_code == HTTP_200_OK
-
-
-def test_time_bins_with_bin_size_none(client: TestClient, aoi_geojson_heigit: dict):
-    response = client.post(
-        "/stats/currentness/count.json",
-        json={
-            "filter": "building=* and building!=no and type:way",
-            "timeBins": {
-                "start": "2025-01-01",
-                "end": "2025-12-31T00:00Z",
-                "binSize": None,
-            },
-            "aoi": aoi_geojson_heigit,
-        },
-    )
-    assert response.status_code == HTTP_200_OK

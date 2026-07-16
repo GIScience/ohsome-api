@@ -92,23 +92,6 @@ def aoi_geojson_audimax():
 
 
 @pytest.fixture
-def aoi_geojson_invalid_topology():
-    # Small bounding box around HeiGIT
-    return {
-        "type": "Polygon",
-        "coordinates": [
-            [
-                [8.674585743714516, 49.418922925485816],
-                [8.676354634855528, 49.417888246956096],
-                [8.674585743714516, 49.417888246956096],
-                [8.676354634855528, 49.418922925485816],
-                [8.674585743714516, 49.418922925485816],
-            ]
-        ],
-    }
-
-
-@pytest.fixture
 def aoi_bbox_heigit() -> tuple[float, float, float, float]:
     return (8.674585, 49.417888, 8.676354, 49.418922)
 
