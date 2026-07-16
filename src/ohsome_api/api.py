@@ -1,4 +1,3 @@
-# TODO: return request params in response?
 import importlib.metadata
 from contextlib import asynccontextmanager
 from datetime import timedelta
@@ -14,6 +13,7 @@ from pydantic import (
 
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
+from ohsome_api.db import TimeSeriesTooLargeError
 from ohsome_api.routers import (
     contributors,
     currentness,
@@ -99,6 +99,23 @@ async def postgres_internal_server_error_handler(
             },
         )
     raise exception
+
+
+@app.exception_handler(TimeSeriesTooLargeError)
+async def time_series_too_large_error(
+    _: Request, exception: TimeSeriesTooLargeError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": [
+                {
+                    "type": "time_series_too_large_error",
+                    "msg": str(exception),
+                }
+            ]
+        },
+    )
 
 
 class HealthCheck(BaseModel):

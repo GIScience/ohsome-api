@@ -15,14 +15,19 @@ from ohsome_api.models import (
 SCHEMA = CONFIG.ohsomedb.schemaname
 
 
+class TimeSeriesTooLargeError(ValueError):
+    pass
+
+
 async def generate_timestamp_series(
     start: datetime,
     end: datetime,
     interval: str | None,
-    limit: int = 10_000,
 ) -> list[datetime]:
     if interval is None:
         return [start, end]
+
+    limit = CONFIG.time_series_size_limit
 
     sql = """
         SELECT generate_series(
@@ -35,12 +40,9 @@ async def generate_timestamp_series(
     records = await db.fetch_rows(sql, start, end, interval, limit + 1)
 
     if len(records) > limit:
-        # TODO: Use custom exception and handle it in fastapi
-        # TODO: Write API integration test to check if error gets to user
-        # TODO: Add limitation to docs
-        raise ValueError(
-            "Time parameters including bin_size lead to "
-            f"a time series larger than {limit} bins."
+        raise TimeSeriesTooLargeError(
+            "The provided values for the timeBin or timeSeries parameter "
+            f"lead to a time series larger than {limit} points/bins."
         )
 
     # TODO: Extract post-processing to own function and write unit-tests
