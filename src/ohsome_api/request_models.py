@@ -311,9 +311,15 @@ class ExtractionRequestModel(RequestConfigModel):
 
         raise ValueError("Only UTC timestamps are supported.")
 
-    @field_validator("timestamp", mode="after")
+    @field_validator("timestamp")
     @classmethod
-    def validate_timestamp(cls, value: datetime) -> datetime:
+    def validate_timestamp(
+        cls,
+        value: datetime | Literal["latest"],
+    ) -> datetime | Literal["latest"]:
+        if value == "latest":
+            return value
+
         if value >= datetime(2007, 10, 8, tzinfo=timezone.utc):
             return value
 

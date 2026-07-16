@@ -1,7 +1,9 @@
 import io
 import json
 from datetime import datetime
+from typing import Literal
 
+import pytest
 from fastapi.testclient import TestClient
 from pyarrow import parquet
 from shapely import from_wkb, to_wkt
@@ -13,11 +15,19 @@ from starlette.status import (
 from ohsome_api.api import VERSION
 
 
-def test_features_extraction_post_latest(client: TestClient, aoi_audimax: dict):
-    response = client.post(
-        "/features/extraction.parquet",
-        json={"filter": "id:node/1702635807", "aoi": aoi_audimax},
-    )
+@pytest.mark.parametrize("timestamp", ["latest", None])
+def test_features_extraction_post_latest(
+    client: TestClient,
+    aoi_audimax: dict,
+    timestamp: Literal["latest"] | None,
+):
+    json_body = {
+        "filter": "id:node/1702635807",
+        "aoi": aoi_audimax,
+    }
+    if timestamp is not None:
+        json_body["timestamp"] = timestamp
+    response = client.post("/features/extraction.parquet", json=json_body)
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
     assert (
