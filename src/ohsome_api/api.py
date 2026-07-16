@@ -23,8 +23,8 @@ METADATA_PROJECT = importlib.metadata.metadata("ohsome-api")
 td_adapter = TypeAdapter(timedelta)
 
 METADATA_TAGS = [
-    {"name": "History Statistics"},
-    {"name": "Data Extraction"},
+    {"name": "Statistics"},
+    {"name": "Extraction"},
     {"name": "Filter Validation"},
     {"name": "Metadata"},
 ]
