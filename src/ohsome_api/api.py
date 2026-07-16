@@ -14,7 +14,14 @@ from pydantic import (
 
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
-from ohsome_api.routers import activity, currentness, docs, features, metadata
+from ohsome_api.routers import (
+    activity,
+    currentness,
+    docs,
+    extraction,
+    features,
+    metadata,
+)
 from ohsome_api.routers import filter as filter_
 
 VERSION = importlib.metadata.version("ohsome-api")
@@ -68,6 +75,7 @@ app.include_router(metadata.router)
 app.include_router(features.router)
 app.include_router(activity.router)
 app.include_router(currentness.router)
+app.include_router(extraction.router)
 
 
 @app.exception_handler(asyncpg.InternalServerError)
