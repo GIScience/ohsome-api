@@ -26,17 +26,17 @@ router = APIRouter(
 
 
 @router.post(
-    "/activity/users.json",
+    "/contributors/activity.json",
     response_class=JSONResponse,
     response_model=TimeBinsColumnsResponseModel,
-    summary="Active users per time bin.",
+    summary="Active contributors per time bin.",
     tags=["History Statistics"],
 )
-async def post_users_activity_as_json(
+async def post_contributors_activity_as_json(
     parameters: TimeBinsRequestParametersModel,
 ) -> dict[str, TimeBinColumns]:
     return {
-        "result": await service.get_users_activity_columns(
+        "result": await service.get_contributors_activity_columns(
             ohsome_filter=parameters.ohsome_filter,
             start=cast(datetime, parameters.time_bins.start),
             end=parameters.time_bins.end,
@@ -47,7 +47,7 @@ async def post_users_activity_as_json(
 
 
 @router.post(
-    "/activity/users.csv",
+    "/contributors/activity.csv",
     response_class=CSVTimeBinsResponse,
     response_model=TimeBinsResponseModel,
     responses={
@@ -60,15 +60,15 @@ async def post_users_activity_as_json(
             },
         },
     },
-    summary="Active users per time bin.",
+    summary="Active contributors per time bin.",
     description=CSV_RESPONSE_DESCRIPTION,
     tags=["History Statistics"],
 )
-async def post_users_activity_as_csv(
+async def post_contributors_activity_as_csv(
     parameters: TimeBinsRequestParametersModel,
 ) -> dict[str, list[TimeBinRow]]:
     return {
-        "result": await service.get_users_activity_rows(
+        "result": await service.get_contributors_activity_rows(
             ohsome_filter=parameters.ohsome_filter,
             start=cast(datetime, parameters.time_bins.start),
             end=parameters.time_bins.end,

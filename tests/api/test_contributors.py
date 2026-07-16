@@ -4,9 +4,9 @@ from fastapi.testclient import TestClient
 from starlette.status import HTTP_200_OK
 
 
-def test_activity_users_as_json(client: TestClient, aoi_heigit: dict):
+def test_contributors_activity_as_json(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/activity/users.json",
+        "/contributors/activity.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
@@ -19,9 +19,9 @@ def test_activity_users_as_json(client: TestClient, aoi_heigit: dict):
     assert response.json()["result"]["value"][0] == 6
 
 
-def test_activity_users_as_csv(client: TestClient, aoi_heigit: dict):
+def test_contributors_activity_as_csv(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/activity/users.csv",
+        "/contributors/activity.csv",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},

@@ -15,7 +15,7 @@ from pydantic import (
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
 from ohsome_api.routers import (
-    activity,
+    contributors,
     currentness,
     docs,
     extraction,
@@ -73,7 +73,7 @@ app.include_router(docs.router)
 app.include_router(filter_.router)
 app.include_router(metadata.router)
 app.include_router(features.router)
-app.include_router(activity.router)
+app.include_router(contributors.router)
 app.include_router(currentness.router)
 app.include_router(extraction.router)
 

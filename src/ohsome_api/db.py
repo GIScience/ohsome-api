@@ -159,7 +159,7 @@ async def get_currentness(  # noqa: PLR0913
     return zerofill_records_to_time_bin_columns(records, series)
 
 
-async def get_users_activity(  # noqa: PLR0913
+async def get_contributors_activity(  # noqa: PLR0913
     filter_where_clause: str,
     filter_args: tuple,
     start: datetime,
