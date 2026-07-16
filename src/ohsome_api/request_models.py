@@ -19,6 +19,8 @@ from pydantic.alias_generators import to_camel
 from shapely.geometry import mapping
 from shapely.wkt import loads as load_wkt
 
+from ohsome_api.config import CONFIG
+
 td_adapter = TypeAdapter(timedelta)
 
 
@@ -40,8 +42,9 @@ class FilterRequestModel(RequestConfigModel):
     ohsome_filter: OhsomeFilter = Field(
         alias="filter",
         description=(
-            "[filter language documentation]"
-            "(https://docs.ohsome.org/ohsome-api/v1/filter.html)"
+            "Filter for OSM data. "
+            "Please refer to the [ohsome filter language documentation]"
+            f"({CONFIG.external_docs_url}/reference.html#filter)"
         ),
         json_schema_extra={"example": "type:node and natural=tree"},
     )
@@ -266,7 +269,9 @@ class TimeSeriesRequestModel(RequestConfigModel):
         description=(
             "Time series defined using a start/end timestamp (ISO-8601, UTC) "
             "and a interval (ISO-8601 duration). "
-            "The interval between the last two timestamp might not fit given duration."
+            "The interval between the last two timestamp might not fit given duration. "
+            "Please take a look at the "
+            f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
         )
     )
 
@@ -275,7 +280,9 @@ class TimeBinsRequestModel(RequestConfigModel):
     time_bins: TimeBinSizeRequestModel = Field(
         description=(
             "Time bins defined using a start/end timestamp (ISO-8601, UTC) "
-            "and a bin size (ISO-8601 duration). Last bin might not cover bin size."
+            "and a bin size (ISO-8601 duration). Last bin might not cover bin size. "
+            "Please take a look at the "
+            f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
         )
     )
 
