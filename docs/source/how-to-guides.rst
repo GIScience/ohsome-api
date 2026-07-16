@@ -8,9 +8,8 @@ How-To guides
 Extraction
 ----------
 
-How to extract features with Python?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to extract features with Python into a GeoDataFrame?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-How to extract OpenStreetMap data from the ohsome API with Python into a GeoDataFrame?
 
 .. literalinclude:: examples/extraction_geopandas.py
