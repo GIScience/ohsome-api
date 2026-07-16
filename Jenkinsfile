@@ -47,7 +47,6 @@ pipeline {
             }
             steps {
                 script {
-                    // TODO add VCR_RECORD_MODE=none
                     sh 'pytest --maxfail=1 --cov-report=xml --cov=ohsome_api --cov-fail-under=80'
                 }
                 recordCoverage(tools: [[parser: 'COBERTURA', pattern: 'coverage.xml']])
