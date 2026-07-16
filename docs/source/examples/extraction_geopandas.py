@@ -18,9 +18,9 @@ class OhsomeError(Exception):
     pass
 
 
-def request(json_body: dict) -> BytesIO:
+def request(path: str, json_body: dict) -> BytesIO:
     response: Response = httpx.post(
-        OHSOME_API_URL + "/features/extraction.parquet",
+        OHSOME_API_URL + path,
         json=json_body,
         headers={"authorization": OHSOME_API_KEY},
     )
@@ -36,7 +36,9 @@ def features_extraction(
     osm_filter: str,
     clip: bool = True,
 ) -> GeoDataFrame:
-    buffer = request({"aoi": aoi, "filter": osm_filter, "clip": clip})
+    path = "/extraction/features.parquet"
+    json_body = {"aoi": aoi, "filter": osm_filter, "clip": clip}
+    buffer = request(path, json_body)
 
     # Read as parquet and pass OSM tag maps into dictionaries
     features = geopandas.read_parquet(

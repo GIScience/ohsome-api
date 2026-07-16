@@ -5,7 +5,7 @@ from starlette.status import HTTP_200_OK
 
 def test_features_as_json(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/features/count.json",
+        "/stats/features/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeSeries": {
@@ -33,7 +33,7 @@ def test_features_as_csv(
     client: TestClient, aoi_heigit: dict, expected_api_version: str
 ):
     response: Response = client.post(
-        "/features/count.csv",
+        "/stats/features/count.csv",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeSeries": {

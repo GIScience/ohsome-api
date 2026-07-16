@@ -19,7 +19,7 @@ router = APIRouter(
     "/extraction/features.parquet",
     response_class=StreamingResponse,
     summary="Download features.",
-    tags=["Data Extraction"],
+    tags=["Extraction"],
 )
 async def post_contributions_extract(
     parameters: ExtractionRequestParametersModel,
@@ -40,8 +40,8 @@ async def post_contributions_extract(
 @router.post(
     "/extraction/features.arrow",
     response_class=StreamingResponse,
-    summary="Download features",
-    tags=["Data Extraction"],
+    summary="Download features.",
+    tags=["Extraction"],
 )
 async def post_contributions_extract_arrow(
     parameters: ExtractionRequestParametersModel,

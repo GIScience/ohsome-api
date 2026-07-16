@@ -1,5 +1,5 @@
 # Authorization required
-POST {{BASE_URL}}/currentness/count.json
+POST {{BASE_URL}}/stats/currentness/count.json
 Authorization: {{API_KEY}}
 {
 	"filter": "type:node and natural=tree",

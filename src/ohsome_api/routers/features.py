@@ -29,11 +29,11 @@ router = APIRouter(
 
 
 @router.post(
-    "/features/{measure}.json",
+    "/stats/features/{measure}.json",
     response_class=JSONResponse,
     response_model=SnapshotColumnsResponseModel,
     summary="Aggregate features by {measure} as time series.",
-    tags=["History Statistics"],
+    tags=["Statistics"],
 )
 async def post_features_as_json(
     parameters: TimeSeriesRequestParametersModel,
@@ -52,7 +52,7 @@ async def post_features_as_json(
 
 
 @router.post(
-    "/features/{measure}.csv",
+    "/stats/features/{measure}.csv",
     response_class=CSVSnapshotsResponse,
     response_model=SnapshotsResponseModel,
     responses={
@@ -67,7 +67,7 @@ async def post_features_as_json(
     },
     summary="Aggregate features by {measure} as time series.",
     description=CSV_RESPONSE_DESCRIPTION,
-    tags=["History Statistics"],
+    tags=["Statistics"],
 )
 async def post_features_as_csv(
     parameters: TimeSeriesRequestParametersModel,

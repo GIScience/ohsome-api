@@ -11,7 +11,7 @@ from ohsome_api.api import VERSION
 
 def test_currentness_count_as_json(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/currentness/count.json",
+        "/stats/currentness/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
@@ -26,7 +26,7 @@ def test_currentness_count_as_json(client: TestClient, aoi_heigit: dict):
 
 def test_currentness_length_as_json(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/currentness/length.json",
+        "/stats/currentness/length.json",
         json={
             "filter": "highway=* and geometry:line",
             "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
@@ -41,7 +41,7 @@ def test_currentness_length_as_json(client: TestClient, aoi_heigit: dict):
 
 def test_currentness_area_as_json(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
-        "/currentness/area.json",
+        "/stats/currentness/area.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
@@ -56,7 +56,7 @@ def test_currentness_area_as_json(client: TestClient, aoi_geojson_heigit: dict):
 
 def test_currentness_as_json_time_bin_size(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/currentness/count.json",
+        "/stats/currentness/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {
@@ -75,7 +75,7 @@ def test_currentness_as_json_time_bin_size(client: TestClient, aoi_heigit: dict)
 
 def test_currentness_as_csv(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/currentness/count.csv",
+        "/stats/currentness/count.csv",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2023-01-01", "end": "2025-12-31", "binSize": "P1Y"},
@@ -98,7 +98,7 @@ start;end;value
 
 def test_currentness_with_invalid_filter(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/currentness/count.json",
+        "/stats/currentness/count.json",
         json={
             "filter": "foo",
             "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
@@ -119,7 +119,7 @@ def test_currentness_with_invalid_filter(client: TestClient, aoi_heigit: dict):
 )
 def test_currentness_with_invalid_time(client: TestClient, case: str, aoi_heigit: dict):
     response = client.post(
-        "/currentness/count.json",
+        "/stats/currentness/count.json",
         json={
             "filter": "id:1",
             "timeBins": {"start": case, "end": "2025-12-31"},
@@ -131,7 +131,7 @@ def test_currentness_with_invalid_time(client: TestClient, case: str, aoi_heigit
 
 def test_currentness_without_format(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/currentness/count",
+        "/stats/currentness/count",
         json={
             "filter": "id:1",
             "timeBins": {"start": "2025-01-01", "end": "2025-12-31"},
@@ -144,7 +144,7 @@ def test_currentness_without_format(client: TestClient, aoi_heigit: dict):
 # TODO: extract to own module indepedend of testcontainer
 def test_time_request(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/currentness/count.json",
+        "/stats/currentness/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {
@@ -159,7 +159,7 @@ def test_time_request(client: TestClient, aoi_heigit: dict):
 
 def test_time_bins_with_bin_size_none(client: TestClient, aoi_geojson_heigit: dict):
     response = client.post(
-        "/currentness/count.json",
+        "/stats/currentness/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {
@@ -176,7 +176,7 @@ def test_time_bins_with_bin_size_none(client: TestClient, aoi_geojson_heigit: di
 # TODO: extract to own module
 def test_invalid_topology_aoi(client: TestClient, aoi_geojson_invalid_topology: dict):
     response = client.post(
-        "/currentness/area.json",
+        "/stats/currentness/area.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},

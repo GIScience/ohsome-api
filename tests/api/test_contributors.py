@@ -6,7 +6,7 @@ from starlette.status import HTTP_200_OK
 
 def test_contributors_activity_as_json(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/contributors/activity.json",
+        "/stats/contributors/activity.json",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
@@ -21,7 +21,7 @@ def test_contributors_activity_as_json(client: TestClient, aoi_heigit: dict):
 
 def test_contributors_activity_as_csv(client: TestClient, aoi_heigit: dict):
     response = client.post(
-        "/contributors/activity.csv",
+        "/stats/contributors/activity.csv",
         json={
             "filter": "building=* and building!=no and type:way",
             "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},

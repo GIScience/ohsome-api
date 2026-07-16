@@ -26,11 +26,11 @@ router = APIRouter(
 
 
 @router.post(
-    "/contributors/activity.json",
+    "/stats/contributors/activity.json",
     response_class=JSONResponse,
     response_model=TimeBinsColumnsResponseModel,
     summary="Active contributors per time bin.",
-    tags=["History Statistics"],
+    tags=["Statistics"],
 )
 async def post_contributors_activity_as_json(
     parameters: TimeBinsRequestParametersModel,
@@ -47,7 +47,7 @@ async def post_contributors_activity_as_json(
 
 
 @router.post(
-    "/contributors/activity.csv",
+    "/stats/contributors/activity.csv",
     response_class=CSVTimeBinsResponse,
     response_model=TimeBinsResponseModel,
     responses={
@@ -62,7 +62,7 @@ async def post_contributors_activity_as_json(
     },
     summary="Active contributors per time bin.",
     description=CSV_RESPONSE_DESCRIPTION,
-    tags=["History Statistics"],
+    tags=["Statistics"],
 )
 async def post_contributors_activity_as_csv(
     parameters: TimeBinsRequestParametersModel,

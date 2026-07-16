@@ -29,11 +29,11 @@ router = APIRouter(
 
 
 @router.post(
-    "/currentness/{measure}.json",
+    "/stats/currentness/{measure}.json",
     response_class=JSONResponse,
     response_model=TimeBinsColumnsResponseModel,
     summary="Currentness of features in time bins.",
-    tags=["History Statistics"],
+    tags=["Statistics"],
 )
 async def post_currentness_as_json(
     parameters: TimeBinsRequestParametersModel,
@@ -52,7 +52,7 @@ async def post_currentness_as_json(
 
 
 @router.post(
-    "/currentness/{measure}.csv",
+    "/stats/currentness/{measure}.csv",
     response_class=CSVTimeBinsResponse,
     response_model=TimeBinsResponseModel,
     responses={
@@ -67,7 +67,7 @@ async def post_currentness_as_json(
     },
     summary="Currentness of features in time bins.",
     description=CSV_RESPONSE_DESCRIPTION,
-    tags=["History Statistics"],
+    tags=["Statistics"],
 )
 async def post_currentness_as_csv(
     parameters: TimeBinsRequestParametersModel,
