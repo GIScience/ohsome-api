@@ -17,7 +17,6 @@ router = APIRouter()
 async def validate_filter_get(
     parameters: Annotated[FilterRequestModel, Query()],
 ) -> dict:
-    # TODO add ohsome_filter_to_sql error handling
     return {"filter": parameters.ohsome_filter}
 
 
@@ -30,5 +29,4 @@ async def validate_filter_get(
 async def validate_filter_post(
     parameters: FilterRequestModel,
 ) -> dict:
-    # TODO add ohsome_filter_to_sql error handling
     return {"filter": parameters.ohsome_filter}
