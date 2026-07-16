@@ -16,7 +16,7 @@ from ohsome_api.api import VERSION
 
 
 @pytest.mark.parametrize("timestamp", ["latest", None])
-def test_features_extraction_post_latest(
+def test_extraction_latest(
     client: TestClient,
     aoi_audimax: dict,
     timestamp: Literal["latest"] | None,
@@ -27,7 +27,7 @@ def test_features_extraction_post_latest(
     }
     if timestamp is not None:
         json_body["timestamp"] = timestamp
-    response = client.post("/features/extraction.parquet", json=json_body)
+    response = client.post("/extraction/features.parquet", json=json_body)
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
     assert (
@@ -83,9 +83,9 @@ def test_features_extraction_post_latest(
     assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
 
 
-def test_features_extraction_post_history(client: TestClient, aoi_audimax: dict):
+def test_extraction_history(client: TestClient, aoi_audimax: dict):
     response = client.post(
-        "/features/extraction.parquet",
+        "/extraction/features.parquet",
         json={
             "filter": "id:node/1702635807",
             "aoi": aoi_audimax,
@@ -105,13 +105,13 @@ def test_features_extraction_post_history(client: TestClient, aoi_audimax: dict)
     assert ("name", "Einstein trifft Dürer auf Reisen") in table["osm_tags"][0].as_py()
 
 
-def test_features_extraction_post_not_clipped(
+def test_extraction_not_clipped(
     client: TestClient,
     aoi_audimax: dict,
 ):
     """Check if feature has been clipped."""
     response = client.post(
-        "/features/extraction.parquet",
+        "/extraction/features.parquet",
         json={"filter": "id:way/25961914", "aoi": aoi_audimax, "clip": False},
     )
     assert response.status_code == HTTP_200_OK
@@ -127,13 +127,13 @@ def test_features_extraction_post_not_clipped(
     assert len(geom_clipped.exterior.coords) == 21
 
 
-def test_features_extraction_post_clipped(
+def test_extraction_clipped(
     client: TestClient,
     aoi_audimax: dict,
 ):
     """Check if feature has been clipped."""
     response = client.post(
-        "/features/extraction.parquet",
+        "/extraction/features.parquet",
         json={"filter": "id:way/25961914", "aoi": aoi_audimax},
     )
     assert response.status_code == HTTP_200_OK
@@ -149,12 +149,12 @@ def test_features_extraction_post_clipped(
     assert len(geom_clipped.exterior.coords) < 21
 
 
-def test_features_extraction_deleted_features(
+def test_extraction_deleted_features(
     client: TestClient,
     aoi_heigit: dict,
 ):
     response = client.post(
-        "/features/extraction.parquet",
+        "/extraction/features.parquet",
         json={"filter": "id:way/394983845", "aoi": aoi_heigit},
     )
     assert response.status_code == HTTP_200_OK

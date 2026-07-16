@@ -16,7 +16,7 @@ router = APIRouter(
 
 
 @router.post(
-    "/features/extraction.parquet",
+    "/extraction/features.parquet",
     response_class=StreamingResponse,
     summary="Download features.",
     tags=["Data Extraction"],
@@ -38,7 +38,7 @@ async def post_contributions_extract(
 
 
 @router.post(
-    "/features/extraction.arrow",
+    "/extraction/features.arrow",
     response_class=StreamingResponse,
     summary="Download features",
     tags=["Data Extraction"],

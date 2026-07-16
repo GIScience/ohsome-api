@@ -1,5 +1,5 @@
 # Authorization required
-POST {{BASE_URL}}/features/extraction.parquet
+POST {{BASE_URL}}/extraction/features.parquet
 Authorization: {{API_KEY}}
 {
 	"filter": "type:node and natural=tree",
