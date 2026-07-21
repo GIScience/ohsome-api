@@ -1,4 +1,5 @@
 [![Build Status](https://jenkins.heigit.org/buildStatus/icon?job=ohsome-api/main)](https://jenkins.heigit.org/job/ohsome-api/job/main/)
+
 [![End-to-End Tests](https://jenkins.heigit.org/buildStatus/icon?job=ohsome-api-end-to-end/main)](https://jenkins.heigit.org/job/ohsome-api-end-to-end/job/main/)
 
 # ohsome API
