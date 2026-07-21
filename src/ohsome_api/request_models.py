@@ -23,6 +23,10 @@ from ohsome_api.config import CONFIG
 td_adapter = TypeAdapter(timedelta)
 
 
+class BoundingBoxValidationError(ValueError):
+    pass
+
+
 class RequestConfigModel(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
@@ -55,6 +59,17 @@ BBox = Annotated[
         title="BoundingBox",
         description="Bounding Box (xmin, ymin, xmax, ymax)",
         json_schema_extra={"example": (8.68812, 49.40390, 8.72362, 49.41582)},
+        # TODO: Specify length
+    ),
+]
+
+
+BBoxQuery = Annotated[
+    str,
+    Field(
+        title="BoundingBox",
+        description="Bounding Box (xmin, ymin, xmax, ymax)",
+        json_schema_extra={"example": "8.68812,49.40390,8.72362,49.41582"},
     ),
 ]
 
@@ -108,11 +123,17 @@ class AoiRequestModel(RequestConfigModel):
     def bbox(cls, value: BBox) -> Polygon | MultiPolygon:  # noqa: C901
         xmin, ymin, xmax, ymax = value
         if xmin >= xmax or ymin >= ymax:
-            raise ValueError("min coordinate need to be smaller than max coordinate.")
+            raise BoundingBoxValidationError(
+                "min coordinate need to be smaller than max coordinate."
+            )
         if ymin < -90 or ymax > 90:
-            raise ValueError("y coordinate need to be between -90 and 90.")
+            raise BoundingBoxValidationError(
+                "y coordinate need to be between -90 and 90."
+            )
         if xmin <= -360 or xmax >= 360:
-            raise ValueError("x coordinate need to be between -360 and 360.")
+            raise BoundingBoxValidationError(
+                "x coordinate need to be between -360 and 360."
+            )
         if (xmax - xmin) >= 360:
             xmin, xmax = -180.0, 180.0
         if xmin >= -180 and xmax <= 180:
@@ -162,6 +183,23 @@ class AoiRequestModel(RequestConfigModel):
         if isinstance(value, Polygon | MultiPolygon):
             return value
         return cls.bbox(value)
+
+
+class AoiQueryModel(RequestConfigModel):
+    aoi: BBoxQuery = Field(description=("Area of interest as Bounding Box."))
+
+    @field_validator("aoi", mode="before")
+    @classmethod
+    def validate_aoi(cls, value: str) -> str:
+        bbox = value.split(",")
+        AoiRequestModel.bbox(bbox)  # ty:ignore[invalid-argument-type]
+        return value
+
+    @computed_field
+    @property
+    def aoi_wkt(self) -> str:
+        bbox = self.aoi.split(",")
+        return AoiRequestModel(aoi=bbox).aoi_wkt
 
 
 class TimeRequestModel(RequestConfigModel):
@@ -334,6 +372,14 @@ class ExtractionRequestModel(RequestConfigModel):
 
 class ExtractionRequestParametersModel(
     AoiRequestModel,
+    FilterRequestModel,
+    ExtractionRequestModel,
+):
+    pass
+
+
+class ExtractionQueryParametersModel(
+    AoiQueryModel,
     FilterRequestModel,
     ExtractionRequestModel,
 ):

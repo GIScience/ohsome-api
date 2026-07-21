@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from ohsome_api.request_models import AoiRequestModel
+from ohsome_api.request_models import AoiQueryModel, AoiRequestModel
 
 
 @pytest.fixture
@@ -100,3 +100,29 @@ def test_wkt_valid_invalid_type():
 def test_geojson_invalid_topology(aoi_geojson_invalid_topology: dict):
     with pytest.raises(ValueError):
         AoiRequestModel.model_validate(aoi_geojson_invalid_topology)
+
+
+def test_smoke_aoi_query_model():
+    AoiQueryModel.model_validate(
+        {
+            "aoi": "8.670919,49.416393,8.673839,49.417686",
+        }
+    )
+
+
+def test_aoi_query_model_too_many_coords():
+    with pytest.raises(ValueError):
+        AoiQueryModel.model_validate(
+            {
+                "aoi": "8.670919,49.416393,8.673839,49.417686,8.570917",
+            }
+        )
+
+
+def test_aoi_query_model_too_few_coords():
+    with pytest.raises(ValueError):
+        AoiQueryModel.model_validate(
+            {
+                "aoi": "8.670919,49.416393,8.673839",
+            }
+        )

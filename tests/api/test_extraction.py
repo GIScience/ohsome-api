@@ -28,6 +28,76 @@ def test_extraction_latest(
     if timestamp is not None:
         json_body["timestamp"] = timestamp
     response = client.post("/extraction/features.parquet", json=json_body)
+
+    assert response.status_code == HTTP_200_OK
+    assert response.headers["content-type"] == "application/vnd.apache.parquet"
+    assert (
+        response.headers["content-disposition"]
+        == 'attachment; filename="extractions.parquet"'
+    )
+
+    response_file = io.BytesIO(response.content)
+    table = parquet.read_table(response_file)
+    assert table.num_rows == 1
+
+    # https://www.openstreetmap.org/api/0.6/node/1702635807
+    assert table["osm_id"][0].as_py() == 1702635807
+    assert table["osm_type"][0].as_py() == "node"
+    assert table["osm_version"][0].as_py() == 6
+    assert table["osm_user_name"][0].as_py() == "ezelo"
+    assert table["osm_changeset_id"][0].as_py() == 74974721
+    assert table["osm_tags"][0].as_py() == [
+        ("name", "Dürer trifft Einstein auf Reisen"),
+        ("tourism", "artwork"),
+        ("material", "bronze"),
+        ("start_date", "2011"),
+        ("wheelchair", "yes"),
+        ("artist_name", "Sabrina Hohmann"),
+        ("artwork_type", "sculpture"),
+    ]
+    assert table["minor_version"][0].as_py() == 0
+    assert table["clipped"][0].as_py() is False
+
+    last_edit_expected = datetime.fromisoformat("2019-09-26 17:18:15.000000Z")
+    assert table["last_edit"][0].as_py() == last_edit_expected
+
+    geom = table["geom"][0].as_py()
+    geom = from_wkb(geom)
+    assert to_wkt(geom) == "POINT (8.672892 49.416696)"
+
+    metadata = parquet.read_metadata(response_file).metadata
+    metadata_geo = metadata[b"geo"].decode("utf-8")
+    metadata_geo = json.loads(metadata_geo)
+
+    assert metadata_geo["columns"]["geom"]["bbox"] == [
+        8.6728921,
+        49.4166963,
+        8.6728921,
+        49.4166963,
+    ]
+    assert "crs" in metadata_geo["columns"]["geom"]
+
+    metadata_api = metadata[b"api"].decode("utf-8")
+    metadata_api = json.loads(metadata_api)
+    assert metadata_api["version"] == VERSION
+    assert metadata_api["attribution"]["url"] == "https://ohsome.org/copyrights"
+    assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
+
+
+@pytest.mark.parametrize("timestamp", ["latest", None])
+def test_extraction_latest_get(
+    client: TestClient,
+    timestamp: Literal["latest"] | None,
+):
+    parameters = {
+        "filter": "id:node/1702635807",
+        "aoi": "8.670919,49.416393,8.673839,49.417686",
+    }
+    if timestamp is not None:
+        parameters["timestamp"] = timestamp
+    response = client.get("/extraction/features.parquet", params=parameters)
+
+    # NOTE: Same asserts as previous test
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
     assert (
