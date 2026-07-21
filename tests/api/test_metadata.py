@@ -15,7 +15,7 @@ def test_metadata(client: TestClient):
             "text": "© OpenStreetMap contributors",
         },
         "temporalExtent": {
-            "earliestTimestamp": "2007-10-08T00:00:00Z",
-            "latestTimestamp": "2026-05-08T20:20:44Z",
+            "start": "2007-10-08T00:00:00Z",
+            "end": "2026-05-08T20:20:44Z",
         },
     }

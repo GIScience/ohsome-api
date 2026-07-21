@@ -60,19 +60,17 @@ async def get_latest_timestamp() -> datetime:
 
 async def get_metadata() -> dict[str, datetime]:
     sql = f"""
-    WITH
-        last_timestamp AS (
-            SELECT last_timestamp as latest_timestamp
-            FROM "{SCHEMA}".contributions_state
-        ),
-        valid_from AS (
-            SELECT value::timestamptz as earliest_timestamp
-            FROM "{SCHEMA}".ohsomedb_metadata
-            WHERE key = 'valid_from'
-        )
-    SELECT *
-    FROM last_timestamp, valid_from
-    """  # noqa: S608
+        WITH
+            first AS (
+                SELECT value::timestamptz as first_timestamp
+                FROM "{SCHEMA}".ohsomedb_metadata
+                WHERE key = 'valid_from'
+            ), last AS (
+                SELECT last_timestamp
+                FROM "{SCHEMA}".contributions_state
+            )
+        SELECT first_timestamp as start, last_timestamp as end FROM first, last;
+"""  # noqa: S608
     return dict(await db.fetch_row(sql))
 
 

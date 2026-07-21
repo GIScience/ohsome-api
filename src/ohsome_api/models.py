@@ -13,8 +13,8 @@ class Attribution(BaseModel):
 
 class Metadata(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
-    latest_timestamp: datetime
-    earliest_timestamp: datetime
+    start: datetime
+    end: datetime
 
 
 class MeasureEnum(StrEnum):
