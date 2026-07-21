@@ -12,6 +12,10 @@ Welcome to the documentation of the ohsome API!
 
 HTTP API for OpenStreetMap history statistics and extractions.
 
+Get a free API key by `signing up here`_ to access the ohsome API.
+
+.. _signing up here: https://account.heigit.org/signup
+
 .. toctree::
    :maxdepth: 2
 
