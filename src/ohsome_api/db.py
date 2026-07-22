@@ -361,6 +361,31 @@ def extract_features(
     sql = f"""
         WITH aoi AS (
             SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) as geom
+        ), collections AS (
+            SELECT osm_id, osm_version
+            FROM "{SCHEMA}".contributions c, aoi
+            WHERE {filter_by_time}
+              AND ST_Intersects(c.geom, aoi.geom)
+              AND ({filter_where_clause})
+              -- only collections
+              AND status_geom_type = ANY(array[
+                   ('latest', 'GeometryCollection')::"{SCHEMA}".status_geom_type_type,
+                   ('history','GeometryCollection')::"{SCHEMA}".status_geom_type_type])
+        ), members AS (
+            SELECT
+               member_osm_type,
+               member_osm_id,
+               array_agg(relation_osm_id) as part_of,
+               array_agg(member_role) as part_of_role,
+               array_agg(member_pos_list[idx]) as part_of_pos
+            FROM (
+               SELECT *, array_position(cm.relation_osm_version_list , c.osm_version) as idx
+               FROM "{SCHEMA}".contributions_members cm, collections c
+               WHERE 1=1
+                 AND cm.relation_osm_id = c.osm_id
+                 AND c.osm_version = any(cm.relation_osm_version_list)
+            )
+            GROUP BY member_osm_type, member_osm_id
         )
         SELECT osm_type,
                osm_id,
@@ -372,16 +397,24 @@ def extract_features(
                user_name,
                changeset_id,
                tags,
+               coalesce(part_of, array[]::int[]) as part_of,
+               coalesce(part_of_role, array[]::text[]) as part_of_role,
+               coalesce(part_of_pos, array[]::int[]) as part_of_pos,
                ST_XMin(c.geom) as xmin,
                ST_YMin(c.geom) as ymin,
                ST_XMax(c.geom) as xmax,
                ST_YMax(c.geom) as ymax,
+               (status_geom_type).geom_type as geom_type,
                {select_geom_sql}
-        FROM "{SCHEMA}".contributions as c, aoi
+        FROM "{SCHEMA}".contributions as c
+        JOIN aoi ON (ST_Intersects(c.geom, aoi.geom))
+        LEFT JOIN members as m ON (m.member_osm_type = c.osm_type AND m.member_osm_id = c.osm_id)
         WHERE {filter_by_time}
-           AND ST_Intersects(c.geom, aoi.geom)
-           AND ({filter_where_clause})
-    """  # noqa: S608
+           AND (1=2
+              OR {filter_where_clause}
+              OR m.member_osm_id IS NOT NULL
+           )
+    """  # noqa: E501, S608
     # cast generic asyncpg Record to ExtractionRow
     # TODO: make batch size configurable (maybe as function arg)
     return cast(

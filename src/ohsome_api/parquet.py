@@ -13,6 +13,7 @@ from pyarrow import (
     float64,
     int32,
     int64,
+    list_,
     map_,
     parquet,
     schema,
@@ -37,6 +38,18 @@ EXTRACTION_SCHEMA = schema(
         ("osm_changeset_id", int64()),
         ("osm_tags", map_(string(), string())),
         (
+            "part_of",
+            list_(
+                struct(
+                    [
+                        ("osm_id", int64()),
+                        ("role", string()),
+                        ("pos", int32()),
+                    ]
+                )
+            ),
+        ),
+        (
             "bbox",
             struct(
                 [
@@ -47,6 +60,7 @@ EXTRACTION_SCHEMA = schema(
                 ]
             ),
         ),
+        ("geom_type", string()),
         ("geom", binary()),
         ("clipped", bool_()),
     ]
@@ -103,6 +117,15 @@ def bbox(r: ExtractionRow) -> dict[str, float]:
     }
 
 
+def part_of(r: ExtractionRow) -> list[dict[str, int | str]]:
+    return [
+        {"osm_id": a, "role": b, "pos": c}
+        for a, b, c in zip(
+            r["part_of"], r["part_of_role"], r["part_of_pos"], strict=True
+        )
+    ]
+
+
 def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
     return RecordBatch.from_arrays(
         [
@@ -116,7 +139,9 @@ def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
             [r["user_name"] for r in rows],
             [r["changeset_id"] for r in rows],
             [r["tags"] for r in rows],
+            [part_of(r) for r in rows],
             [bbox(r) for r in rows],
+            [r["geom_type"] for r in rows],
             [r["geom"] for r in rows],
             [r["clipped"] for r in rows],
         ],
@@ -127,6 +152,8 @@ def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
 class Sink(ABC):
     def __init__(self) -> None:
         self.buffer = io.BytesIO()
+        self.collection_ids: set[int] = set()
+        self.collection_encountered = False
 
     def read_bytes(self) -> bytes:
         content = self.buffer.getvalue()
@@ -134,8 +161,32 @@ class Sink(ABC):
         self.buffer.truncate()
         return content
 
-    @abstractmethod
     def write_batch(self, rows: list[ExtractionRow]) -> bytes:
+        filtered_rows: list[ExtractionRow] = []
+
+        for row in rows:
+            self.collection_ids.update(row["part_of"])
+            self.collection_encountered = (
+                self.collection_encountered or row["geom_type"] == "GeometryCollection"
+            )
+            if self.collection_encountered and row["geom_type"] != "GeometryCollection":
+                raise ValueError(
+                    "GeometryCollection must not be before other geometries"
+                )
+
+            if (
+                row["geom_type"] != "GeometryCollection"
+                or row["osm_id"] in self.collection_ids
+            ):
+                filtered_rows.append(row)
+
+        if not filtered_rows:
+            return b""
+
+        return self.write_batch_(filtered_rows)
+
+    @abstractmethod
+    def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
         pass
 
     @abstractmethod
@@ -159,10 +210,7 @@ class ArrowSink(Sink):
         super().__init__()
         self.writer = new_stream(self.buffer, EXTRACTION_SCHEMA)
 
-    def write_batch(self, rows: list[ExtractionRow]) -> bytes:
-        if not rows:
-            return b""
-
+    def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
         batch = record_batch(rows)
         self.writer.write_batch(batch)
         return self.read_bytes()
@@ -187,10 +235,7 @@ class ParquetSink(Sink):
             compression="zstd",
         )
 
-    def write_batch(self, rows: list[ExtractionRow]) -> bytes:
-        if not rows:
-            return b""
-
+    def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
         batch = record_batch(rows)
         # Which group size should we use?
         self.writer.write(batch, row_group_size=10000)
