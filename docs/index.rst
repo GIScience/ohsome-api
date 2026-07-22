@@ -12,6 +12,10 @@
 Welcome to the documentation of the ohsome API!
 ===============================================
 
+.. caution::
+   The ohsome API V1 is reaching end-of-life in October 2026 and is replaced by V2.
+   The docoumentation will soon be updated including usage examples.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
