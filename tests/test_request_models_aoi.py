@@ -1,7 +1,10 @@
 import pytest
 from pydantic import ValidationError
 
-from ohsome_api.request_models import AoiQueryModel, AoiRequestModel
+from ohsome_api.request_models import (
+    AoiQueryModel,
+    AoiRequestModel,
+)
 
 
 @pytest.fixture
@@ -124,5 +127,14 @@ def test_aoi_query_model_too_few_coords():
         AoiQueryModel.model_validate(
             {
                 "aoi": "8.670919,49.416393,8.673839",
+            }
+        )
+
+
+def test_aoi_query_model_coord_is_not_a_float():
+    with pytest.raises(ValueError):
+        AoiQueryModel.model_validate(
+            {
+                "aoi": "8.670919,49.416393,8.673839,foo",
             }
         )

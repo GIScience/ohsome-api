@@ -191,7 +191,10 @@ class AoiQueryModel(RequestConfigModel):
     @field_validator("aoi", mode="before")
     @classmethod
     def validate_aoi(cls, value: str) -> str:
-        bbox = value.split(",")
+        try:
+            bbox = [float(v) for v in value.split(",")]
+        except ValueError as error:
+            raise BoundingBoxValidationError("Invalid bounding box.") from error
         AoiRequestModel.bbox(bbox)  # ty:ignore[invalid-argument-type]
         return value
 
