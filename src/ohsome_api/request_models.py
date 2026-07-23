@@ -107,7 +107,7 @@ GeoJSONGeometry = Annotated[
 
 
 class AoiRequestModel(RequestConfigModel):
-    aoi: GeoJSONGeometry | BBox | WKT = Field(
+    aoi: BBox | GeoJSONGeometry | WKT = Field(
         description=(
             "Area of interest as a GeoJSON Geometry, Bounding Box or WKT. "
             "As geometry only Polygon or MultiPolygon are allowed."
