@@ -245,7 +245,10 @@ class Sink(ABC):
 class ArrowSink(Sink):
     def __init__(self) -> None:
         super().__init__()
-        self.writer = new_stream(self.buffer, self.get_schema())
+        self.writer = new_stream(
+            self.buffer,
+            self.get_schema().with_metadata({b"ohsome API": _api_meta()}),
+        )
 
     def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
         batch = self.convert_batch(rows)
