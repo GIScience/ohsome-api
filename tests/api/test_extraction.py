@@ -4,7 +4,8 @@ from datetime import datetime
 
 import pytest
 from fastapi.testclient import TestClient
-from pyarrow import parquet
+from pyarrow import Table, parquet
+from pyarrow.parquet import FileMetaData
 from shapely import from_wkb, to_wkt
 from shapely.geometry import Polygon
 from starlette.status import (
@@ -14,7 +15,7 @@ from starlette.status import (
 from ohsome_api.api import VERSION
 
 
-def test_extraction_latest(
+def test_post_extraction_latest(
     client: TestClient,
     aoi_audimax: dict,
 ):
@@ -37,52 +38,14 @@ def test_extraction_latest(
     assert table.num_rows == 1
 
     # https://www.openstreetmap.org/api/0.6/node/1702635807
-    assert table["osm_id"][0].as_py() == 1702635807
-    assert table["osm_type"][0].as_py() == "node"
-    assert table["osm_version"][0].as_py() == 6
-    assert table["osm_user_name"][0].as_py() == "ezelo"
-    assert table["osm_changeset_id"][0].as_py() == 74974721
-    assert table["osm_tags"][0].as_py() == [
-        ("name", "Dürer trifft Einstein auf Reisen"),
-        ("tourism", "artwork"),
-        ("material", "bronze"),
-        ("start_date", "2011"),
-        ("wheelchair", "yes"),
-        ("artist_name", "Sabrina Hohmann"),
-        ("artwork_type", "sculpture"),
-    ]
-    assert table["minor_version"][0].as_py() == 0
-    assert table["clipped"][0].as_py() is False
-
-    last_edit_expected = datetime.fromisoformat("2019-09-26 17:18:15.000000Z")
-    assert table["edit_timestamp"][0].as_py() == last_edit_expected
-
-    geom = table["geom"][0].as_py()
-    geom = from_wkb(geom)
-    assert to_wkt(geom) == "POINT (8.672892 49.416696)"
+    validate_node_1702635807(table)
 
     metadata = parquet.read_metadata(response_file).metadata
-    metadata_geo = metadata[b"geo"].decode("utf-8")
-    metadata_geo = json.loads(metadata_geo)
-
-    assert metadata_geo["columns"]["geom"]["bbox"] == [
-        8.6728921,
-        49.4166963,
-        8.6728921,
-        49.4166963,
-    ]
-    assert "crs" in metadata_geo["columns"]["geom"]
-
-    metadata_api = metadata[b"ohsome API"].decode("utf-8")
-    metadata_api = json.loads(metadata_api)
-    assert metadata_api["version"] == VERSION
-    assert metadata_api["attribution"]["url"] == "https://ohsome.org/copyrights"
-    assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
+    validate_ohsome_api_metadata(metadata)
+    validate_geo_metadata_node_1702635807(metadata)
 
 
-def test_extraction_latest_get(
-    client: TestClient,
-):
+def test_get_extraction_latest(client: TestClient):
     parameters = {
         "filter": "id:node/1702635807",
         "aoi": "8.670919,49.416393,8.673839,49.417686",
@@ -103,50 +66,14 @@ def test_extraction_latest_get(
     assert table.num_rows == 1
 
     # https://www.openstreetmap.org/api/0.6/node/1702635807
-    assert table["osm_id"][0].as_py() == 1702635807
-    assert table["osm_type"][0].as_py() == "node"
-    assert table["osm_version"][0].as_py() == 6
-    assert table["osm_user_name"][0].as_py() == "ezelo"
-    assert table["osm_changeset_id"][0].as_py() == 74974721
-    assert table["osm_tags"][0].as_py() == [
-        ("name", "Dürer trifft Einstein auf Reisen"),
-        ("tourism", "artwork"),
-        ("material", "bronze"),
-        ("start_date", "2011"),
-        ("wheelchair", "yes"),
-        ("artist_name", "Sabrina Hohmann"),
-        ("artwork_type", "sculpture"),
-    ]
-    assert table["minor_version"][0].as_py() == 0
-    assert table["clipped"][0].as_py() is False
-
-    last_edit_expected = datetime.fromisoformat("2019-09-26 17:18:15.000000Z")
-    assert table["edit_timestamp"][0].as_py() == last_edit_expected
-
-    geom = table["geom"][0].as_py()
-    geom = from_wkb(geom)
-    assert to_wkt(geom) == "POINT (8.672892 49.416696)"
+    validate_node_1702635807(table)
 
     metadata = parquet.read_metadata(response_file).metadata
-    metadata_geo = metadata[b"geo"].decode("utf-8")
-    metadata_geo = json.loads(metadata_geo)
-
-    assert metadata_geo["columns"]["geom"]["bbox"] == [
-        8.6728921,
-        49.4166963,
-        8.6728921,
-        49.4166963,
-    ]
-    assert "crs" in metadata_geo["columns"]["geom"]
-
-    metadata_api = metadata[b"ohsome API"].decode("utf-8")
-    metadata_api = json.loads(metadata_api)
-    assert metadata_api["version"] == VERSION
-    assert metadata_api["attribution"]["url"] == "https://ohsome.org/copyrights"
-    assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
+    validate_ohsome_api_metadata(metadata)
+    validate_geo_metadata_node_1702635807(metadata)
 
 
-def test_extraction_history_timestamp(client: TestClient, aoi_audimax: dict):
+def test_post_extraction_history_timestamp(client: TestClient, aoi_audimax: dict):
     response = client.post(
         "/extraction/features.parquet",
         json={
@@ -170,7 +97,7 @@ def test_extraction_history_timestamp(client: TestClient, aoi_audimax: dict):
     assert ("name", "Einstein trifft Dürer auf Reisen") in table["osm_tags"][0].as_py()
 
 
-def test_extraction_history_time_range(client: TestClient, aoi_audimax: dict):
+def test_post_extraction_history_time_range(client: TestClient, aoi_audimax: dict):
     response = client.post(
         "/extraction/features.parquet",
         json={
@@ -204,7 +131,7 @@ def test_extraction_history_time_range(client: TestClient, aoi_audimax: dict):
     assert ("name", "Dürer trifft Einstein auf Reisen") in table["osm_tags"][1].as_py()
 
 
-def test_extraction_not_clipped(
+def test_post_extraction_not_clipped(
     client: TestClient,
     aoi_audimax: dict,
 ):
@@ -231,7 +158,7 @@ def test_extraction_not_clipped(
     assert len(geom_clipped.exterior.coords) == 21
 
 
-def test_extraction_clipped(
+def test_post_extracmion_clipped(
     client: TestClient,
     aoi_audimax: dict,
 ):
@@ -257,7 +184,7 @@ def test_extraction_clipped(
     assert len(geom_clipped.exterior.coords) < 21
 
 
-def test_extraction_deleted_features(
+def test_post_extraction_deleted_features(
     client: TestClient,
     aoi_heigit: dict,
 ):
@@ -275,7 +202,7 @@ def test_extraction_deleted_features(
     assert table.num_rows == 0
 
 
-def test_extraction_route(client: TestClient):
+def test_post_extraction_route(client: TestClient):
     json_body = {
         "filter": "type=route and route=bus and service=night",
         "time": "latest",
@@ -292,7 +219,7 @@ def test_extraction_route(client: TestClient):
 
 
 @pytest.mark.skip("Fails against test but not prod db.")
-def test_extraction_route_history(client: TestClient):
+def test_post_extraction_route_history(client: TestClient):
     # https://www.openstreetmap.org/relation/57255/history/56
     json_body = {
         "filter": "id:relation/57255",
@@ -340,7 +267,7 @@ def test_extraction_route_points_only(client: TestClient):
 
 
 @pytest.mark.skip("Fails against test but not prod db.")
-def test_extraction_route_members(client: TestClient):
+def test_post_extraction_route_members(client: TestClient):
     response = client.post(
         "/extraction/collections_members.parquet",
         json={
@@ -379,7 +306,7 @@ def test_extraction_route_members_no_clip(
     assert table.num_rows == 70
 
 
-def test_extraction_route_members_no_clip_points_only(client: TestClient):
+def test_post_extraction_route_members_no_clip_points_only(client: TestClient):
     response = client.post(
         "/extraction/collections_members.parquet",
         json={
@@ -396,3 +323,53 @@ def test_extraction_route_members_no_clip_points_only(client: TestClient):
 
     table = parquet.read_table(response_file)
     assert table.num_rows == 31
+
+
+def validate_node_1702635807(table: Table):
+    # https://www.openstreetmap.org/api/0.6/node/1702635807
+
+    assert table.num_rows == 1
+
+    assert table["osm_id"][0].as_py() == 1702635807
+    assert table["osm_type"][0].as_py() == "node"
+    assert table["osm_version"][0].as_py() == 6
+    assert table["osm_user_name"][0].as_py() == "ezelo"
+    assert table["osm_changeset_id"][0].as_py() == 74974721
+    assert table["osm_tags"][0].as_py() == [
+        ("name", "Dürer trifft Einstein auf Reisen"),
+        ("tourism", "artwork"),
+        ("material", "bronze"),
+        ("start_date", "2011"),
+        ("wheelchair", "yes"),
+        ("artist_name", "Sabrina Hohmann"),
+        ("artwork_type", "sculpture"),
+    ]
+    assert table["minor_version"][0].as_py() == 0
+    assert table["clipped"][0].as_py() is False
+
+    last_edit_expected = datetime.fromisoformat("2019-09-26 17:18:15.000000Z")
+    assert table["edit_timestamp"][0].as_py() == last_edit_expected
+
+    geom = table["geom"][0].as_py()
+    geom = from_wkb(geom)
+    assert to_wkt(geom) == "POINT (8.672892 49.416696)"
+
+
+def validate_geo_metadata_node_1702635807(metadata: FileMetaData):
+    metadata = metadata[b"geo"].decode("utf-8")
+    metadata = json.loads(metadata)
+    assert metadata["columns"]["geom"]["bbox"] == [
+        8.6728921,
+        49.4166963,
+        8.6728921,
+        49.4166963,
+    ]
+    assert "crs" in metadata["columns"]["geom"]
+
+
+def validate_ohsome_api_metadata(metadata: FileMetaData):
+    metadata = metadata[b"ohsome API"].decode("utf-8")
+    metadata = json.loads(metadata)
+    assert metadata["version"] == VERSION
+    assert metadata["attribution"]["url"] == "https://ohsome.org/copyrights"
+    assert metadata["attribution"]["text"] == "© OpenStreetMap contributors"

@@ -93,12 +93,19 @@ def aoi_geojson_audimax():
 
 @pytest.fixture
 def aoi_bbox_heigit() -> tuple[float, float, float, float]:
+    """Bounding box as tuple/array for POST requests."""
     return (8.674585, 49.417888, 8.676354, 49.418922)
 
 
 @pytest.fixture
 def aoi_bbox_audimax() -> tuple[float, float, float, float]:
+    """Bounding box as tuple/array for POST requests."""
     return (8.670919, 49.416393, 8.673839, 49.417686)
+
+
+@pytest.fixture
+def aoi_bbox_as_str_audimax() -> str:
+    return "8.670919,49.416393,8.673839,49.417686"
 
 
 @pytest.fixture
