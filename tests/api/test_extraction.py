@@ -245,4 +245,4 @@ def test_extraction_route(client: TestClient):
 
     response_file = io.BytesIO(response.content)
     table = parquet.read_table(response_file)
-    assert table.num_rows == 62
+    assert table.num_rows == 51

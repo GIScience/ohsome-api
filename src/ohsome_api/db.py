@@ -410,11 +410,118 @@ def extract_features(
         JOIN aoi ON (ST_Intersects(c.geom, aoi.geom))
         LEFT JOIN members as m ON (m.member_osm_type = c.osm_type AND m.member_osm_id = c.osm_id)
         WHERE {filter_by_time}
-           AND (1=2
-              OR {filter_where_clause}
-              OR m.member_osm_id IS NOT NULL
-           )
-    """  # noqa: E501, S608
+           AND ({filter_where_clause})
+           AND (status_geom_type).geom_type != 'GeometryCollection'
+        UNION ALL
+                SELECT osm_type,
+               osm_id,
+               valid_from,
+               osm_version,
+               osm_minor_version,
+               osm_edits,
+               user_id,
+               user_name,
+               changeset_id,
+               tags,
+               coalesce(part_of, array[]::int[]) as part_of,
+               coalesce(part_of_role, array[]::text[]) as part_of_role,
+               coalesce(part_of_pos, array[]::int[]) as part_of_pos,
+               ST_XMin(c.geom) as xmin,
+               ST_YMin(c.geom) as ymin,
+               ST_XMax(c.geom) as xmax,
+               ST_YMax(c.geom) as ymax,
+               (status_geom_type).geom_type as geom_type,
+               {select_geom_sql}
+        FROM "{SCHEMA}".contributions as c
+        JOIN aoi ON (ST_Intersects(c.geom, aoi.geom))
+        JOIN members as m ON (m.member_osm_type = c.osm_type AND m.member_osm_id = c.osm_id)
+        WHERE {filter_by_time}
+           AND NOT ({filter_where_clause})
+           AND (status_geom_type).geom_type != 'GeometryCollection'
+
+        """  # noqa: E501, S608
+    # cast generic asyncpg Record to ExtractionRow
+    # TODO: make batch size configurable (maybe as function arg)
+    return cast(
+        AsyncIterator[list[ExtractionRow]],
+        # PERF: batch_size should be different depending on expected row size
+        #   (e.g. GeometryType)
+        db.fetch_batch(sql, *filter_args, aoi_wkt, time, batch_size=10000),
+    )
+
+
+def extract_features_collections(
+    filter_where_clause: str,
+    filter_args: tuple,
+    aoi_wkt: str,
+    clip: bool,
+    time: datetime | Literal["latest"],
+) -> AsyncIterator[list[ExtractionRow]]:
+    filter_args_count = len(filter_args)
+    if clip:
+        select_geom_sql = (
+            "ST_AsBinary(ST_Intersection(c.geom, aoi.geom)) as geom, "
+            "NOT ST_Within( c.geom, aoi.geom ) as clipped "
+        )
+    else:
+        select_geom_sql = "ST_AsBinary(c.geom) as geom, false as clipped "
+
+    if time == "latest":
+        filter_by_time = f"""status_geom_type = ANY(array[
+           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
+           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
+           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest','GeometryCollection')::"{SCHEMA}".status_geom_type_type
+           ])
+           AND 'latest' = ${filter_args_count + 2}  -- always true
+        """
+    else:
+        filter_by_time = f"""status_geom_type = ANY(array[
+           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
+           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
+           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest', 'GeometryCollection')::"{SCHEMA}".status_geom_type_type,
+           ('history','Point')::"{SCHEMA}".status_geom_type_type,
+           ('history','LineString')::"{SCHEMA}".status_geom_type_type,
+           ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
+           ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+           ('history','GeometryCollection')::"{SCHEMA}".status_geom_type_type
+           ])
+           AND valid_from <= ${filter_args_count + 2}::timestamptz
+           AND valid_to > ${filter_args_count + 2}::timestamptz
+        """
+
+    sql = f"""
+        WITH aoi AS (
+            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) as geom
+        )
+        SELECT osm_type,
+               osm_id,
+               valid_from,
+               osm_version,
+               osm_minor_version,
+               osm_edits,
+               user_id,
+               user_name,
+               changeset_id,
+               tags,
+               array[]::int[] as part_of,
+               array[]::text[] as part_of_role,
+               array[]::int[] as part_of_pos,
+               ST_XMin(c.geom) as xmin,
+               ST_YMin(c.geom) as ymin,
+               ST_XMax(c.geom) as xmax,
+               ST_YMax(c.geom) as ymax,
+               (status_geom_type).geom_type as geom_type,
+               {select_geom_sql}
+        FROM "{SCHEMA}".contributions as c
+        JOIN aoi ON (ST_Intersects(c.geom, aoi.geom))
+        WHERE {filter_by_time}
+           AND ({filter_where_clause})
+           AND (status_geom_type).geom_type = 'GeometryCollection'
+    """  # noqa: S608
     # cast generic asyncpg Record to ExtractionRow
     # TODO: make batch size configurable (maybe as function arg)
     return cast(

@@ -174,6 +174,10 @@ async def extract_features_as_parquet(
 
             async for batch in producer:
                 yield sink.write_batch(batch)
+            async for batch in db.extract_features_collections(
+                query_where_clause, query_args, aoi_wkt, clip, time
+            ):
+                yield sink.write_batch(batch)
 
         # after sink is closed metadata and footer is written
         yield sink.read_bytes()
@@ -200,6 +204,10 @@ async def extract_features_as_arrow(
             yield sink.write_batch(first)
 
             async for batch in producer:
+                yield sink.write_batch(batch)
+            async for batch in db.extract_features_collections(
+                query_where_clause, query_args, aoi_wkt, clip, time
+            ):
                 yield sink.write_batch(batch)
 
         # after sink is closed metadata and footer is written

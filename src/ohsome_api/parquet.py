@@ -162,23 +162,23 @@ class Sink(ABC):
         return content
 
     def write_batch(self, rows: list[ExtractionRow]) -> bytes:
-        filtered_rows: list[ExtractionRow] = rows
+        filtered_rows: list[ExtractionRow] = []
 
-        # for row in rows:
-        #     self.collection_ids.update(row["part_of"])
-        #     self.collection_encountered = (
-        #         self.collection_encountered or row["geom_type"] == "GeometryCollection"  # noqa: E501
-        #     )
-        #     if self.collection_encountered and row["geom_type"] != "GeometryCollection":  # noqa: E501
-        #         raise ValueError(
-        #             "GeometryCollection must not be before other geometries"
-        #         )
-        #
-        #     if (
-        #         row["geom_type"] != "GeometryCollection"
-        #         or row["osm_id"] in self.collection_ids
-        #     ):
-        #         filtered_rows.append(row)
+        for row in rows:
+            self.collection_ids.update(row["part_of"])
+            self.collection_encountered = (
+                self.collection_encountered or row["geom_type"] == "GeometryCollection"
+            )
+            if self.collection_encountered and row["geom_type"] != "GeometryCollection":
+                raise ValueError(
+                    "GeometryCollection must not be before other geometries"
+                )
+
+            if (
+                row["geom_type"] != "GeometryCollection"
+                or row["osm_id"] in self.collection_ids
+            ):
+                filtered_rows.append(row)
 
         if not filtered_rows:
             return b""
