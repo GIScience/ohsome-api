@@ -21,6 +21,11 @@ router = APIRouter(
     "/extraction/features.parquet",
     response_class=StreamingResponse,
     summary="Download features.",
+    description=(
+        "Extract nodes, ways and relations. "
+        "In contrast to the statistics endpoints all relations are returned, "
+        "including their members geometries and OSM tags."
+    ),
     tags=["Extraction"],
 )
 async def post_contributions_extract(
