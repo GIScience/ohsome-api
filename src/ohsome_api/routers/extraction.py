@@ -79,7 +79,10 @@ async def post_contributions_extract_arrow(
     tags=["Extraction"],
 )
 async def get_contributions_extract_arrow(
-    parameters: ExtractionQueryParametersModel,
+    parameters: Annotated[
+        ExtractionQueryParametersModel,
+        Query(),
+    ],
 ) -> StreamingResponse:
     return await contributions_extract_as_arrow(parameters)
 
