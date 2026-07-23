@@ -19,8 +19,9 @@ Get a free API key by `signing up here`_ to access the ohsome API.
 .. toctree::
    :maxdepth: 2
 
-   how-to-guides
    reference
+   how-to-guides
+   explanation
 
 ..   autodocs
 
