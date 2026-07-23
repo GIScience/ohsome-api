@@ -322,6 +322,10 @@ def extract_features(
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
+    """Extract all features
+
+    Including members of relations but excluding Geometry Collections.
+    """
     filter_args_count = len(filter_args)
     if clip:
         select_geom_sql = (
@@ -361,7 +365,9 @@ def extract_features(
     sql = f"""
         WITH aoi AS (
             SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) as geom
-        ), collections AS (
+        ),
+        collections AS (
+            -- Extract only geometry collections (relations)
             SELECT osm_id, osm_version
             FROM "{SCHEMA}".contributions c, aoi
             WHERE {filter_by_time}
@@ -371,7 +377,9 @@ def extract_features(
               AND status_geom_type = ANY(array[
                    ('latest', 'GeometryCollection')::"{SCHEMA}".status_geom_type_type,
                    ('history','GeometryCollection')::"{SCHEMA}".status_geom_type_type])
-        ), members AS (
+        ),
+        members AS (
+            -- Extract only members of matching relations (see above)
             SELECT
                member_osm_type,
                member_osm_id,
@@ -387,6 +395,7 @@ def extract_features(
             )
             GROUP BY member_osm_type, member_osm_id
         )
+        -- Extract all features which match AOI, time range and ohsome filter
         SELECT osm_type,
                osm_id,
                valid_from,
@@ -413,7 +422,9 @@ def extract_features(
            AND ({filter_where_clause})
            AND (status_geom_type).geom_type != 'GeometryCollection'
         UNION ALL
-                SELECT osm_type,
+        -- Extract all features which match AOI and time range but not ohsome filter.
+        -- These features are members of a relation which does match AOI, time range and ohsome filter.
+        SELECT osm_type,
                osm_id,
                valid_from,
                osm_version,
@@ -457,6 +468,10 @@ def extract_features_collections(
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
+    """Get all GeometryCollections.
+
+    Relations without members in AOI will be filtered out later.
+    """
     filter_args_count = len(filter_args)
     if clip:
         select_geom_sql = (
@@ -468,25 +483,13 @@ def extract_features_collections(
 
     if time == "latest":
         filter_by_time = f"""status_geom_type = ANY(array[
-           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
            ('latest','GeometryCollection')::"{SCHEMA}".status_geom_type_type
            ])
            AND 'latest' = ${filter_args_count + 2}  -- always true
         """
     else:
         filter_by_time = f"""status_geom_type = ANY(array[
-           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
            ('latest', 'GeometryCollection')::"{SCHEMA}".status_geom_type_type,
-           ('history','Point')::"{SCHEMA}".status_geom_type_type,
-           ('history','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
            ('history','GeometryCollection')::"{SCHEMA}".status_geom_type_type
            ])
            AND valid_from <= ${filter_args_count + 2}::timestamptz
@@ -520,7 +523,6 @@ def extract_features_collections(
         JOIN aoi ON (ST_Intersects(c.geom, aoi.geom))
         WHERE {filter_by_time}
            AND ({filter_where_clause})
-           AND (status_geom_type).geom_type = 'GeometryCollection'
     """  # noqa: S608
     # cast generic asyncpg Record to ExtractionRow
     # TODO: make batch size configurable (maybe as function arg)
