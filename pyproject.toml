@@ -1,6 +1,6 @@
 [project]
 name = "ohsome-api"
-version = "2.0.0a4"
+version = "2.0.0a5"
 description = "HTTP API for OpenStreetMap history statistics and extractions."
 readme = "README.md"
 authors = [
