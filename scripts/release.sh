@@ -21,5 +21,5 @@ git add uv.lock
 
 git commit -m "$NEW_VERSION"
 git tag "$NEW_VERSION" -m "$NEW_VERSION"
+git push origin main
 git push origin "$NEW_VERSION"
-git push
