@@ -288,7 +288,7 @@ class ParquetSink(Sink):
         self.writer.add_key_value_metadata(
             {
                 b"geo": _geoparquet_meta(self.xmin, self.ymin, self.xmax, self.ymax),
-                b"api": _api_meta(),
+                b"ohsome API": _api_meta(),
             }
         )
 

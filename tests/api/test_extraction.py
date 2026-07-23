@@ -73,7 +73,7 @@ def test_extraction_latest(
     ]
     assert "crs" in metadata_geo["columns"]["geom"]
 
-    metadata_api = metadata[b"api"].decode("utf-8")
+    metadata_api = metadata[b"ohsome API"].decode("utf-8")
     metadata_api = json.loads(metadata_api)
     assert metadata_api["version"] == VERSION
     assert metadata_api["attribution"]["url"] == "https://ohsome.org/copyrights"
@@ -139,7 +139,7 @@ def test_extraction_latest_get(
     ]
     assert "crs" in metadata_geo["columns"]["geom"]
 
-    metadata_api = metadata[b"api"].decode("utf-8")
+    metadata_api = metadata[b"ohsome API"].decode("utf-8")
     metadata_api = json.loads(metadata_api)
     assert metadata_api["version"] == VERSION
     assert metadata_api["attribution"]["url"] == "https://ohsome.org/copyrights"
