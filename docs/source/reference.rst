@@ -5,6 +5,11 @@
 Reference
 =========
 
+Area of Interest (AOI)
+----------------------
+
+Area of interest as a GeoJSON Geometry, Bounding Box or Well Known Text (WKT). As geometry only Polygon or MultiPolygon are allowed.
+
 Time
 ----
 
@@ -148,7 +153,8 @@ Selectors
     +------------------------------------+------------------------------------+-----------------------------------+
     | ``geometry:geom-type``             | matches anything which has a       | ``geometry:polygon``              |
     |                                    | geometry of the given type         |                                   |
-    |                                    | (point, line, polygon, or other)   |                                   |
+    |                                    | (point, line, polygon, or          |                                   |
+    |                                    | collection)                        |                                   |
     +------------------------------------+------------------------------------+-----------------------------------+
     | ``area:(from..to)``                | matches features with a geometry   | ``area:(1.0 .. 1E6)``             |
     |                                    | having an area (measured in m²)    |                                   |
@@ -157,31 +163,6 @@ Selectors
     | ``length:(from..to)``              | matches features with a geometry   | ``length:( .. 100)``              |
     |                                    | having a length (measured in m)    |                                   |
     |                                    | in the given range [2]_            |                                   |
-    +------------------------------------+------------------------------------+-----------------------------------+
-    | ``perimeter:(from..to)``           | matches features with a            | ``perimeter:( .. 100)``           |
-    |                                    | perimeter (measured in m) in the   |                                   |
-    |                                    | given range [2]_                   |                                   |
-    +------------------------------------+------------------------------------+-----------------------------------+
-    | ``geometry.vertices:(from..to)``   | matches features by the number     | ``geometry.vertices:(1 .. 10)``   |
-    |                                    | of points they consists of         |                                   |
-    |                                    | in the given range [2]_            |                                   |
-    +------------------------------------+------------------------------------+-----------------------------------+
-    | ``geometry.outers:number``         | matches features by the number     | ``geometry.outers:1``             |
-    | or                                 | of outer rings they consists of    | or                                |
-    | ``geometry.outers:(from..to)``     | in the given range [2]_            | ``geometry.outers:(2 .. )``       |
-    +------------------------------------+------------------------------------+-----------------------------------+
-    | ``geometry.inners:number``         | matches features by the number     | ``geometry.inners:0``             |
-    | or                                 | of holes (inner rings) they        | or                                |
-    | ``geometry.inners:(from..to)``     | consists of in the given range     | ``geometry.inners:(1 .. )``       |
-    |                                    | [2]_                               |                                   |
-    +------------------------------------+------------------------------------+-----------------------------------+
-    | ``geometry.roundness:(from..to)``  | matches features which have a      | ``geometry.roundness:(0.8 .. )``  |
-    |                                    | *roundness* (or *compactness*)     |                                   |
-    |                                    | in the given range [2]_ [4]_       |                                   |
-    +------------------------------------+------------------------------------+-----------------------------------+
-    | ``geometry.squareness:(from..to)`` | matches features which have a      | ``geometry.squareness:(0.8 .. )`` |
-    |                                    | *squareness*                       |                                   |
-    |                                    | in the given range [2]_ [5]_       |                                   |
     +------------------------------------+------------------------------------+-----------------------------------+
     | ``changeset:id``                   | matches contributions [3]_         | ``changeset:42``                  |
     |                                    | performed in the specified         |                                   |
@@ -198,10 +179,6 @@ Selectors
 .. [1] Keep in mind that osm ids are not unique between osm types. In order to include only a specific object the id needs to be used together with an osm type filter. Alternatively, one can also use the combined type+id filter (e.g. `id:node/1234`).
 .. [2] The lower or upper bound of a range may be omitted to indicate that the values are only to be limited to be "up to" or "starting from" the given value, respectively. For example: `id:(10..)` will accept all entities with an id of 10 or higher.
 .. [3] The `changeset` filters can only be used in `contribution` based API endpoints.
-.. [4] This is using the `"Polsby–Popper test" score`_ where all values fall in the interval 0 to 1 and 1 represents a perfect circle.
-.. [5] This is using the `rectilinearity measurement by Žunić and Rosin`_ where all values fall in the interval 0 to 1 and 1 represents a perfectly rectilinear geometry.
-.. _"Polsby–Popper test" score: https://en.wikipedia.org/wiki/Polsby%E2%80%93Popper_test
-.. _rectilinearity measurement by Žunić and Rosin: https://www.researchgate.net/publication/221304067_A_Rectilinearity_Measurement_for_Polygons)
 
 |
 
