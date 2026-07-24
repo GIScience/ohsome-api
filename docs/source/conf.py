@@ -58,7 +58,7 @@ html_theme_options = {
     # "logo_name": True
     "description": f"Version: <code>{release}</code>",
     "extra_nav_links": {
-        # "Swagger UI": metadata["project.urls"][Documentation]
+        "Swagger UI": metadata["urls"]["Swagger"],
         "Source Code": metadata["urls"]["Repository"],
         "Contact": metadata["urls"]["Homepage"],
     },
