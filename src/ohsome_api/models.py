@@ -56,13 +56,9 @@ class ExtractionRow(TypedDict):
     user_name: str
     changeset_id: int
     tags: dict[str, str]
-    part_of: list[int]
-    part_of_role: list[str]
-    part_of_pos: list[int]
     xmin: float
     xmax: float
     ymin: float
     ymax: float
-    geom_type: str
     geom: bytes
     clipped: bool
