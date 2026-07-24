@@ -785,15 +785,15 @@ docs = [
 
 [[package]]
 name = "ohsome-filter-to-sql"
-version = "0.11.0"
+version = "0.12.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "antlr4-python3-runtime" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4a/c0/585c0335cc63847c774e60ffacdb3cdc30f87e7d825a6500a28aade78db5/ohsome_filter_to_sql-0.11.0.tar.gz", hash = "sha256:347594e66ff08efd5ab064f2db99d3ba4567414d69e8ba7cec5591ea13f66a9d", size = 37840, upload-time = "2026-06-23T11:54:37.241Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9a/c7/3b32fd7633031b739d0738828e3789ca0cbe40ba024b00d0222aabca80ac/ohsome_filter_to_sql-0.12.0.tar.gz", hash = "sha256:fe3c511d394f12b3c4b38699584b01888f9043bc0ff41ca00a0c05887435c2b2", size = 36462, upload-time = "2026-07-24T06:50:26.673Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/52/b1/3b1fffab9ac38b7e732338ea28684c8ac9929d452986a684369c09660829/ohsome_filter_to_sql-0.11.0-py3-none-any.whl", hash = "sha256:b0d85ed8e8759d4077a4a060d4bd8066e5df95fae332de700dfb98275ff560fd", size = 39439, upload-time = "2026-06-23T11:54:36.048Z" },
+    { url = "https://files.pythonhosted.org/packages/65/36/f482e6f4bd12089a9ed35299df5b0734184e0dd1286b942e93058b6d73f2/ohsome_filter_to_sql-0.12.0-py3-none-any.whl", hash = "sha256:5cee394e4299ccee3cba1e719f3bf1bbace129421990a130a7a2e426392dd502", size = 37980, upload-time = "2026-07-24T06:50:25.303Z" },
 ]
 
 [[package]]
