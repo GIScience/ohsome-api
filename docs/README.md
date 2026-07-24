@@ -1,10 +1,15 @@
 # Documentation
 
 ```sh
+# Install dependencies
 uv sync --group docs
 
 # Run tests for the documentation Python examples
-OHSOME_API_KEY=foo uv run pytest source/examples/
+export OHSOME_API_KEY=foo
+export OHSOME_API_URL="http://api.heigit.org/ohsome-api/v2"
+uv run pytest source/examples/
+duckdb -f source/examples/extraction_duckdb.sql
 
+# Build documentation
 make html
 ```
