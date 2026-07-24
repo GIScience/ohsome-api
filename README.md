@@ -3,7 +3,10 @@
 
 # ohsome API
 
-![](docs/logo.svg)
+![](docs/source/_static/ohsome-logo.svg)
+
+- [Documentation](https://docs.ohsome.org/ohsome-api/v2)
+- [Swagger UI](https://api.heigit.org/ohsome-api/v2/docs)
 
 ## Development Setup
 
