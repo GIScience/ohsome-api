@@ -7,6 +7,8 @@ from fastapi.responses import StreamingResponse
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import (
+    CollectionsExtractionQueryParametersModel,
+    CollectionsExtractionRequestParametersModel,
     ExtractionQueryParametersModel,
     ExtractionRequestParametersModel,
 )
@@ -17,7 +19,7 @@ router = APIRouter(
 )
 
 
-contributions_extract_description = (
+CONTRIBUTIONS_EXTRACT_DESCRIPTION = (
     "Nodes, ways, and relations tagged as `type=multipolygon` or `type=boundary` "
     "are included. "
     "Other relations can be queried with the `/extraction/collections.*` endpoints."
@@ -28,7 +30,7 @@ contributions_extract_description = (
     "/extraction/features.parquet",
     response_class=StreamingResponse,
     summary="Download features.",
-    description=contributions_extract_description,
+    description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
 )
 async def post_contributions_extract(
@@ -41,7 +43,7 @@ async def post_contributions_extract(
     "/extraction/features.parquet",
     response_class=StreamingResponse,
     summary="Download features.",
-    description=contributions_extract_description,
+    description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
 )
 async def get_contributions_extract(
@@ -73,7 +75,7 @@ async def contributions_extract(
     "/extraction/features.arrow",
     response_class=StreamingResponse,
     summary="Download features.",
-    description=contributions_extract_description,
+    description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
 )
 async def post_contributions_extract_arrow(
@@ -86,7 +88,7 @@ async def post_contributions_extract_arrow(
     "/extraction/features.arrow",
     response_class=StreamingResponse,
     summary="Download features.",
-    description=contributions_extract_description,
+    description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
 )
 async def get_contributions_extract_arrow(
@@ -114,23 +116,31 @@ async def contributions_extract_as_arrow(
     )
 
 
-features_collections_extract_description = (
+FEATURES_COLLECTIONS_EXTRACT_DESCRIPTION = (
     "Returns relations (not tagged as `type=multipolygon` or `type=boundary`) "
     "as geometry collections. "
     "For each relation a separate row is returned for their linear, polygonal "
     "or point members"
 )
+FEATURES_COLLECTIONS_EXTRACT_EXAMPLE = {
+    "example": {
+        "filter": "type:relation and type=route and route=bus and service=night",
+        "timestamp": "latest",
+        "aoi": [8.68812, 49.4039, 8.72362, 49.41582],
+        "clip": True,
+    }
+}
 
 
 @router.post(
     "/extraction/collections.parquet",
     response_class=StreamingResponse,
     summary="Download collections.",
-    description=features_collections_extract_description,
+    description=FEATURES_COLLECTIONS_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
 )
 async def post_features_collections_extract(
-    parameters: ExtractionRequestParametersModel,
+    parameters: CollectionsExtractionRequestParametersModel,
 ) -> StreamingResponse:
     return await features_collections_extract(parameters)
 
@@ -139,12 +149,12 @@ async def post_features_collections_extract(
     "/extraction/collections.parquet",
     response_class=StreamingResponse,
     summary="Download collections.",
-    description=features_collections_extract_description,
+    description=FEATURES_COLLECTIONS_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
 )
 async def get_features_collections_extract(
     parameters: Annotated[
-        ExtractionQueryParametersModel,
+        CollectionsExtractionQueryParametersModel,
         Query(),
     ],
 ) -> StreamingResponse:
@@ -152,7 +162,8 @@ async def get_features_collections_extract(
 
 
 async def features_collections_extract(
-    parameters: ExtractionRequestParametersModel | ExtractionQueryParametersModel,
+    parameters: CollectionsExtractionRequestParametersModel
+    | CollectionsExtractionQueryParametersModel,
 ) -> StreamingResponse:
     stream = await service.extract_features_collections_as_parquet(
         parameters.ohsome_filter,

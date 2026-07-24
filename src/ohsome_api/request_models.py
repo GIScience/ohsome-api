@@ -53,6 +53,20 @@ class FilterRequestModel(RequestConfigModel):
     )
 
 
+class CollectionsFilterRequestModel(RequestConfigModel):
+    ohsome_filter: OhsomeFilter = Field(
+        alias="filter",
+        description=(
+            "Filter for OSM data. "
+            "Please refer to the [ohsome filter language documentation]"
+            f"({CONFIG.external_docs_url}/reference.html#filter)"
+        ),
+        json_schema_extra={
+            "example": "type:relation and type=route and route=bus and service=night"
+        },
+    )
+
+
 BBox = Annotated[
     tuple[float, float, float, float],
     Field(
@@ -384,6 +398,22 @@ class ExtractionRequestParametersModel(
 class ExtractionQueryParametersModel(
     AoiQueryModel,
     FilterRequestModel,
+    ExtractionRequestModel,
+):
+    pass
+
+
+class CollectionsExtractionRequestParametersModel(
+    AoiRequestModel,
+    CollectionsFilterRequestModel,
+    ExtractionRequestModel,
+):
+    pass
+
+
+class CollectionsExtractionQueryParametersModel(
+    AoiQueryModel,
+    CollectionsFilterRequestModel,
     ExtractionRequestModel,
 ):
     pass
