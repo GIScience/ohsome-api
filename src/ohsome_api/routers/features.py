@@ -33,11 +33,6 @@ router = APIRouter(
     response_class=JSONResponse,
     response_model=SnapshotColumnsResponseModel,
     summary="Aggregate features by {measure} as time series.",
-    description=(
-        "Nodes, ways, and relations tagged as `type=multipolygon` "
-        "or `type=boundary` are included. "
-        "You can not derive statistics for all other relations."
-    ),
     tags=["Statistics"],
 )
 async def post_features_as_json(
