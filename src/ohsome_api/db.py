@@ -395,7 +395,6 @@ async def extract_features_collection(
     filter_where_clause: str,
     filter_args: tuple,
     aoi_wkt: str,
-    clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
     """Extract all features"""

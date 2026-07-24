@@ -218,7 +218,7 @@ async def extract_features_collections_as_parquet(
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
     collections_producer = db.extract_features_collection(
-        query_where_clause, query_args, aoi_wkt, clip, time
+        query_where_clause, query_args, aoi_wkt, time
     )
 
     # try to fetch first batch to check if we could get connection from database pool
