@@ -389,3 +389,145 @@ def extract_features(
         #   (e.g. GeometryType)
         db.fetch_batch(sql, *filter_args, aoi_wkt, time, batch_size=10000),
     )
+
+
+async def extract_features_collection(
+    filter_where_clause: str,
+    filter_args: tuple,
+    aoi_wkt: str,
+    clip: bool,
+    time: datetime | Literal["latest"],
+) -> AsyncIterator[list[ExtractionRow]]:
+    """Extract all features"""
+    filter_args_count = len(filter_args)
+
+    if time == "latest":
+        filter_by_time = f"""status_geom_type = ANY(array[
+           ('latest','GeometryCollection')::"{SCHEMA}".status_geom_type_type
+           ])
+           AND 'latest' = ${filter_args_count + 2}  -- always true
+        """
+    else:
+        filter_by_time = f"""status_geom_type = ANY(array[
+           ('latest','GeometryCollection')::"{SCHEMA}".status_geom_type_type,
+           ('history','GeometryCollection')::"{SCHEMA}".status_geom_type_type
+           ])
+           AND valid_from <= ${filter_args_count + 2}::timestamptz
+           AND valid_to > ${filter_args_count + 2}::timestamptz
+        """
+
+    sql = f"""
+        WITH aoi AS (
+            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) as geom
+        )
+        SELECT osm_type,
+               osm_id,
+               valid_from,
+               osm_version,
+               osm_minor_version,
+               osm_edits,
+               user_id,
+               user_name,
+               changeset_id,
+               tags,
+               ST_AsBinary(c.geom) as geom,
+               false as clipped,
+               ST_XMin(c.geom) as xmin,
+               ST_YMin(c.geom) as ymin,
+               ST_XMax(c.geom) as xmax,
+               ST_YMax(c.geom) as ymax
+        FROM "{SCHEMA}".contributions as c
+        JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
+        WHERE {filter_by_time}
+           AND ({filter_where_clause})
+    """  # noqa: S608
+
+    # TODO: make batch size configurable (maybe as function arg)
+    async for batch in db.fetch_batch(sql, *filter_args, aoi_wkt, time, batch_size=10):
+        yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
+
+
+async def extract_features_collection_members(  # noqa: PLR0915 -- todo: refactor to simplify complexity?
+    collections: list[ExtractionRow],
+    aoi_wkt: str,
+    clip: bool,
+    time: datetime | Literal["latest"],
+) -> list[ExtractionRow]:
+    ids = [item["osm_id"] for item in collections]
+    versions = [item["osm_version"] for item in collections]
+    collections_by_id = {}
+    for collection in collections:
+        collections_by_id[collection["osm_id"]] = collection
+    if time == "latest":
+        filter_by_time = f"""status_geom_type = ANY(array[
+           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
+           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
+           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ])
+           AND 'latest' = $2  -- always true
+        """
+    else:
+        filter_by_time = f"""status_geom_type = ANY(array[
+           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
+           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
+           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+           ('history','Point')::"{SCHEMA}".status_geom_type_type,
+           ('history','LineString')::"{SCHEMA}".status_geom_type_type,
+           ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
+           ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ])
+           AND valid_from <= $2::timestamptz
+           AND valid_to > $2::timestamptz
+        """
+    # TODO: ST_Union only for polygon case, otherwise ST_Collect should suffice
+    if clip:
+        select_geom_sql = (
+            "ST_Union(ST_Intersection(c.geom, aoi.geom)) AS geom, "
+            "count(*) FILTER (WHERE NOT ST_Within(c.geom, aoi.geom)) AS clipped_count "
+        )
+    else:
+        select_geom_sql = "ST_Union(c.geom) AS geom, 0 AS clipped_count "
+
+    sql = f"""
+        WITH aoi AS (
+            SELECT ST_GeomFromText($1, 4326) AS geom
+        )
+        SELECT
+            relation_id,
+            geom_type,
+            ST_AsBinary(geom) AS geom,
+            clipped_count > 0 as clipped,
+            ST_XMin(geom) as xmin,
+            ST_YMin(geom) as ymin,
+            ST_XMax(geom) as xmax,
+            ST_YMax(geom) as ymax
+        FROM (
+            SELECT collection.id AS relation_id,
+                (status_geom_type).geom_type as geom_type,
+                {select_geom_sql}
+            FROM "{SCHEMA}".contributions AS c
+            JOIN "{SCHEMA}".contributions_members m ON (
+                m.member_osm_type = c.osm_type
+                AND m.member_osm_id = c.osm_id)
+            JOIN unnest($3::int[], $4::int[]) AS collection(id, version) ON (
+                collection.id = m.relation_osm_id
+                AND collection.version = ANY(m.relation_osm_version_list))
+            JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
+            WHERE {filter_by_time}
+            GROUP BY collection.id, (status_geom_type).geom_type
+        )
+    """  # noqa: S608
+    members = await db.fetch_rows(sql, aoi_wkt, time, ids, versions)
+    result: list[ExtractionRow] = []
+    for member in members:
+        item = ExtractionRow(collections_by_id[member["relation_id"]])
+        item["geom"] = member["geom"]
+        item["clipped"] = member["clipped"]
+        item["xmin"] = member["xmin"]
+        item["ymin"] = member["ymin"]
+        item["xmax"] = member["xmax"]
+        item["ymax"] = member["ymax"]
+        result.append(item)
+    return result

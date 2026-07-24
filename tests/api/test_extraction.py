@@ -231,3 +231,18 @@ def test_extraction_deleted_features(
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
     table = parquet.read_table(io.BytesIO(response.content))
     assert table.num_rows == 0
+
+
+def test_extraction_route(client: TestClient):
+    response = client.post(
+        "/extraction/collections.parquet",
+        json={
+            "filter": "type=route and route=bus and service=night",
+            "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
+        },
+    )
+    assert response.status_code == HTTP_200_OK
+
+    response_file = io.BytesIO(response.content)
+    table = parquet.read_table(response_file)
+    assert table.num_rows == 3

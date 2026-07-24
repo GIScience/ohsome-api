@@ -206,3 +206,46 @@ async def extract_features_as_arrow(
         yield sink.read_bytes()
 
     return stream(first_batch)
+
+
+async def extract_features_collections_as_parquet(
+    ohsome_filter: OhsomeFilter,
+    aoi_wkt: str,
+    clip: bool,
+    time: datetime | Literal["latest"],
+) -> AsyncIterator[bytes]:
+    """Extract features from database batch wise."""
+    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
+
+    collections_producer = db.extract_features_collection(
+        query_where_clause, query_args, aoi_wkt, clip, time
+    )
+
+    # try to fetch first batch to check if we could get connection from database pool
+    first_batch = await anext(collections_producer)
+
+    async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
+        with ParquetSink() as sink:
+            yield sink.write_batch(
+                await db.extract_features_collection_members(
+                    first,
+                    aoi_wkt,
+                    clip,
+                    time,
+                )
+            )
+
+            async for batch in collections_producer:
+                yield sink.write_batch(
+                    await db.extract_features_collection_members(
+                        batch,
+                        aoi_wkt,
+                        clip,
+                        time,
+                    )
+                )
+
+        # after sink is closed metadata and footer is written
+        yield sink.read_bytes()
+
+    return stream(first_batch)

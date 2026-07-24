@@ -101,3 +101,46 @@ async def contributions_extract_as_arrow(
         media_type="application/vnd.apache.arrow",
         headers={"Content-Disposition": 'attachment; filename="extractions.arrow"'},
     )
+
+
+@router.post(
+    "/extraction/collections.parquet",
+    response_class=StreamingResponse,
+    summary="Download collections.",
+    tags=["Extraction"],
+)
+async def post_features_collections_extract(
+    parameters: ExtractionRequestParametersModel,
+) -> StreamingResponse:
+    return await features_collections_extract(parameters)
+
+
+@router.get(
+    "/extraction/collections.parquet",
+    response_class=StreamingResponse,
+    summary="Download collections.",
+    tags=["Extraction"],
+)
+async def get_features_collections_extract(
+    parameters: Annotated[
+        ExtractionQueryParametersModel,
+        Query(),
+    ],
+) -> StreamingResponse:
+    return await features_collections_extract(parameters)
+
+
+async def features_collections_extract(
+    parameters: ExtractionRequestParametersModel | ExtractionQueryParametersModel,
+) -> StreamingResponse:
+    stream = await service.extract_features_collections_as_parquet(
+        parameters.ohsome_filter,
+        parameters.aoi_wkt,
+        parameters.clip,
+        parameters.timestamp,
+    )
+    return StreamingResponse(
+        stream,
+        media_type="application/vnd.apache.parquet",
+        headers={"Content-Disposition": 'attachment; filename="extractions.parquet"'},
+    )
