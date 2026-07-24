@@ -30,22 +30,8 @@ METADATA_PROJECT = importlib.metadata.metadata("ohsome-api")
 td_adapter = TypeAdapter(timedelta)
 
 METADATA_TAGS = [
-    {
-        "name": "Statistics",
-        "description": (
-            "Nodes, ways, and relations tagged as `type=multipolygon` "
-            "or `type=boundary` are included. "
-            "You can not derive statistics for all other relations."
-        ),
-    },
-    {
-        "name": "Extraction",
-        "description": (
-            "Extract nodes, ways and relations. "
-            "In contrast to the statistics endpoints all relations are returned, "
-            "including their members geometries and OSM tags."
-        ),
-    },
+    {"name": "Statistics"},
+    {"name": "Extraction"},
     {"name": "Filter Validation"},
     {"name": "Metadata"},
 ]
