@@ -17,5 +17,5 @@ hurl --test *.hurl
 uvx schemathesis run \
     --phases examples \
     --tls-verify false \
-    https://staging-ohsome-api.heigitk8s.de/openapi.json
+    https://api.heigit.org/ohsome-api/v2/openapi.json
 ```
