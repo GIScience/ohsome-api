@@ -329,8 +329,10 @@ def extract_features(
             "ST_AsBinary(ST_Intersection(c.geom, aoi.geom)) as geom, "
             "NOT ST_Within( c.geom, aoi.geom ) as clipped "
         )
+        join_geom_sql = "JOIN aoi ON ST_Intersects(c.geom, aoi.geom)"
     else:
         select_geom_sql = "ST_AsBinary(c.geom) as geom, false as clipped "
+        join_geom_sql = ""
 
     if time == "latest":
         filter_by_time = f"""status_geom_type = ANY(array[
@@ -377,7 +379,7 @@ def extract_features(
                (status_geom_type).geom_type as geom_type,
                {select_geom_sql}
         FROM "{SCHEMA}".contributions as c
-        JOIN aoi ON (ST_Intersects(c.geom, aoi.geom))
+        {join_geom_sql}
         WHERE {filter_by_time}
            AND ({filter_where_clause})
     """  # noqa: S608
