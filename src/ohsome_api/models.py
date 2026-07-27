@@ -60,5 +60,6 @@ class ExtractionRow(TypedDict):
     xmax: float
     ymin: float
     ymax: float
+    geom_type: str
     geom: bytes
     clipped: bool

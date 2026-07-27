@@ -47,6 +47,7 @@ EXTRACTION_SCHEMA = schema(
                 ]
             ),
         ),
+        ("geom_type", string()),
         ("geom", binary()),
         ("clipped", bool_()),
     ]
@@ -117,6 +118,7 @@ def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
             [r["changeset_id"] for r in rows],
             [r["tags"] for r in rows],
             [bbox(r) for r in rows],
+            [r["geom_type"] for r in rows],
             [r["geom"] for r in rows],
             [r["clipped"] for r in rows],
         ],

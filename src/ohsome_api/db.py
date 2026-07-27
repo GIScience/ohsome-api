@@ -374,10 +374,11 @@ def extract_features(
                ST_YMin(c.geom) as ymin,
                ST_XMax(c.geom) as xmax,
                ST_YMax(c.geom) as ymax,
+               (status_geom_type).geom_type as geom_type,
                {select_geom_sql}
-        FROM "{SCHEMA}".contributions as c, aoi
+        FROM "{SCHEMA}".contributions as c
+        JOIN aoi ON (ST_Intersects(c.geom, aoi.geom))
         WHERE {filter_by_time}
-           AND ST_Intersects(c.geom, aoi.geom)
            AND ({filter_where_clause})
     """  # noqa: S608
 
@@ -429,6 +430,7 @@ async def extract_features_collection(
                user_name,
                changeset_id,
                tags,
+               (status_geom_type).geom_type as geom_type,
                ST_AsBinary(c.geom) as geom,
                false as clipped,
                ST_XMin(c.geom) as xmin,
@@ -483,11 +485,11 @@ async def extract_features_collection_members(  # noqa: PLR0915 -- todo: refacto
     # TODO: ST_Union only for polygon case, otherwise ST_Collect should suffice
     if clip:
         select_geom_sql = (
-            "ST_Union(ST_Intersection(c.geom, aoi.geom)) AS geom, "
+            "ST_Collect(ST_Intersection(c.geom, aoi.geom)) AS geom, "
             "count(*) FILTER (WHERE NOT ST_Within(c.geom, aoi.geom)) AS clipped_count "
         )
     else:
-        select_geom_sql = "ST_Union(c.geom) AS geom, 0 AS clipped_count "
+        select_geom_sql = "ST_Collect(c.geom) AS geom, 0 AS clipped_count "
 
     sql = f"""
         WITH aoi AS (
@@ -522,6 +524,7 @@ async def extract_features_collection_members(  # noqa: PLR0915 -- todo: refacto
     result: list[ExtractionRow] = []
     for member in members:
         item = ExtractionRow(collections_by_id[member["relation_id"]])
+        item["geom_type"] = member["geom_type"]
         item["geom"] = member["geom"]
         item["clipped"] = member["clipped"]
         item["xmin"] = member["xmin"]
