@@ -329,10 +329,8 @@ def extract_features(
             "ST_AsBinary(ST_Intersection(c.geom, aoi.geom)) as geom, "
             "NOT ST_Within( c.geom, aoi.geom ) as clipped "
         )
-        join_geom_sql = "JOIN aoi ON ST_Intersects(c.geom, aoi.geom)"
     else:
         select_geom_sql = "ST_AsBinary(c.geom) as geom, false as clipped "
-        join_geom_sql = ""
 
     if time == "latest":
         filter_by_time = f"""status_geom_type = ANY(array[
@@ -379,7 +377,7 @@ def extract_features(
                (status_geom_type).geom_type as geom_type,
                {select_geom_sql}
         FROM "{SCHEMA}".contributions as c
-        {join_geom_sql}
+        JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
         WHERE {filter_by_time}
            AND ({filter_where_clause})
     """  # noqa: S608
@@ -450,7 +448,7 @@ async def extract_features_collection(
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
 
-async def extract_features_collection_members(  # noqa: PLR0915 -- todo: refactor to simplify complexity?
+async def extract_features_collection_members(  # noqa: C901, PLR0915
     collections: list[ExtractionRow],
     aoi_wkt: str,
     clip: bool,
@@ -488,10 +486,17 @@ async def extract_features_collection_members(  # noqa: PLR0915 -- todo: refacto
     if clip:
         select_geom_sql = (
             "ST_Collect(ST_Intersection(c.geom, aoi.geom)) AS geom, "
-            "count(*) FILTER (WHERE NOT ST_Within(c.geom, aoi.geom)) AS clipped_count "
+            "count(*) FILTER (WHERE NOT ST_Within(c.geom, aoi.geom)) AS clipped_count,"
+            "count(*) AS intersects_count "
         )
+        join_geom_sql = "JOIN aoi ON ST_Intersects(c.geom, aoi.geom)"
     else:
-        select_geom_sql = "ST_Collect(c.geom) AS geom, 0 AS clipped_count "
+        select_geom_sql = (
+            "ST_Collect(c.geom) AS geom, "
+            "0 AS clipped_count, "
+            "count(aoi.geom) AS intersects_count "
+        )
+        join_geom_sql = "LEFT JOIN aoi ON ST_Intersects(c.geom, aoi.geom)"
 
     sql = f"""
         WITH aoi AS (
@@ -502,6 +507,7 @@ async def extract_features_collection_members(  # noqa: PLR0915 -- todo: refacto
             geom_type,
             ST_AsBinary(geom) AS geom,
             clipped_count > 0 as clipped,
+            intersects_count > 0 as intersects,
             ST_XMin(geom) as xmin,
             ST_YMin(geom) as ymin,
             ST_XMax(geom) as xmax,
@@ -517,7 +523,7 @@ async def extract_features_collection_members(  # noqa: PLR0915 -- todo: refacto
             JOIN unnest($3::int[], $4::int[]) AS collection(id, version) ON (
                 collection.id = m.relation_osm_id
                 AND collection.version = ANY(m.relation_osm_version_list))
-            JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
+            {join_geom_sql}
             WHERE {filter_by_time}
             GROUP BY collection.id, (status_geom_type).geom_type
         )
@@ -525,6 +531,8 @@ async def extract_features_collection_members(  # noqa: PLR0915 -- todo: refacto
     members = await db.fetch_rows(sql, aoi_wkt, time, ids, versions)
     result: list[ExtractionRow] = []
     for member in members:
+        if not clip and not member["intersects"]:
+            continue
         item = ExtractionRow(collections_by_id[member["relation_id"]])
         item["geom_type"] = member["geom_type"]
         item["geom"] = member["geom"]
