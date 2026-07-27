@@ -4,6 +4,7 @@ CREATE SECRET http_auth (
       'Authorization': getenv('OHSOME_API_KEY')
   }
 );
+SET force_download=true;
 
 SET VARIABLE ohsome_filter = 'building=* and geometry:polygon';
 SET VARIABLE timestamp = 'latest';
