@@ -82,7 +82,9 @@ class Database:
             connection.transaction(),
         ):
             batch: list[Record] = []
-            async for record in connection.cursor(sql, *args, prefetch=batch_size):
+            async for record in connection.cursor(
+                sql, *args, prefetch=batch_size, timeout=300
+            ):
                 batch.append(record)
                 if len(batch) >= batch_size:
                     yield batch
