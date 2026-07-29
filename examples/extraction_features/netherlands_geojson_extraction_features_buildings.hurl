@@ -6,7 +6,7 @@ typeNames: ohsome:admin_world_water
 outputFormat: application/json
 version: 2.0.0
 srsName: EPSG:4326
-CQL_FILTER: "id" IN (-47796)
+CQL_FILTER: "id" IN (-47796)  # netherlands
 
 HTTP 200
 
