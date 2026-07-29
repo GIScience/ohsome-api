@@ -17,6 +17,11 @@ export HURL_SECRET_API_KEY=
 hurl --test --file-root ./ --no-output --report-html report/  ./
 ```
 
+To test a single example:
+```
+hurl --test --file-root ./ --no-output extraction_features/global_bbox_extraction_features_hospitals.hurl 
+```
+
 ## Add a new hurl file
 To make it a bit easier to understand what each example is about, there is a proposed file name structure:
 
