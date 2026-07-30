@@ -75,9 +75,9 @@ class GroupByTagModel(BaseModel):
 class GroupByRequestModel(RequestConfigModel):
     group_by: Optional[GroupByTagModel] = Field(
         description=(
-            "(optional), if given indicates that the results should also"
-            "values for individual subsets of the result defined by the"
-            "presence of tags with the given key"
+            "(experimental, optional), if given indicates that the "
+            "results should also values for individual subsets of the "
+            "result defined by the presence of tags with the given key"
         ),
         json_schema_extra={
             "examples": [None],
