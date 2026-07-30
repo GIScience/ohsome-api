@@ -349,7 +349,9 @@ async def get_features_grouped_by_tag(
     timestamps: list[datetime] = list(zerofilled_totals.keys())
     total_values: list[int] = list(zerofilled_totals.values())
     group_by_values: dict[str, list[int]] = {
-        value: list(x.values()) for (value, x) in zerofilled_results.items()
+        value: list(x.values())
+        for (value, x) in zerofilled_results.items()
+        if value is not None
     }
     return SnapshotColumnsGrouped(
         timestamp=timestamps,
