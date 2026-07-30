@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import AsyncIterator, Literal, Optional
+from typing import AsyncIterator, Literal, Optional, cast
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
@@ -10,7 +10,9 @@ from ohsome_api.models import (
     MeasureEnum,
     Metadata,
     SnapshotColumns,
+    SnapshotColumnsGrouped,
     SnapshotRow,
+    SnapshotRowGroupedByTag,
     TimeBinColumns,
     TimeBinRow,
 )
@@ -119,15 +121,34 @@ async def get_features_rows(
     interval: str | None,
     aoi_wkt: str,
     measure: MeasureEnum,
-) -> list[SnapshotRow]:
+    group_by: Optional[GroupByTagModel],
+) -> list[SnapshotRow] | list[SnapshotRowGroupedByTag]:
     columns = await get_features_columns(
-        ohsome_filter, start, end, interval, aoi_wkt, measure, None
+        ohsome_filter, start, end, interval, aoi_wkt, measure, group_by
     )
 
-    return [
-        SnapshotRow(timestamp=ts, value=val)
-        for ts, val in zip(columns.timestamp, columns.value, strict=True)
-    ]
+    if group_by is not None:
+        columns_grouped: SnapshotColumnsGrouped = cast(SnapshotColumnsGrouped, columns)
+        timestamps = columns.timestamp
+        result: list[SnapshotRowGroupedByTag] = []
+        if columns_grouped.values is not None:
+            for tagvalue in columns_grouped.values:
+                result = result + [
+                    SnapshotRowGroupedByTag(timestamp=ts, value=val, tagvalue=tagvalue)
+                    for (ts, val) in zip(
+                        timestamps, columns_grouped.values[tagvalue], strict=True
+                    )
+                ]
+        result = result + [
+            SnapshotRowGroupedByTag(timestamp=ts, value=val, tagvalue="")
+            for (ts, val) in zip(timestamps, columns.value, strict=True)
+        ]
+        return result
+    else:
+        return [
+            SnapshotRow(timestamp=ts, value=val)
+            for (ts, val) in zip(columns.timestamp, columns.value, strict=True)
+        ]
 
 
 async def get_features_columns(

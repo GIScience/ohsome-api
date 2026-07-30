@@ -40,6 +40,10 @@ class SnapshotRow(BaseModel):
     timestamp: datetime
 
 
+class SnapshotRowGroupedByTag(SnapshotRow):
+    tagvalue: str
+
+
 class SnapshotColumns(BaseModel):
     timestamp: list[datetime]
     value: list[int]

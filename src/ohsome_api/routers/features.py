@@ -88,5 +88,6 @@ async def post_features_as_csv(
             interval=parameters.time_series.interval,
             aoi_wkt=parameters.aoi_wkt,
             measure=cast(MeasureEnum, measure),
+            group_by=parameters.group_by,
         )
     }

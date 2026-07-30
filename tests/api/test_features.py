@@ -91,3 +91,43 @@ timestamp;value
 2025-12-31T00:00:00Z;4
 """
     )
+
+
+def test_features_group_by_tag_as_csv(
+    client: TestClient, aoi_heigit: dict, expected_api_version: str
+):
+    response: Response = client.post(
+        "/stats/features/count.csv",
+        json={
+            "filter": "building=* and building!=no and type:way",
+            "timeSeries": {
+                "start": "2024-01-01",
+                "end": "2025-12-31",
+                "interval": "P1Y",
+            },
+            "aoi": aoi_heigit,
+            "groupBy": {
+                "type": "byTag",
+                "key": "building",
+            },
+        },
+    )
+    assert response.status_code == HTTP_200_OK
+    assert response.headers["content-type"] == "text/csv; charset=utf-8"
+    assert (
+        response.text
+        == f"""# apiVersion: {expected_api_version}
+# attribution.url: https://ohsome.org/copyrights
+# attribution.text: \xa9 OpenStreetMap contributors
+timestamp;value;tagvalue
+2024-01-01T00:00:00Z;2;university
+2025-01-01T00:00:00Z;2;university
+2025-12-31T00:00:00Z;3;university
+2024-01-01T00:00:00Z;1;greenhouse
+2025-01-01T00:00:00Z;1;greenhouse
+2025-12-31T00:00:00Z;1;greenhouse
+2024-01-01T00:00:00Z;3;
+2025-01-01T00:00:00Z;3;
+2025-12-31T00:00:00Z;4;
+"""
+    )

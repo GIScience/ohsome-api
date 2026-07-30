@@ -53,14 +53,27 @@ class CSVSnapshotsResponse(PlainTextResponse):
             [f"# attribution.url: {content['attribution']['url']}"],
             [f"# attribution.text: {content['attribution']['text']}"],
         ]
-        header = ["timestamp", "value"]
-        rows = [
-            (
-                r["timestamp"],
-                r["value"],
-            )
-            for r in content["result"]
-        ]
+        results = content["result"]
+        is_grouped_by_tag = len(results) > 0 and "tagvalue" in results[0]
+        if is_grouped_by_tag:
+            header = ["timestamp", "value", "tagvalue"]
+            rows = [
+                (
+                    r["timestamp"],
+                    r["value"],
+                    r["tagvalue"],
+                )
+                for r in results
+            ]
+        else:
+            header = ["timestamp", "value"]
+            rows = [
+                (
+                    r["timestamp"],
+                    r["value"],
+                )
+                for r in results
+            ]
         writer.writerows(comment)
         writer.writerow(header)
         writer.writerows(rows)
