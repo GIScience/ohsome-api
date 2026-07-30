@@ -9,6 +9,7 @@ from ohsome_api.models import (
     ExtractionRow,
     MeasureEnum,
     SnapshotColumns,
+    SnapshotColumnsGrouped,
     TimeBinColumns,
 )
 
@@ -271,6 +272,90 @@ async def get_features(
     timestamps: list[datetime] = list(zerofilled_series.keys())
     values: list[int] = list(zerofilled_series.values())
     return SnapshotColumns(timestamp=timestamps, value=values)
+
+
+async def get_features_grouped_by_tag(
+    filter_where_clause: str,
+    filter_args: tuple,
+    start: datetime,
+    end: datetime,
+    series: list[datetime],
+    aoi_wkt: str,
+    measure: MeasureEnum,
+    group_by_tag: str,
+) -> SnapshotColumnsGrouped:
+    filter_args_count = len(filter_args)
+    limit = CONFIG.group_by_time_series_size_limit
+    sql = f"""
+        WITH aoi AS (
+            SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
+        ),
+        series AS (
+            SELECT unnest(${filter_args_count + 3}::timestamptz[]) AS ts
+        )
+        SELECT
+            {aggregation_clause(measure)},
+            series.ts AS ts,
+            tags->>${filter_args_count + 5} as tag_value
+        FROM "{SCHEMA}".contributions c, aoi, series
+        WHERE 1=1
+            AND ({filter_where_clause})
+            -- global time filter
+            AND valid_from <= ${filter_args_count + 2}::timestamptz
+            AND valid_to > ${filter_args_count + 1}::timestamptz
+            AND ST_Intersects(c.geom, aoi.geom)
+            -- exclude deleted and invalid states
+            AND (status_geom_type).status in ('history', 'latest')
+            -- join by timestamp
+            AND valid_from <= series.ts
+            AND valid_to > series.ts
+        GROUP BY series.ts, tag_value
+        ORDER BY series.ts, tag_value
+        LIMIT {limit + 1}
+    """  # noqa: S608
+    records = await db.fetch_rows(
+        sql,
+        *filter_args,
+        start,
+        end,
+        series,
+        aoi_wkt,
+        group_by_tag,
+    )  # order matters!
+
+    # TODO: extract post-processing to function
+    zerofilled_totals = {ts: 0 for ts in series}
+    all_tags: set[str] = set()
+
+    for record in records:
+        zerofilled_totals[record["ts"]] = (
+            zerofilled_totals[record["ts"]] + record["value"]
+        )
+        all_tags.add(record["tag_value"])
+
+    if len(all_tags) * len(series) > limit:
+        raise TimeSeriesTooLargeError(
+            "The provided query produced too many results. The given "
+            "time series parameters in combination with the resulting"
+            f"group by tags lead to a result larger than {limit} rows."
+        )
+
+    zerofilled_results: dict[str, dict[datetime, int]] = dict()
+    for tag_value in all_tags:
+        zerofilled_results[tag_value] = {ts: 0 for ts in series}
+    for record in records:
+        zerofilled_results[record["tag_value"]][record["ts"]] = record["value"]
+
+    timestamps: list[datetime] = list(zerofilled_totals.keys())
+    total_values: list[int] = list(zerofilled_totals.values())
+    group_by_values: dict[str, list[int]] = {
+        value: list(x.values()) for (value, x) in zerofilled_results.items()
+    }
+    return SnapshotColumnsGrouped(
+        timestamp=timestamps,
+        value=total_values,
+        values=group_by_values,
+    )
 
 
 def extract_features(

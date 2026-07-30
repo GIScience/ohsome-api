@@ -8,7 +8,7 @@ from pydantic.alias_generators import to_camel
 
 from ohsome_api.models import (
     Attribution,
-    SnapshotColumns,
+    SnapshotColumnsGrouped,
     SnapshotRow,
     TimeBinColumns,
     TimeBinRow,
@@ -40,4 +40,4 @@ class SnapshotsResponseModel(BaseResponseModel):
 
 
 class SnapshotColumnsResponseModel(BaseResponseModel):
-    result: SnapshotColumns
+    result: SnapshotColumnsGrouped

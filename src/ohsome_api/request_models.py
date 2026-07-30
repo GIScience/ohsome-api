@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timedelta, timezone
 from enum import StrEnum
-from typing import Annotated, Any, Literal, Self
+from typing import Annotated, Any, Literal, Optional, Self
 
 from geojson_pydantic import MultiPolygon, Polygon
 from ohsome_filter_to_sql import OhsomeFilter
@@ -67,12 +67,33 @@ class CollectionsFilterRequestModel(RequestConfigModel):
     )
 
 
+class GroupByTagModel(BaseModel):
+    type: Literal["byTag"]
+    key: str
+
+
+class GroupByRequestModel(RequestConfigModel):
+    group_by: Optional[GroupByTagModel] = Field(
+        description=(
+            "(optional), if given indicates that the results should also"
+            "values for individual subsets of the result defined by the"
+            "presence of tags with the given key"
+        ),
+        json_schema_extra={
+            "examples": [None],
+        },
+        default=None,
+    )
+
+
 BBox = Annotated[
     tuple[float, float, float, float],
     Field(
         title="BoundingBox",
         description="Bounding Box (xmin, ymin, xmax, ymax)",
-        json_schema_extra={"example": (8.68812, 49.40390, 8.72362, 49.41582)},
+        json_schema_extra={
+            "example": (8.68812, 49.40390, 8.72362, 49.41582),
+        },
         # TODO: Specify length
     ),
 ]
@@ -431,5 +452,6 @@ class TimeSeriesRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
     TimeSeriesRequestModel,
+    GroupByRequestModel,
 ):
     pass

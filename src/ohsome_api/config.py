@@ -44,6 +44,7 @@ class Config(BaseSettings):
     )
     external_docs_url: str = "https://docs.ohsome.org/ohsome-api/v2"
     time_series_size_limit: int = 10_000
+    group_by_time_series_size_limit: int = 10_000_000
     model_config = SettingsConfigDict(
         env_prefix="OHSOME_API_",
         env_nested_delimiter="_",

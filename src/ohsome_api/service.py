@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import AsyncIterator, Literal
+from typing import AsyncIterator, Literal, Optional
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
@@ -15,6 +15,7 @@ from ohsome_api.models import (
     TimeBinRow,
 )
 from ohsome_api.parquet import ArrowSink, ParquetSink
+from ohsome_api.request_models import GroupByTagModel
 
 
 async def get_ohsomedb_metadata() -> Metadata:
@@ -120,7 +121,7 @@ async def get_features_rows(
     measure: MeasureEnum,
 ) -> list[SnapshotRow]:
     columns = await get_features_columns(
-        ohsome_filter, start, end, interval, aoi_wkt, measure
+        ohsome_filter, start, end, interval, aoi_wkt, measure, None
     )
 
     return [
@@ -136,6 +137,7 @@ async def get_features_columns(
     interval: str | None,
     aoi_wkt: str,
     measure: MeasureEnum,
+    group_by: Optional[GroupByTagModel],
 ) -> SnapshotColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
@@ -143,15 +145,27 @@ async def get_features_columns(
         end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, interval)
 
-    return await db.get_features(
-        query_where_clause,
-        query_args,
-        start,
-        end,
-        series,
-        aoi_wkt,
-        measure,
-    )
+    if group_by is None:
+        return await db.get_features(
+            query_where_clause,
+            query_args,
+            start,
+            end,
+            series,
+            aoi_wkt,
+            measure,
+        )
+    else:
+        return await db.get_features_grouped_by_tag(
+            query_where_clause,
+            query_args,
+            start,
+            end,
+            series,
+            aoi_wkt,
+            measure,
+            group_by.key,
+        )
 
 
 async def extract_features_as_parquet(
