@@ -84,57 +84,12 @@ async def get_currentness(
     measure: MeasureEnum,
 ) -> TimeBinColumns:
     filter_args_count = len(filter_args)
-    match measure:
-        case MeasureEnum.COUNT:
-            aggregation_clause = "COUNT(*) AS value"
-        case MeasureEnum.LENGTH:
-            # [m]
-            aggregation_clause = """
-            ROUND(
-                SUM(
-                    CASE
-                        WHEN ST_Within(
-                            c.geom,
-                            aoi.geom
-                        )
-                        THEN c.length -- Use precomputed length from ohsome-planet
-                        ELSE ST_Length(
-                            ST_Intersection(
-                                c.geom,
-                                aoi.geom
-                            )::geography
-                        )
-                    END
-                )
-            ) AS value
-        """
-        case MeasureEnum.AREA:
-            # [m²]
-            aggregation_clause = """
-            ROUND(
-                SUM(
-                    CASE
-                        WHEN ST_Within(
-                            c.geom,
-                            aoi.geom
-                        )
-                        THEN c.area -- Use precomputed area from ohsome-planet
-                        ELSE ST_Area(
-                            ST_Intersection(
-                                c.geom,
-                                aoi.geom
-                            )::geography
-                        )
-                    END
-                )
-            ) AS value
-        """
     sql = f"""
         WITH aoi AS (
             SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
         )
         SELECT
-            {aggregation_clause},
+            {aggregation_clause(measure)},
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
         FROM "{SCHEMA}".contributions c, aoi
         WHERE ({filter_where_clause})
@@ -215,22 +170,13 @@ def zerofill_records_to_time_bin_columns(
     return TimeBinColumns(start=start_timestamps, end=end_timestamps, value=values)
 
 
-async def get_features(
-    filter_where_clause: str,
-    filter_args: tuple,
-    start: datetime,
-    end: datetime,
-    series: list[datetime],
-    aoi_wkt: str,
-    measure: MeasureEnum,
-) -> SnapshotColumns:
-    filter_args_count = len(filter_args)
+def aggregation_clause(measure: MeasureEnum) -> str:
     match measure:
         case MeasureEnum.COUNT:
-            aggregation_clause = "COUNT(*) AS value"
+            return "COUNT(*) AS value"
         case MeasureEnum.LENGTH:
             # [m]
-            aggregation_clause = """
+            return """
             ROUND(
                 SUM(
                     CASE
@@ -248,10 +194,10 @@ async def get_features(
                     END
                 )
             ) AS value
-        """
+            """
         case MeasureEnum.AREA:
             # [m²]
-            aggregation_clause = """
+            return """
             ROUND(
                 SUM(
                     CASE
@@ -269,7 +215,19 @@ async def get_features(
                     END
                 )
             ) AS value
-        """
+            """
+
+
+async def get_features(
+    filter_where_clause: str,
+    filter_args: tuple,
+    start: datetime,
+    end: datetime,
+    series: list[datetime],
+    aoi_wkt: str,
+    measure: MeasureEnum,
+) -> SnapshotColumns:
+    filter_args_count = len(filter_args)
     sql = f"""
         WITH aoi AS (
             SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
@@ -278,7 +236,7 @@ async def get_features(
             SELECT unnest(${filter_args_count + 3}::timestamptz[]) AS ts
         )
         SELECT
-            {aggregation_clause},
+            {aggregation_clause(measure)},
             series.ts AS ts
         FROM "{SCHEMA}".contributions c, aoi, series
         WHERE 1=1
