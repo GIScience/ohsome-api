@@ -1,4 +1,4 @@
-POST {{BASE_URL}}/stats/features/count.json
+POST {{BASE_URL}}/stats/features/length.json
 Authorization: {{API_KEY}}
 Content-Type: application/json
 
