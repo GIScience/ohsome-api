@@ -665,6 +665,6 @@ async def extract_features_collection_members_features(
         WHERE {filter_by_time}
     """  # noqa: E501, S608
     async for batch in db.fetch_batch(
-        sql, aoi_wkt, time, ids, versions, batch_size=100
+        sql, aoi_wkt, time, ids, versions, batch_size=10000
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
