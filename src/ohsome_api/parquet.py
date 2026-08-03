@@ -24,7 +24,7 @@ from pyarrow.ipc import new_stream
 
 from ohsome_api.models import Attribution, ExtractionRow
 
-EXTRACTION_SCHEMA = schema(
+FEATURE_EXTRACTION_SCHEMA = schema(
     [
         ("osm_type", string()),
         ("osm_id", int64()),
@@ -36,6 +36,45 @@ EXTRACTION_SCHEMA = schema(
         ("osm_user_name", string()),
         ("osm_changeset_id", int64()),
         ("osm_tags", map_(string(), string())),
+        (
+            "bbox",
+            struct(
+                [
+                    ("xmin", float64()),
+                    ("xmax", float64()),
+                    ("ymin", float64()),
+                    ("ymax", float64()),
+                ]
+            ),
+        ),
+        ("geom_type", string()),
+        ("geom", binary()),
+        ("clipped", bool_()),
+    ]
+)
+
+MEMBER_EXTRACTION_SCHEMA = schema(
+    [
+        ("osm_type", string()),
+        ("osm_id", int64()),
+        ("last_edit", timestamp("us", tz="UTC")),
+        ("osm_version", int32()),
+        ("minor_version", int32()),
+        ("osm_edits", int32()),
+        ("osm_user_id", int32()),
+        ("osm_user_name", string()),
+        ("osm_changeset_id", int64()),
+        ("osm_tags", map_(string(), string())),
+        (
+            "part_of",
+            struct(
+                [
+                    ("osm_id", int64()),
+                    ("role", string()),
+                    ("pos", int32()),
+                ]
+            ),
+        ),
         (
             "bbox",
             struct(
@@ -104,6 +143,10 @@ def bbox(r: ExtractionRow) -> dict[str, float]:
     }
 
 
+def part_of(r: ExtractionRow) -> dict[str, int | str]:
+    return {"osm_id": r["part_of"], "role": r["part_of_role"], "pos": r["part_of_pos"]}
+
+
 def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
     return RecordBatch.from_arrays(
         [
@@ -122,7 +165,30 @@ def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
             [r["geom"] for r in rows],
             [r["clipped"] for r in rows],
         ],
-        schema=EXTRACTION_SCHEMA,
+        schema=FEATURE_EXTRACTION_SCHEMA,
+    )
+
+
+def record_batch_member(rows: list[ExtractionRow]) -> RecordBatch:
+    return RecordBatch.from_arrays(
+        [
+            [r["osm_type"] for r in rows],
+            [r["osm_id"] for r in rows],
+            [r["valid_from"].timestamp() * 1000000 for r in rows],
+            [r["osm_version"] for r in rows],
+            [r["osm_minor_version"] for r in rows],
+            [r["osm_edits"] for r in rows],
+            [r["user_id"] for r in rows],
+            [r["user_name"] for r in rows],
+            [r["changeset_id"] for r in rows],
+            [r["tags"] for r in rows],
+            [part_of(r) for r in rows],
+            [bbox(r) for r in rows],
+            [r["geom_type"] for r in rows],
+            [r["geom"] for r in rows],
+            [r["clipped"] for r in rows],
+        ],
+        schema=MEMBER_EXTRACTION_SCHEMA,
     )
 
 
@@ -140,6 +206,12 @@ class Sink(ABC):
         if not rows:
             return b""
         return self.write_batch_(rows)
+
+    def get_schema(self) -> schema:
+        return FEATURE_EXTRACTION_SCHEMA
+
+    def convert_batch(self, rows: list[ExtractionRow]) -> RecordBatch:
+        return record_batch(rows)
 
     @abstractmethod
     def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
@@ -164,10 +236,10 @@ class Sink(ABC):
 class ArrowSink(Sink):
     def __init__(self) -> None:
         super().__init__()
-        self.writer = new_stream(self.buffer, EXTRACTION_SCHEMA)
+        self.writer = new_stream(self.buffer, self.get_schema())
 
     def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
-        batch = record_batch(rows)
+        batch = self.convert_batch(rows)
         self.writer.write_batch(batch)
         return self.read_bytes()
 
@@ -187,12 +259,12 @@ class ParquetSink(Sink):
         self.ymax = float("-inf")
         self.writer = parquet.ParquetWriter(
             self.buffer,
-            schema=EXTRACTION_SCHEMA,
+            schema=self.get_schema(),
             compression="zstd",
         )
 
     def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
-        batch = record_batch(rows)
+        batch = self.convert_batch(rows)
         # Which group size should we use?
         self.writer.write(batch, row_group_size=10000)
 
@@ -214,3 +286,19 @@ class ParquetSink(Sink):
     def close(self) -> None:
         self._write_metadata()
         self.writer.close()
+
+
+class MemberParquetSink(ParquetSink):
+    def get_schema(self) -> schema:
+        return MEMBER_EXTRACTION_SCHEMA
+
+    def convert_batch(self, rows: list[ExtractionRow]) -> RecordBatch:
+        return record_batch_member(rows)
+
+
+class MemberArrowSink(ArrowSink):
+    def get_schema(self) -> schema:
+        return MEMBER_EXTRACTION_SCHEMA
+
+    def convert_batch(self, rows: list[ExtractionRow]) -> RecordBatch:
+        return record_batch_member(rows)

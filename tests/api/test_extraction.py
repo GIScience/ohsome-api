@@ -244,5 +244,42 @@ def test_extraction_route(client: TestClient):
     assert response.status_code == HTTP_200_OK
 
     response_file = io.BytesIO(response.content)
+
     table = parquet.read_table(response_file)
     assert table.num_rows == 3
+
+
+def test_extraction_route_members(client: TestClient):
+    response = client.post(
+        "/extraction/collections_members.parquet",
+        json={
+            "filter": "type=route and route=bus and service=night",
+            "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
+        },
+    )
+    assert response.status_code == HTTP_200_OK
+
+    response_file = io.BytesIO(response.content)
+
+    with open("collection_members.parquet", "wb") as f:
+        f.write(response_file.getvalue())
+
+    table = parquet.read_table(response_file)
+    assert table.num_rows == 3
+
+
+def test_extraction_route_members_no_clip(client: TestClient):
+    response = client.post(
+        "/extraction/collections_members.parquet",
+        json={
+            "filter": "type=route and route=bus and service=night",
+            "clip": False,
+            "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
+        },
+    )
+    assert response.status_code == HTTP_200_OK
+
+    response_file = io.BytesIO(response.content)
+
+    table = parquet.read_table(response_file)
+    assert table.num_rows == 70

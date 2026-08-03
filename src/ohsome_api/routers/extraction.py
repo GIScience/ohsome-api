@@ -122,6 +122,12 @@ FEATURES_COLLECTIONS_EXTRACT_DESCRIPTION = (
     "For each relation a separate row is returned for their linear, polygonal "
     "or point members"
 )
+
+FEATURES_COLLECTIONS_MEMBERS_EXTRACT_DESCRIPTION = (
+    "Returns relations (not tagged as `type=multipolygon` or `type=boundary`) members."
+    "For each relation all members features are returned row by row."
+)
+
 FEATURES_COLLECTIONS_EXTRACT_EXAMPLE = {
     "example": {
         "filter": "type:relation and type=route and route=bus and service=night",
@@ -174,5 +180,53 @@ async def features_collections_extract(
     return StreamingResponse(
         stream,
         media_type="application/vnd.apache.parquet",
-        headers={"Content-Disposition": 'attachment; filename="extractions.parquet"'},
+        headers={"Content-Disposition": 'attachment; filename="collections.parquet"'},
+    )
+
+
+@router.post(
+    "/extraction/collections_members.parquet",
+    response_class=StreamingResponse,
+    summary="Download collections members.",
+    description=FEATURES_COLLECTIONS_MEMBERS_EXTRACT_DESCRIPTION,
+    tags=["Extraction"],
+)
+async def post_features_collections_members_extract(
+    parameters: CollectionsExtractionRequestParametersModel,
+) -> StreamingResponse:
+    return await features_collections_members_extract(parameters)
+
+
+@router.get(
+    "/extraction/collections_members.parquet",
+    response_class=StreamingResponse,
+    summary="Download collections members.",
+    description=FEATURES_COLLECTIONS_MEMBERS_EXTRACT_DESCRIPTION,
+    tags=["Extraction"],
+)
+async def get_features_collections_members_extract(
+    parameters: Annotated[
+        CollectionsExtractionQueryParametersModel,
+        Query(),
+    ],
+) -> StreamingResponse:
+    return await features_collections_members_extract(parameters)
+
+
+async def features_collections_members_extract(
+    parameters: CollectionsExtractionRequestParametersModel
+    | CollectionsExtractionQueryParametersModel,
+) -> StreamingResponse:
+    stream = await service.extract_features_collections_members_as_parquet(
+        parameters.ohsome_filter,
+        parameters.aoi_wkt,
+        parameters.clip,
+        parameters.timestamp,
+    )
+    return StreamingResponse(
+        stream,
+        media_type="application/vnd.apache.parquet",
+        headers={
+            "Content-Disposition": 'attachment; filename="collections_members.parquet"'
+        },
     )

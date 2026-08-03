@@ -76,3 +76,6 @@ class ExtractionRow(TypedDict):
     geom_type: str
     geom: bytes
     clipped: bool
+    part_of: int
+    part_of_role: str
+    part_of_pos: int

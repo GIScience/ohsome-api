@@ -371,7 +371,7 @@ def extract_features(
     filter_args_count = len(filter_args)
     if clip:
         select_geom_sql = (
-            "ST_AsBinary(ST_Intersection(c.geom, aoi.geom)) as geom, "
+            "ST_AsBinary(CASE WHEN ST_Within(c.geom, aoi.geom) THEN c.geom ELSE ST_Intersection(c.geom, aoi.geom) END) AS geom, "  # noqa: E501
             "NOT ST_Within( c.geom, aoi.geom ) as clipped "
         )
     else:
@@ -493,7 +493,7 @@ async def extract_features_collection(
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
 
-async def extract_features_collection_members(  # noqa: C901, PLR0915
+async def extract_features_collection_members_collections(  # noqa: C901, PLR0915
     collections: list[ExtractionRow],
     aoi_wkt: str,
     clip: bool,
@@ -588,3 +588,83 @@ async def extract_features_collection_members(  # noqa: C901, PLR0915
         item["ymax"] = member["ymax"]
         result.append(item)
     return result
+
+
+async def extract_features_collection_members_features(
+    collections: list[ExtractionRow],
+    aoi_wkt: str,
+    clip: bool,
+    time: datetime | Literal["latest"],
+) -> AsyncIterator[list[ExtractionRow]]:
+    ids = [item["osm_id"] for item in collections]
+    versions = [item["osm_version"] for item in collections]
+    if time == "latest":
+        filter_by_time = f"""status_geom_type = ANY(array[
+           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
+           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
+           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ])
+           AND 'latest' = $2  -- always true
+        """
+    else:
+        filter_by_time = f"""status_geom_type = ANY(array[
+           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
+           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
+           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+           ('history','Point')::"{SCHEMA}".status_geom_type_type,
+           ('history','LineString')::"{SCHEMA}".status_geom_type_type,
+           ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
+           ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ])
+           AND valid_from <= $2::timestamptz
+           AND valid_to > $2::timestamptz
+        """
+    if clip:
+        select_geom_sql = (
+            "ST_AsBinary(ST_Intersection(c.geom, aoi.geom)) as geom, "
+            "NOT ST_Within( c.geom, aoi.geom ) as clipped "
+        )
+        join_geom_sql = "JOIN aoi ON ST_Intersects(c.geom, aoi.geom)"
+    else:
+        select_geom_sql = "ST_AsBinary(c.geom) as geom, false as clipped "
+        join_geom_sql = ""
+
+    sql = f"""
+        WITH aoi AS (
+            SELECT ST_GeomFromText($1, 4326) AS geom
+        )
+        SELECT osm_type,
+               osm_id,
+               valid_from,
+               osm_version,
+               osm_minor_version,
+               osm_edits,
+               user_id,
+               user_name,
+               changeset_id,
+               tags,
+               m.relation_osm_id as part_of,
+               m.member_role as part_of_role,
+               m.member_pos_list[array_position(m.relation_osm_version_list , col.version)] as part_of_pos,
+               ST_XMin(c.geom) as xmin,
+               ST_YMin(c.geom) as ymin,
+               ST_XMax(c.geom) as xmax,
+               ST_YMax(c.geom) as ymax,
+               (status_geom_type).geom_type as geom_type,
+               {select_geom_sql}
+        FROM unnest($3::int[], $4::int[]) AS col(id, version)
+        JOIN "{SCHEMA}".contributions_members m ON (
+            col.id = m.relation_osm_id
+            AND col.version = ANY(m.relation_osm_version_list))
+        JOIN "{SCHEMA}".contributions AS c ON (
+            m.member_osm_type = c.osm_type
+            AND m.member_osm_id = c.osm_id)
+        {join_geom_sql}
+        WHERE {filter_by_time}
+    """  # noqa: E501, S608
+    async for batch in db.fetch_batch(
+        sql, aoi_wkt, time, ids, versions, batch_size=100
+    ):
+        yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
