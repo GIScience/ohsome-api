@@ -132,6 +132,7 @@ FEATURES_COLLECTIONS_EXTRACT_EXAMPLE = {
     "example": {
         "filter": "type:relation and type=route and route=bus and service=night",
         "timestamp": "latest",
+        "member_filter": "geometry:line",
         "aoi": [8.68812, 49.4039, 8.72362, 49.41582],
         "clip": True,
     }
