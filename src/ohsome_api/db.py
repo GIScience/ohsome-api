@@ -495,12 +495,17 @@ async def extract_features_collection(
 
 async def extract_features_collection_members_collections(  # noqa: C901, PLR0915
     collections: list[ExtractionRow],
+    filter_where_clause: str,
+    filter_args: tuple,
     aoi_wkt: str,
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> list[ExtractionRow]:
     ids = [item["osm_id"] for item in collections]
     versions = [item["osm_version"] for item in collections]
+
+    filter_args_count = len(filter_args)
+
     collections_by_id = {}
     for collection in collections:
         collections_by_id[collection["osm_id"]] = collection
@@ -511,7 +516,7 @@ async def extract_features_collection_members_collections(  # noqa: C901, PLR091
            ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
            ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
            ])
-           AND 'latest' = $2  -- always true
+           AND 'latest' = ${filter_args_count + 2}  -- always true
         """
     else:
         filter_by_time = f"""status_geom_type = ANY(array[
@@ -524,8 +529,8 @@ async def extract_features_collection_members_collections(  # noqa: C901, PLR091
            ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
            ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
            ])
-           AND valid_from <= $2::timestamptz
-           AND valid_to > $2::timestamptz
+           AND valid_from <= ${filter_args_count + 2}::timestamptz
+           AND valid_to > ${filter_args_count + 2}::timestamptz
         """
     # TODO: ST_Union only for polygon case, otherwise ST_Collect should suffice
     if clip:
@@ -545,7 +550,7 @@ async def extract_features_collection_members_collections(  # noqa: C901, PLR091
 
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText($1, 4326) AS geom
+            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) AS geom
         )
         SELECT
             relation_id,
@@ -565,15 +570,15 @@ async def extract_features_collection_members_collections(  # noqa: C901, PLR091
             JOIN "{SCHEMA}".contributions_members m ON (
                 m.member_osm_type = c.osm_type
                 AND m.member_osm_id = c.osm_id)
-            JOIN unnest($3::int[], $4::int[]) AS collection(id, version) ON (
+            JOIN unnest(${filter_args_count + 3}::int[], ${filter_args_count + 4}::int[]) AS collection(id, version) ON (
                 collection.id = m.relation_osm_id
                 AND collection.version = ANY(m.relation_osm_version_list))
             {join_geom_sql}
-            WHERE {filter_by_time}
+            WHERE {filter_by_time} and ({filter_where_clause})
             GROUP BY collection.id, (status_geom_type).geom_type
         )
-    """  # noqa: S608
-    members = await db.fetch_rows(sql, aoi_wkt, time, ids, versions)
+    """  # noqa: E501, S608
+    members = await db.fetch_rows(sql, *filter_args, aoi_wkt, time, ids, versions)
     result: list[ExtractionRow] = []
     for member in members:
         if not clip and not member["intersects"]:
@@ -592,12 +597,17 @@ async def extract_features_collection_members_collections(  # noqa: C901, PLR091
 
 async def extract_features_collection_members_features(
     collections: list[ExtractionRow],
+    filter_where_clause: str,
+    filter_args: tuple,
     aoi_wkt: str,
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
     ids = [item["osm_id"] for item in collections]
     versions = [item["osm_version"] for item in collections]
+
+    filter_args_count = len(filter_args)
+
     if time == "latest":
         filter_by_time = f"""status_geom_type = ANY(array[
            ('latest','Point')::"{SCHEMA}".status_geom_type_type,
@@ -605,7 +615,7 @@ async def extract_features_collection_members_features(
            ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
            ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
            ])
-           AND 'latest' = $2  -- always true
+           AND 'latest' =  ${filter_args_count + 2}  -- always true
         """
     else:
         filter_by_time = f"""status_geom_type = ANY(array[
@@ -618,8 +628,8 @@ async def extract_features_collection_members_features(
            ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
            ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
            ])
-           AND valid_from <= $2::timestamptz
-           AND valid_to > $2::timestamptz
+           AND valid_from <= ${filter_args_count + 2}::timestamptz
+           AND valid_to > ${filter_args_count + 2}::timestamptz
         """
     if clip:
         select_geom_sql = (
@@ -633,7 +643,7 @@ async def extract_features_collection_members_features(
 
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText($1, 4326) AS geom
+            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) AS geom
         )
         SELECT osm_type,
                osm_id,
@@ -654,7 +664,7 @@ async def extract_features_collection_members_features(
                ST_YMax(c.geom) as ymax,
                (status_geom_type).geom_type as geom_type,
                {select_geom_sql}
-        FROM unnest($3::int[], $4::int[]) AS col(id, version)
+        FROM unnest(${filter_args_count + 3}::int[], ${filter_args_count + 4}::int[]) AS col(id, version)
         JOIN "{SCHEMA}".contributions_members m ON (
             col.id = m.relation_osm_id
             AND col.version = ANY(m.relation_osm_version_list))
@@ -663,8 +673,9 @@ async def extract_features_collection_members_features(
             AND m.member_osm_id = c.osm_id)
         {join_geom_sql}
         WHERE {filter_by_time}
+          AND ({filter_where_clause})
     """  # noqa: E501, S608
     async for batch in db.fetch_batch(
-        sql, aoi_wkt, time, ids, versions, batch_size=10000
+        sql, *filter_args, aoi_wkt, time, ids, versions, batch_size=10000
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]

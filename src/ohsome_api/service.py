@@ -243,6 +243,7 @@ async def extract_features_as_arrow(
 
 async def extract_features_collections(
     ohsome_filter: OhsomeFilter,
+    member_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
     time: datetime | Literal["latest"],
@@ -259,10 +260,14 @@ async def extract_features_collections(
     first_batch = await anext(collections_producer)
 
     async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
+        member_where_clause, member_args = ohsome_filter_to_sql(member_filter)
+
         with sink_type() as sink:
             yield sink.write_batch(
                 await db.extract_features_collection_members_collections(
                     first,
+                    member_where_clause,
+                    member_args,
                     aoi_wkt,
                     clip,
                     time,
@@ -273,6 +278,8 @@ async def extract_features_collections(
                 yield sink.write_batch(
                     await db.extract_features_collection_members_collections(
                         batch,
+                        member_where_clause,
+                        member_args,
                         aoi_wkt,
                         clip,
                         time,
@@ -287,28 +294,31 @@ async def extract_features_collections(
 
 async def extract_features_collections_as_parquet(
     ohsome_filter: OhsomeFilter,
+    member_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[bytes]:
     return await extract_features_collections(
-        ohsome_filter, aoi_wkt, clip, time, ParquetSink
+        ohsome_filter, member_filter, aoi_wkt, clip, time, ParquetSink
     )
 
 
 async def extract_features_collections_as_arrow(
     ohsome_filter: OhsomeFilter,
+    member_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[bytes]:
     return await extract_features_collections(
-        ohsome_filter, aoi_wkt, clip, time, ArrowSink
+        ohsome_filter, member_filter, aoi_wkt, clip, time, ArrowSink
     )
 
 
 async def extract_features_collections_members(
     ohsome_filter: OhsomeFilter,
+    member_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
     time: datetime | Literal["latest"],
@@ -325,9 +335,13 @@ async def extract_features_collections_members(
     first_batch = await anext(collections_producer)
 
     async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
+        member_where_clause, member_query_args = ohsome_filter_to_sql(member_filter)
+
         with sink_type() as sink:
             async for members in db.extract_features_collection_members_features(
                 first,
+                member_where_clause,
+                member_query_args,
                 aoi_wkt,
                 clip,
                 time,
@@ -337,6 +351,8 @@ async def extract_features_collections_members(
             async for batch in collections_producer:
                 async for member in db.extract_features_collection_members_features(
                     batch,
+                    member_where_clause,
+                    member_query_args,
                     aoi_wkt,
                     clip,
                     time,
@@ -351,21 +367,23 @@ async def extract_features_collections_members(
 
 async def extract_features_collections_members_as_parquet(
     ohsome_filter: OhsomeFilter,
+    member_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[bytes]:
     return await extract_features_collections_members(
-        ohsome_filter, aoi_wkt, clip, time, MemberParquetSink
+        ohsome_filter, member_filter, aoi_wkt, clip, time, MemberParquetSink
     )
 
 
 async def extract_features_collections_members_as_arrow(
     ohsome_filter: OhsomeFilter,
+    member_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[bytes]:
     return await extract_features_collections_members(
-        ohsome_filter, aoi_wkt, clip, time, MemberArrowSink
+        ohsome_filter, member_filter, aoi_wkt, clip, time, MemberArrowSink
     )

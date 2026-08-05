@@ -112,7 +112,7 @@ async def contributions_extract_as_arrow(
     return StreamingResponse(
         stream,
         media_type="application/vnd.apache.arrow",
-        headers={"Content-Disposition": 'attachment; filename="extractions.arrow"'},
+        headers={"Content-Disposition": "attachment"},
     )
 
 
@@ -173,6 +173,7 @@ async def features_collections_extract(
 ) -> StreamingResponse:
     stream = await service.extract_features_collections_as_parquet(
         parameters.ohsome_filter,
+        parameters.member_filter,
         parameters.aoi_wkt,
         parameters.clip,
         parameters.timestamp,
@@ -180,7 +181,7 @@ async def features_collections_extract(
     return StreamingResponse(
         stream,
         media_type="application/vnd.apache.parquet",
-        headers={"Content-Disposition": 'attachment; filename="collections.parquet"'},
+        headers={"Content-Disposition": "attachment"},
     )
 
 
@@ -219,6 +220,7 @@ async def features_collections_members_extract(
 ) -> StreamingResponse:
     stream = await service.extract_features_collections_members_as_parquet(
         parameters.ohsome_filter,
+        parameters.member_filter,
         parameters.aoi_wkt,
         parameters.clip,
         parameters.timestamp,

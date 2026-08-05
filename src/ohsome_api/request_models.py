@@ -67,6 +67,19 @@ class CollectionsFilterRequestModel(RequestConfigModel):
     )
 
 
+class CollectionsMemberFilterRequestModel(RequestConfigModel):
+    member_filter: OhsomeFilter = Field(
+        alias="member_filter",
+        description=(
+            "Filter for OSM data. "
+            "Please refer to the [ohsome filter language documentation]"
+            f"({CONFIG.external_docs_url}/reference.html#filter)"
+        ),
+        json_schema_extra={"example": "geometry:line"},
+        default="*",
+    )
+
+
 class GroupByTagModel(BaseModel):
     type: Literal["byTag"]
     key: str
@@ -427,6 +440,7 @@ class ExtractionQueryParametersModel(
 class CollectionsExtractionRequestParametersModel(
     AoiRequestModel,
     CollectionsFilterRequestModel,
+    CollectionsMemberFilterRequestModel,
     ExtractionRequestModel,
 ):
     pass
@@ -435,6 +449,7 @@ class CollectionsExtractionRequestParametersModel(
 class CollectionsExtractionQueryParametersModel(
     AoiQueryModel,
     CollectionsFilterRequestModel,
+    CollectionsMemberFilterRequestModel,
     ExtractionRequestModel,
 ):
     pass
