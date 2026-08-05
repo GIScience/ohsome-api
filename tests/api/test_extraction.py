@@ -31,7 +31,10 @@ def test_extraction_latest(
 
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
-    assert response.headers["content-disposition"] == "attachment"
+    assert (
+        response.headers["content-disposition"]
+        == 'attachment; filename="features.parquet"'
+    )
 
     response_file = io.BytesIO(response.content)
     table = parquet.read_table(response_file)
@@ -97,7 +100,10 @@ def test_extraction_latest_get(
     # NOTE: Same asserts as previous test
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
-    assert response.headers["content-disposition"] == "attachment"
+    assert (
+        response.headers["content-disposition"]
+        == 'attachment; filename="features.parquet"'
+    )
 
     response_file = io.BytesIO(response.content)
     table = parquet.read_table(response_file)
