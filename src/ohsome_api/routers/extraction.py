@@ -67,7 +67,7 @@ async def contributions_extract(
     return StreamingResponse(
         stream,
         media_type="application/vnd.apache.parquet",
-        headers={"Content-Disposition": "attachment"},
+        headers={"Content-Disposition": 'attachment; filename="features.parquet"'},
     )
 
 
@@ -112,7 +112,7 @@ async def contributions_extract_as_arrow(
     return StreamingResponse(
         stream,
         media_type="application/vnd.apache.arrow",
-        headers={"Content-Disposition": "attachment"},
+        headers={"Content-Disposition": 'attachment; filename="features.arrow"'},
     )
 
 
@@ -182,7 +182,7 @@ async def features_collections_extract(
     return StreamingResponse(
         stream,
         media_type="application/vnd.apache.parquet",
-        headers={"Content-Disposition": "attachment"},
+        headers={"Content-Disposition": 'attachment; filename="collections.parquet"'},
     )
 
 
@@ -229,5 +229,7 @@ async def features_collections_members_extract(
     return StreamingResponse(
         stream,
         media_type="application/vnd.apache.parquet",
-        headers={"Content-Disposition": "attachment"},
+        headers={
+            "Content-Disposition": 'attachment; filename="collections_members.parquet"'
+        },
     )
