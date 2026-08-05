@@ -67,7 +67,7 @@ async def contributions_extract(
     return StreamingResponse(
         stream,
         media_type="application/vnd.apache.parquet",
-        headers={"Content-Disposition": 'attachment; filename="extractions.parquet"'},
+        headers={"Content-Disposition": "attachment"},
     )
 
 
@@ -229,7 +229,5 @@ async def features_collections_members_extract(
     return StreamingResponse(
         stream,
         media_type="application/vnd.apache.parquet",
-        headers={
-            "Content-Disposition": 'attachment; filename="collections_members.parquet"'
-        },
+        headers={"Content-Disposition": "attachment"},
     )

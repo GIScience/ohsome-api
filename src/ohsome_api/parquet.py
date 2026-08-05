@@ -65,16 +65,9 @@ MEMBER_EXTRACTION_SCHEMA = schema(
         ("osm_user_name", string()),
         ("osm_changeset_id", int64()),
         ("osm_tags", map_(string(), string())),
-        (
-            "part_of",
-            struct(
-                [
-                    ("osm_id", int64()),
-                    ("role", string()),
-                    ("pos", int32()),
-                ]
-            ),
-        ),
+        ("collection_osm_id", int64()),
+        ("member_role", string()),
+        ("member_pos", int32()),
         (
             "bbox",
             struct(
@@ -143,10 +136,6 @@ def bbox(r: ExtractionRow) -> dict[str, float]:
     }
 
 
-def part_of(r: ExtractionRow) -> dict[str, int | str]:
-    return {"osm_id": r["part_of"], "role": r["part_of_role"], "pos": r["part_of_pos"]}
-
-
 def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
     return RecordBatch.from_arrays(
         [
@@ -182,7 +171,9 @@ def record_batch_member(rows: list[ExtractionRow]) -> RecordBatch:
             [r["user_name"] for r in rows],
             [r["changeset_id"] for r in rows],
             [r["tags"] for r in rows],
-            [part_of(r) for r in rows],
+            [r["part_of"] for r in rows],
+            [r["part_of_role"] for r in rows],
+            [r["part_of_pos"] for r in rows],
             [bbox(r) for r in rows],
             [r["geom_type"] for r in rows],
             [r["geom"] for r in rows],
