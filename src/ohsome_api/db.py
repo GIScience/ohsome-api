@@ -365,19 +365,31 @@ def extract_features(
     filter_args: tuple,
     aoi_wkt: str,
     clip: bool,
-    time: datetime | Literal["latest"],
+    start: datetime | Literal["earliest", "latest"],
+    end: datetime | Literal["latest"],
+    contributions: bool,
 ) -> AsyncIterator[list[ExtractionRow]]:
     """Extract all features"""
     filter_args_count = len(filter_args)
     if clip:
         select_geom_sql = (
-            "ST_AsBinary(CASE WHEN ST_Within(c.geom, aoi.geom) THEN c.geom ELSE ST_Intersection(c.geom, aoi.geom) END) AS geom, "  # noqa: E501
-            "NOT ST_Within( c.geom, aoi.geom ) as clipped "
+            "CASE WHEN ST_Within(c.geom, aoi.geom) THEN c.geom ELSE ST_Intersection(c.geom, aoi.geom) END AS geometry, "  # noqa: E501
+            "NOT ST_Within(c.geom, aoi.geom ) as clipped "
         )
     else:
-        select_geom_sql = "ST_AsBinary(c.geom) as geom, false as clipped "
+        select_geom_sql = "c.geom as geometry, false as clipped "
 
-    if time == "latest":
+    if contributions:
+        filter_by_time_contributions = f"""
+            AND valid_from between ${filter_args_count + 2}::timestamptz and valid_to between ${filter_args_count + 3}::timestamptz
+        """  # noqa: E501
+    else:
+        filter_by_time_contributions = f"""
+            AND valid_to > ${filter_args_count + 2}::timestamptz
+            AND valid_from <= ${filter_args_count + 3}::timestamptz
+        """
+
+    if start == "latest":
         filter_by_time = f"""status_geom_type = ANY(array[
            ('latest','Point')::"{SCHEMA}".status_geom_type_type,
            ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
@@ -385,6 +397,7 @@ def extract_features(
            ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
            ])
            AND 'latest' = ${filter_args_count + 2}  -- always true
+           AND 'latest' = ${filter_args_count + 3}  -- always true
         """
     else:
         filter_by_time = f"""status_geom_type = ANY(array[
@@ -397,8 +410,7 @@ def extract_features(
            ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
            ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
            ])
-           AND valid_from <= ${filter_args_count + 2}::timestamptz
-           AND valid_to > ${filter_args_count + 2}::timestamptz
+           {filter_by_time_contributions}
         """
 
     sql = f"""
@@ -408,6 +420,7 @@ def extract_features(
         SELECT osm_type,
                osm_id,
                valid_from,
+               valid_to,
                osm_version,
                osm_minor_version,
                osm_edits,
@@ -415,16 +428,22 @@ def extract_features(
                user_name,
                changeset_id,
                tags,
-               ST_XMin(c.geom) as xmin,
-               ST_YMin(c.geom) as ymin,
-               ST_XMax(c.geom) as xmax,
-               ST_YMax(c.geom) as ymax,
+               ST_XMin(geometry) as xmin,
+               ST_YMin(geometry) as ymin,
+               ST_XMax(geometry) as xmax,
+               ST_YMax(geometry) as ymax,
+               geom_type,
+               ST_AsBinary(geometry) as geom,
+               clipped
+        FROM (
+        SELECT *,
                (status_geom_type).geom_type as geom_type,
                {select_geom_sql}
         FROM "{SCHEMA}".contributions as c
         JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
         WHERE {filter_by_time}
            AND ({filter_where_clause})
+        ) as c
     """  # noqa: S608
 
     # cast generic asyncpg Record to ExtractionRow
@@ -433,7 +452,7 @@ def extract_features(
         AsyncIterator[list[ExtractionRow]],
         # PERF: batch_size should be different depending on expected row size
         #   (e.g. GeometryType)
-        db.fetch_batch(sql, *filter_args, aoi_wkt, time, batch_size=10000),
+        db.fetch_batch(sql, *filter_args, aoi_wkt, start, end, batch_size=10000),
     )
 
 
@@ -468,6 +487,7 @@ async def extract_features_collection(
         SELECT osm_type,
                osm_id,
                valid_from,
+               valid_to,
                osm_version,
                osm_minor_version,
                osm_edits,
@@ -648,6 +668,7 @@ async def extract_features_collection_members_features(
         SELECT osm_type,
                osm_id,
                valid_from,
+               valid_to,
                osm_version,
                osm_minor_version,
                osm_edits,

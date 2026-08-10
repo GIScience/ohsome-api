@@ -59,7 +59,7 @@ def test_extraction_latest(
     assert table["clipped"][0].as_py() is False
 
     last_edit_expected = datetime.fromisoformat("2019-09-26 17:18:15.000000Z")
-    assert table["last_edit"][0].as_py() == last_edit_expected
+    assert table["edit_timestamp"][0].as_py() == last_edit_expected
 
     geom = table["geom"][0].as_py()
     geom = from_wkb(geom)
@@ -128,7 +128,7 @@ def test_extraction_latest_get(
     assert table["clipped"][0].as_py() is False
 
     last_edit_expected = datetime.fromisoformat("2019-09-26 17:18:15.000000Z")
-    assert table["last_edit"][0].as_py() == last_edit_expected
+    assert table["edit_timestamp"][0].as_py() == last_edit_expected
 
     geom = table["geom"][0].as_py()
     geom = from_wkb(geom)

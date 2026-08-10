@@ -10,6 +10,7 @@ from pyarrow import (
     RecordBatch,
     binary,
     bool_,
+    field,
     float64,
     int32,
     int64,
@@ -24,17 +25,32 @@ from pyarrow.ipc import new_stream
 
 from ohsome_api.models import Attribution, ExtractionRow
 
+crs_metadata = json.loads(pyproj.CRS.from_epsg(4326).to_json())
+# Create the geom field with GeoArrow extension metadata
+geom_field = field(
+    "geom",
+    binary(),
+    metadata={
+        b"ARROW:extension:name": b"geoarrow.wkb",
+        b"ARROW:extension:metadata": json.dumps(crs_metadata).encode("utf-8"),
+    },
+)
+
 FEATURE_EXTRACTION_SCHEMA = schema(
     [
         ("osm_type", string()),
         ("osm_id", int64()),
-        ("last_edit", timestamp("us", tz="UTC")),
+        ("edit_timestamp", timestamp("us", tz="UTC")),  # valid_from / edit_timestamp
+        (
+            "valid_to_timestamp",
+            timestamp("us", tz="UTC"),
+        ),  # valid_to from latest 2222-01-01 00:00:00.000 +0000 2525
         ("osm_version", int32()),
         ("minor_version", int32()),
         ("osm_edits", int32()),
         ("osm_user_id", int32()),
         ("osm_user_name", string()),
-        ("osm_changeset_id", int64()),
+        ("osm_changeset_id", int64()),  # later hashtags
         ("osm_tags", map_(string(), string())),
         (
             "bbox",
@@ -48,7 +64,7 @@ FEATURE_EXTRACTION_SCHEMA = schema(
             ),
         ),
         ("geom_type", string()),
-        ("geom", binary()),
+        geom_field,
         ("clipped", bool_()),
     ]
 )
@@ -80,7 +96,7 @@ MEMBER_EXTRACTION_SCHEMA = schema(
             ),
         ),
         ("geom_type", string()),
-        ("geom", binary()),
+        geom_field,
         ("clipped", bool_()),
     ]
 )
@@ -97,7 +113,7 @@ GEOPARQUET_META = {
                 "Polygon",
                 "MultiPolygon",
             ],
-            "crs": json.loads(pyproj.CRS.from_epsg(4326).to_json()),
+            "crs": crs_metadata,
             "covering": {
                 "bbox": {
                     "xmin": ["bbox", "xmin"],
@@ -142,6 +158,7 @@ def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
             [r["osm_type"] for r in rows],
             [r["osm_id"] for r in rows],
             [r["valid_from"].timestamp() * 1000000 for r in rows],
+            [r["valid_to"].timestamp() * 1000000 for r in rows],
             [r["osm_version"] for r in rows],
             [r["osm_minor_version"] for r in rows],
             [r["osm_edits"] for r in rows],
@@ -164,6 +181,7 @@ def record_batch_member(rows: list[ExtractionRow]) -> RecordBatch:
             [r["osm_type"] for r in rows],
             [r["osm_id"] for r in rows],
             [r["valid_from"].timestamp() * 1000000 for r in rows],
+            #            [r["valid_to"].timestamp()   * 1000000 for r in rows],
             [r["osm_version"] for r in rows],
             [r["osm_minor_version"] for r in rows],
             [r["osm_edits"] for r in rows],

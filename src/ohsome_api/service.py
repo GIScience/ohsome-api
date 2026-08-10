@@ -199,13 +199,17 @@ async def extract_features(
     ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
-    time: datetime | Literal["latest"],
+    start: datetime | Literal["earliest", "latest"],
+    end: datetime | Literal["latest"],
+    contributions: bool,
     sink_type: type[Sink],
 ) -> AsyncIterator[bytes]:
     """Extract features from database batch wise."""
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
-    producer = db.extract_features(query_where_clause, query_args, aoi_wkt, clip, time)
+    producer = db.extract_features(
+        query_where_clause, query_args, aoi_wkt, clip, start, end, contributions
+    )
 
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(producer)
@@ -227,18 +231,26 @@ async def extract_features_as_parquet(
     ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
-    time: datetime | Literal["latest"],
+    start: datetime | Literal["earliest", "latest"],
+    end: datetime | Literal["latest"],
+    contributions: bool,
 ) -> AsyncIterator[bytes]:
-    return await extract_features(ohsome_filter, aoi_wkt, clip, time, ParquetSink)
+    return await extract_features(
+        ohsome_filter, aoi_wkt, clip, start, end, contributions, ParquetSink
+    )
 
 
 async def extract_features_as_arrow(
     ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
-    time: datetime | Literal["latest"],
+    start: datetime | Literal["earliest", "latest"],
+    end: datetime | Literal["latest"],
+    contributions: bool,
 ) -> AsyncIterator[bytes]:
-    return await extract_features(ohsome_filter, aoi_wkt, clip, time, ArrowSink)
+    return await extract_features(
+        ohsome_filter, aoi_wkt, clip, start, end, contributions, ArrowSink
+    )
 
 
 async def extract_features_collections(
