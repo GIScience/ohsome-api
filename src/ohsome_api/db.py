@@ -381,11 +381,12 @@ def extract_features(
 
     if contributions:
         filter_by_time_contributions = f"""
-            AND valid_from between ${filter_args_count + 2}::timestamptz and valid_to between ${filter_args_count + 3}::timestamptz
-        """  # noqa: E501
+            AND valid_from >= ${filter_args_count + 2}::timestamptz
+            AND valid_from  < ${filter_args_count + 3}::timestamptz
+        """
     else:
         filter_by_time_contributions = f"""
-            AND valid_to > ${filter_args_count + 2}::timestamptz
+            AND valid_to    > ${filter_args_count + 2}::timestamptz
             AND valid_from <= ${filter_args_count + 3}::timestamptz
         """
 
