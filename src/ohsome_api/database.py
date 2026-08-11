@@ -33,12 +33,15 @@ class Database:
             min_size=CONFIG.ohsomedb.pool_min_size,
             max_size=CONFIG.ohsomedb.pool_max_size,
             init=jsonb_codec,
+            command_timeout=CONFIG.ohsomedb.timeout_stats,  # query timeout
         )
         self.pool_extraction = await asyncpg.create_pool(
             dsn=CONNECTION_STRING,
             min_size=CONFIG.ohsomedb.pool_min_size_extraction,
             max_size=CONFIG.ohsomedb.pool_max_size_extraction,
             init=jsonb_codec,
+            # timeout works as expected for batch extraction (aborts after set timeout)
+            command_timeout=CONFIG.ohsomedb.timeout_extraction,  # query timeout
         )
         logging.info("Database connection pool established.")
 
@@ -51,7 +54,7 @@ class Database:
         if self.pool is None:
             raise ValueError("Database connection pool not initialized")
 
-        async with self.pool.acquire() as connection:
+        async with self.pool.acquire(timeout=10) as connection:
             record: Record = await connection.fetchrow(sql, *args)
 
         if record is None:
@@ -63,7 +66,7 @@ class Database:
         if self.pool is None:
             raise ValueError("Database connection pool not initialized")
 
-        async with self.pool.acquire() as connection:
+        async with self.pool.acquire(timeout=10) as connection:
             records: list[Record] = await connection.fetch(sql, *args)
 
         return records
@@ -82,9 +85,7 @@ class Database:
             connection.transaction(),
         ):
             batch: list[Record] = []
-            async for record in connection.cursor(
-                sql, *args, prefetch=batch_size, timeout=300
-            ):
+            async for record in connection.cursor(sql, *args, prefetch=batch_size):
                 batch.append(record)
                 if len(batch) >= batch_size:
                     yield batch
