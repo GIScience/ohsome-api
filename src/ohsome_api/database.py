@@ -30,8 +30,8 @@ class Database:
         # Initialize the pools once
         self.pool = await asyncpg.create_pool(
             dsn=CONNECTION_STRING,
-            min_size=CONFIG.ohsomedb.pool_min_size,
-            max_size=CONFIG.ohsomedb.pool_max_size,
+            min_size=CONFIG.ohsomedb.pool_min_size_stats,
+            max_size=CONFIG.ohsomedb.pool_max_size_stats,
             init=jsonb_codec,
             command_timeout=CONFIG.ohsomedb.timeout_stats,  # query timeout
         )

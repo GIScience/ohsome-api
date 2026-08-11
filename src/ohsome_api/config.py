@@ -14,9 +14,8 @@ class DatabaseConfig(BaseModel):
     dbname: str = "ohsomedb"
     schemaname: str = "current"
     application_name: str = "ohsome-api"
-    # TODO: Rename to pool_min_size_stats
-    pool_min_size: int = 1
-    pool_max_size: int = 10
+    pool_min_size_stats: int = 1
+    pool_max_size_stats: int = 10
     pool_min_size_extraction: int = 0
     pool_max_size_extraction: int = 10
     timeout_stats: int = 60 * 3
