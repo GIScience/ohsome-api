@@ -1,8 +1,8 @@
 from datetime import datetime
 from enum import StrEnum
-from typing import Optional, TypedDict
+from typing import TypedDict
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
 
@@ -50,12 +50,7 @@ class SnapshotColumns(BaseModel):
 
 
 class SnapshotColumnsGrouped(SnapshotColumns):
-    values: Optional[dict[str, list[int]]] = Field(
-        default=None,
-        json_schema_extra={
-            "examples": [None],
-        },
-    )
+    values: dict[str, list[int]]
 
 
 class ExtractionRow(TypedDict):
