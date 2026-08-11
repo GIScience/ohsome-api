@@ -11,7 +11,6 @@ from ohsome_api.request_models import (
     CollectionsExtractionRequestParametersModel,
     ExtractionQueryParametersModel,
     ExtractionRequestParametersModel,
-    TimeRequestModel,
 )
 
 VERSION = version("ohsome-api")
@@ -59,17 +58,12 @@ async def get_contributions_extract(
 async def contributions_extract(
     parameters: ExtractionRequestParametersModel | ExtractionQueryParametersModel,
 ) -> StreamingResponse:
-    if isinstance(parameters.timestamp, TimeRequestModel):
-        start = parameters.timestamp.start
-        end = parameters.timestamp.end
-    else:
-        start = end = parameters.timestamp
     stream = await service.extract_features_as_parquet(
         parameters.ohsome_filter,
         parameters.aoi_wkt,
         parameters.clip,
-        start,
-        end,
+        parameters.timestamp_start,
+        parameters.timestamp_end,
         parameters.contributions,
     )
     return StreamingResponse(
@@ -112,18 +106,12 @@ async def contributions_extract_as_arrow(
     parameters: ExtractionRequestParametersModel | ExtractionQueryParametersModel,
 ) -> StreamingResponse:
 
-    if isinstance(parameters.timestamp, TimeRequestModel):
-        start = parameters.timestamp.start
-        end = parameters.timestamp.end
-    else:
-        start = end = parameters.timestamp
-
     stream = await service.extract_features_as_arrow(
         parameters.ohsome_filter,
         parameters.aoi_wkt,
         parameters.clip,
-        start,
-        end,
+        parameters.timestamp_start,
+        parameters.timestamp_end,
         parameters.contributions,
     )
     return StreamingResponse(
