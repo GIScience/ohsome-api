@@ -131,10 +131,15 @@ pipeline {
             steps {
                 script {
                     DOC_RELEASE_REGEX = /^([0-9]+(\.[0-9]+)*)$/
-                    DOCS_DEPLOYMENT = 'development'
+                    // development
                     API_DOCS_PATH = 'staging'
+                    if (VERSION ==~ RELEASE_REGEX && env.TAG_NAME ==~ RELEASE_REGEX && VERSION ==~ RELEASE_REGEX) {
+						// TODO: remove after v2 release
+                        // release candidate
+                        API_DOCS_PATH = 'v2-rc'
+                    }
                     if (VERSION ==~ RELEASE_REGEX && env.TAG_NAME ==~ RELEASE_REGEX && VERSION ==~ DOC_RELEASE_REGEX) {
-                        DOCS_DEPLOYMENT = 'release'
+                        // release
                         API_DOCS_PATH = sh(returnStdout: true, script: 'cd docs && uv version --short | awk -F \'.\' \'{ print "v" $1 }\'').trim()
                     }
                     env.DOCS_PUBLISH_DIR = "/var/lib/jenkins/apidocs/${REPO_NAME}/${API_DOCS_PATH}/"
