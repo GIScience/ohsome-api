@@ -396,9 +396,12 @@ class ExtractionRequestModel(RequestConfigModel):
     @field_validator("timestamp")
     @classmethod
     def validate_timezone(
-        cls, value: datetime | Literal["latest"]
-    ) -> datetime | Literal["latest"]:
+        cls, value: datetime | Literal["latest"] | TimeRequestModel
+    ) -> datetime | Literal["latest"] | TimeRequestModel:
         if value == "latest":
+            return value
+
+        if isinstance(value, TimeRequestModel):
             return value
 
         # Allow only UTC.
@@ -414,9 +417,12 @@ class ExtractionRequestModel(RequestConfigModel):
     @classmethod
     def validate_timestamp(
         cls,
-        value: datetime | Literal["latest"],
-    ) -> datetime | Literal["latest"]:
+        value: datetime | Literal["latest"] | TimeRequestModel,
+    ) -> datetime | Literal["latest"] | TimeRequestModel:
         if value == "latest":
+            return value
+
+        if isinstance(value, TimeRequestModel):
             return value
 
         if value >= datetime(2007, 10, 8, tzinfo=timezone.utc):
