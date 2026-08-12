@@ -19,6 +19,8 @@ from ohsome_api.request_models.time import (
     TimeBinsRequestModel,
     TimeRangeRequestModel,
     TimeSeriesRequestModel,
+    Timestamp,
+    TimestampLatest,
 )
 
 td_adapter = TypeAdapter(timedelta)
@@ -100,76 +102,6 @@ class GroupByRequestModel(RequestConfigModel):
     )
 
 
-class ExtractionRequestModel(RequestConfigModel):
-    clip: bool = Field(
-        default=True, description="Whether to clip extracted features with AOI or not."
-    )
-    timestamp: datetime | Literal["latest"] | TimeRangeRequestModel = Field(
-        default="latest",
-        description=(
-            "Extraction timestamp (ISO-8601, UTC). "
-            "For the most recent data "
-            "'latest' can be used instead of a timestamp."
-        ),
-        json_schema_extra={"examples": ["latest", "2026-04-17T00:00:00Z"]},
-    )
-
-    contributions: bool = Field(
-        default=False, description=("Include only contributions in this extraction.")
-    )
-
-    @computed_field
-    @property
-    def timestamp_start(self) -> datetime | Literal["earliest", "latest"]:
-        if isinstance(self.timestamp, TimeRangeRequestModel):
-            return self.timestamp.start
-        return self.timestamp
-
-    @computed_field
-    @property
-    def timestamp_end(self) -> datetime | Literal["latest"]:
-        if isinstance(self.timestamp, TimeRangeRequestModel):
-            return self.timestamp.end
-        return self.timestamp
-
-    @field_validator("timestamp")
-    @classmethod
-    def validate_timezone(
-        cls, value: datetime | Literal["latest"] | TimeRangeRequestModel
-    ) -> datetime | Literal["latest"] | TimeRangeRequestModel:
-        if value == "latest":
-            return value
-
-        if isinstance(value, TimeRangeRequestModel):
-            return value
-
-        # Allow only UTC.
-        if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-
-        if value.tzinfo == timezone.utc:
-            return value
-
-        raise ValueError("Only UTC timestamps are supported.")
-
-    @field_validator("timestamp")
-    @classmethod
-    def validate_timestamp(
-        cls,
-        value: datetime | Literal["latest"] | TimeRangeRequestModel,
-    ) -> datetime | Literal["latest"] | TimeRangeRequestModel:
-        if value == "latest":
-            return value
-
-        if isinstance(value, TimeRangeRequestModel):
-            return value
-
-        if value >= datetime(2007, 10, 8, tzinfo=timezone.utc):
-            return value
-
-        raise ValueError("Time needs to be greater or equal then 2007-10-08.")
-
-
 class ExtractionQueryModel(RequestConfigModel):
     clip: bool = Field(
         default=True, description="Whether to clip extracted features with AOI or not."
@@ -193,11 +125,6 @@ class ExtractionQueryModel(RequestConfigModel):
     @property
     def timestamp_end(self) -> datetime | Literal["latest"]:
         return self.timestamp
-
-    @computed_field
-    @property
-    def contributions(self) -> bool:
-        return False
 
     @field_validator("timestamp")
     @classmethod
@@ -233,63 +160,62 @@ class ExtractionQueryModel(RequestConfigModel):
 
 class CollectionExtractionRequestModel(RequestConfigModel):
     clip: bool = Field(
-        default=True, description="Whether to clip extracted features with AOI or not."
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
     )
-    timestamp: datetime | Literal["latest"] = Field(
-        default="latest",
-        description=(
-            "Extraction timestamp (ISO-8601, UTC). "
-            "For the most recent data "
-            "'latest' can be used instead of a timestamp."
-        ),
-        json_schema_extra={"examples": ["latest", "2026-04-17T00:00:00Z"]},
-    )
-
-    @field_validator("timestamp")
-    @classmethod
-    def validate_timezone(
-        cls, value: datetime | Literal["latest"]
-    ) -> datetime | Literal["latest"]:
-        if value == "latest":
-            return value
-
-        # Allow only UTC.
-        if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-
-        if value.tzinfo == timezone.utc:
-            return value
-
-        raise ValueError("Only UTC timestamps are supported.")
-
-    @field_validator("timestamp")
-    @classmethod
-    def validate_timestamp(
-        cls,
-        value: datetime | Literal["latest"],
-    ) -> datetime | Literal["latest"]:
-        if value == "latest":
-            return value
-
-        if value >= datetime(2007, 10, 8, tzinfo=timezone.utc):
-            return value
-
-        raise ValueError("Time needs to be greater or equal then 2007-10-08.")
 
 
 class ExtractionRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
-    ExtractionRequestModel,
 ):
-    pass
+    timestamp: Timestamp | TimestampLatest = "latest"
+    clip: bool = Field(
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
+    )
+
+    # TODO: do we need these properties?
+    @computed_field
+    @property
+    def timestamp_start(self) -> datetime | Literal["earliest", "latest"]:
+        if isinstance(self.timestamp, TimeRangeRequestModel):
+            return self.timestamp.start
+        return self.timestamp
+
+    @computed_field
+    @property
+    def timestamp_end(self) -> datetime | Literal["latest"]:
+        if isinstance(self.timestamp, TimeRangeRequestModel):
+            return self.timestamp.end
+        return self.timestamp
 
 
 class ExtractionQueryParametersModel(
     AoiQueryModel,
     FilterRequestModel,
-    ExtractionQueryModel,
 ):
+    timestamp: Timestamp | TimestampLatest = "latest"
+    clip: bool = Field(
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
+    )
+
+    # TODO: do we need these properties?
+    @computed_field
+    @property
+    def timestamp_start(self) -> datetime | Literal["earliest", "latest"]:
+        if isinstance(self.timestamp, TimeRangeRequestModel):
+            return self.timestamp.start
+        return self.timestamp
+
+    @computed_field
+    @property
+    def timestamp_end(self) -> datetime | Literal["latest"]:
+        if isinstance(self.timestamp, TimeRangeRequestModel):
+            return self.timestamp.end
+        return self.timestamp
+
     pass
 
 
@@ -299,7 +225,7 @@ class CollectionsExtractionRequestParametersModel(
     CollectionsMemberFilterRequestModel,
     CollectionExtractionRequestModel,
 ):
-    pass
+    timestamp: Timestamp | TimestampLatest = "latest"
 
 
 class CollectionsExtractionQueryParametersModel(
@@ -308,21 +234,20 @@ class CollectionsExtractionQueryParametersModel(
     CollectionsMemberFilterRequestModel,
     CollectionExtractionRequestModel,
 ):
+    timestamp: Timestamp | TimestampLatest = "latest"
     pass
 
 
 class TimeBinsRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
-    TimeBinsRequestModel,
 ):
-    pass
+    time_bins: TimeBinsRequestModel
 
 
 class TimeSeriesRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
-    TimeSeriesRequestModel,
     GroupByRequestModel,
 ):
-    pass
+    time_series: TimeSeriesRequestModel

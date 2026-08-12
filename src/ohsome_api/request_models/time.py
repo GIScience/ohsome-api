@@ -11,8 +11,6 @@ from pydantic import (
 )
 from pydantic.alias_generators import to_camel
 
-from ohsome_api.config import CONFIG
-
 td_adapter = TypeAdapter(timedelta)
 
 
@@ -24,6 +22,7 @@ class RequestConfigModel(BaseModel):
     )
 
 
+# TODO: Validate timestamps
 Timestamp = Annotated[
     datetime,
     Field(
@@ -33,7 +32,7 @@ Timestamp = Annotated[
     ),
 ]
 
-EarliestTimestamp = Annotated[
+TimestampEarliest = Annotated[
     Literal["earliest"],
     Field(
         title="Earliest Timestamp",
@@ -43,10 +42,10 @@ EarliestTimestamp = Annotated[
 ]
 
 
-LatestTimestamp = Annotated[
+TimestampLatest = Annotated[
     Literal["latest"],
     Field(
-        title="Latest Timestamp (ISO-8601, UTC).",
+        title="Latest Timestamp",
         description="Most recent data",
         json_schema_extra={"example": "latest"},
     ),
@@ -54,10 +53,10 @@ LatestTimestamp = Annotated[
 
 
 class TimeRangeRequestModel(RequestConfigModel):
-    start: Timestamp | EarliestTimestamp = Field(
+    start: Timestamp | TimestampEarliest = Field(
         json_schema_extra={"examples": ["2025-01-01T00:00:00Z"]},
     )
-    end: Timestamp | LatestTimestamp = Field(
+    end: Timestamp | TimestampLatest = Field(
         json_schema_extra={"examples": ["2026-01-01T00:00:00Z"]},
     )
 
@@ -112,7 +111,7 @@ class TimeRangeRequestModel(RequestConfigModel):
     model_config = ConfigDict(title="Time Range")
 
 
-class TimeBinSizeRequestModel(TimeRangeRequestModel):
+class TimeBinsRequestModel(TimeRangeRequestModel):
     bin_size: str | None = Field(
         default=None,
         description="Bin size (ISO-8601 duration).",
@@ -127,10 +126,18 @@ class TimeBinSizeRequestModel(TimeRangeRequestModel):
             td_adapter.validate_python(value)
         return value
 
-    model_config = ConfigDict(title="Time Bins")
+    model_config = ConfigDict(
+        title="Time Bins",
+        # description=(
+        #     "Time bins defined using a start/end timestamp (ISO-8601, UTC) "
+        #     "and a bin size (ISO-8601 duration). Last bin might not cover bin size. "
+        #     "Please take a look at the "
+        #     f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
+        # ),
+    )
 
 
-class TimeIntervalRequestModel(TimeRangeRequestModel):
+class TimeSeriesRequestModel(TimeRangeRequestModel):
     interval: str | None = Field(
         default=None,
         description="Interval (ISO-8601 duration).",
@@ -145,27 +152,13 @@ class TimeIntervalRequestModel(TimeRangeRequestModel):
             td_adapter.validate_python(value)
         return value
 
-    model_config = ConfigDict(title="Time Series")
-
-
-class TimeSeriesRequestModel(RequestConfigModel):
-    time_series: TimeIntervalRequestModel = Field(
-        description=(
-            "Time series defined using a start/end timestamp (ISO-8601, UTC) "
-            "and a interval (ISO-8601 duration). "
-            "The interval between the last two timestamp might not fit given duration. "
-            "Please take a look at the "
-            f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
-        )
-    )
-
-
-class TimeBinsRequestModel(RequestConfigModel):
-    time_bins: TimeBinSizeRequestModel = Field(
-        description=(
-            "Time bins defined using a start/end timestamp (ISO-8601, UTC) "
-            "and a bin size (ISO-8601 duration). Last bin might not cover bin size. "
-            "Please take a look at the "
-            f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
-        )
+    model_config = ConfigDict(
+        title="Time Series",
+        # description=(
+        #     "Time series defined using a start/end timestamp (ISO-8601, UTC) "
+        #     "and a interval (ISO-8601 duration). "
+        #     "The interval between the last two timestamp might not fit given duration. "
+        #     "Please take a look at the "
+        #     f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
+        # ),
     )

@@ -4,11 +4,11 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from pydantic import ValidationError
 
-from ohsome_api.request_models.time import TimeBinSizeRequestModel
+from ohsome_api.request_models.time import TimeBinsRequestModel
 
 
 def test_start_end():
-    time_bins = TimeBinSizeRequestModel(
+    time_bins = TimeBinsRequestModel(
         start=datetime(2024, 1, 1),  # no timezone
         end=datetime(2024, 3, 1),
     )
@@ -17,7 +17,7 @@ def test_start_end():
 
 
 async def test_start_end_from_json():
-    TimeBinSizeRequestModel.model_validate_json(
+    TimeBinsRequestModel.model_validate_json(
         json.dumps(
             {
                 "start": "2025-01-01",
@@ -28,7 +28,7 @@ async def test_start_end_from_json():
 
 
 def test_start_end_earliest():
-    time_bins = TimeBinSizeRequestModel(
+    time_bins = TimeBinsRequestModel(
         start="earliest",
         end=datetime(2024, 3, 1),
     )
@@ -37,14 +37,14 @@ def test_start_end_earliest():
 
 def test_end_after_start():
     with pytest.raises(ValidationError):
-        TimeBinSizeRequestModel(
+        TimeBinsRequestModel(
             start=datetime(2024, 3, 1),  # after end
             end=datetime(2024, 1, 1),  # before start
         )
 
 
 def test_end_in_future():
-    TimeBinSizeRequestModel(
+    TimeBinsRequestModel(
         start=datetime(2024, 3, 1),
         end=datetime.now() + timedelta(days=30),  # future
     )
@@ -52,7 +52,7 @@ def test_end_in_future():
 
 def test_start_equals_end():
     with pytest.raises(ValidationError):
-        TimeBinSizeRequestModel(
+        TimeBinsRequestModel(
             start=datetime(2024, 1, 1),
             end=datetime(2024, 1, 1),
         )
@@ -60,7 +60,7 @@ def test_start_equals_end():
 
 def test_start_before_osm():
     with pytest.raises(ValidationError):
-        TimeBinSizeRequestModel(
+        TimeBinsRequestModel(
             start=datetime(1998, 10, 8),  # before OSM
             end=datetime(2024, 1, 1),
         )
@@ -76,7 +76,7 @@ def test_start_before_osm():
 )
 def test_start_invalid(start: str):
     with pytest.raises(ValidationError):
-        TimeBinSizeRequestModel(
+        TimeBinsRequestModel(
             start=start,
             end=datetime(2024, 1, 1),
         )
@@ -84,14 +84,14 @@ def test_start_invalid(start: str):
 
 def test_start_end_with_explicit_timezone():
     """Allow only UTC."""
-    TimeBinSizeRequestModel(
+    TimeBinsRequestModel(
         start=datetime(2024, 1, 1, tzinfo=timezone.utc),
         end=datetime(2024, 3, 1, tzinfo=timezone.utc),
     )
 
 
 def test_start_end_with_mixed_explicit_implicit_timezone():
-    time = TimeBinSizeRequestModel(
+    time = TimeBinsRequestModel(
         start=datetime(2024, 1, 1, tzinfo=timezone.utc),
         end=datetime(2024, 3, 1),
     )
@@ -102,12 +102,12 @@ def test_start_end_with_mixed_explicit_implicit_timezone():
 def test_start_end_with_implicit_timezone():
     """Allow only UTC."""
     # implicitly (without timezone)
-    TimeBinSizeRequestModel(start=datetime(2024, 1, 1), end=datetime(2025, 1, 1))
+    TimeBinsRequestModel(start=datetime(2024, 1, 1), end=datetime(2025, 1, 1))
 
 
 def test_start_end_timezone_invalid():
     with pytest.raises(ValidationError):
-        TimeBinSizeRequestModel(
+        TimeBinsRequestModel(
             start=datetime(2024, 1, 1, tzinfo=timezone(timedelta(hours=2))),
             end=datetime(2024, 3, 1, tzinfo=timezone(timedelta(hours=2))),
         )
@@ -118,7 +118,7 @@ def test_start_end_timezone_invalid():
     ("P1M", "P40D", "P1Y1D", "P3DT4H59M", None),
 )
 async def test_bin_size(bin_size: str):
-    time = TimeBinSizeRequestModel(
+    time = TimeBinsRequestModel(
         start=datetime(2024, 1, 1),
         end=datetime(2024, 3, 1),
         bin_size=bin_size,
@@ -130,7 +130,7 @@ async def test_bin_size(bin_size: str):
 
 async def test_bin_size_invalid():
     with pytest.raises(ValidationError):
-        TimeBinSizeRequestModel(
+        TimeBinsRequestModel(
             start=datetime(2024, 1, 1),
             end=datetime(2024, 3, 1),
             bin_size="P1",

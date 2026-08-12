@@ -64,7 +64,7 @@ async def contributions_extract(
         parameters.clip,
         parameters.timestamp_start,
         parameters.timestamp_end,
-        parameters.contributions,
+        False,
     )
     return StreamingResponse(
         stream,
@@ -112,7 +112,7 @@ async def contributions_extract_as_arrow(
         parameters.clip,
         parameters.timestamp_start,
         parameters.timestamp_end,
-        parameters.contributions,
+        False,
     )
     return StreamingResponse(
         stream,
