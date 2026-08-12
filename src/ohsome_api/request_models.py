@@ -253,16 +253,28 @@ class AoiQueryModel(RequestConfigModel):
         return AoiRequestModel(aoi=bbox).aoi_wkt
 
 
-class TimeRequestModel(RequestConfigModel):
-    start: datetime | Literal["earliest"] = Field(
-        description=(
-            "Start timestamp (ISO-8601, UTC). "
-            "Earliest timestamp is 2007-10-08T00:00:00Z. "
-            "As shorthand 'earliest' can be used instead of a timestamp."
-        ),
-        json_schema_extra={"examples": ["2026-01-01T00:00:00Z", "earliest"]},
-    )
-    end: datetime | Literal["latest"] = Field(
+Timestamp = Annotated[
+    datetime,
+    Field(
+        title="Timestamp",
+        description="Single timestamp (ISO-8601, UTC)",
+        json_schema_extra={"example": "2026-01-01T00:00:00Z"},
+    ),
+]
+
+EarliestTimestamp = Annotated[
+    Literal["earliest"],
+    Field(
+        title="Earliest Timestamp",
+        description="Earliest timestamp is 2007-10-08T00:00:00Z. ",
+        json_schema_extra={"example": "earliest"},
+    ),
+]
+
+
+class TimeRangeRequestModel(RequestConfigModel):
+    start: Timestamp | EarliestTimestamp
+    end: Timestamp | Literal["latest"] = Field(
         description=(
             "End timestamp (ISO-8601, UTC). "
             "To include the most recent data "
@@ -319,8 +331,10 @@ class TimeRequestModel(RequestConfigModel):
 
         raise ValueError("End timestamp needs to be greater than start timestamp.")
 
+    model_config = ConfigDict(title="Time Range")
 
-class TimeBinSizeRequestModel(TimeRequestModel):
+
+class TimeBinSizeRequestModel(TimeRangeRequestModel):
     bin_size: str | None = Field(
         default=None,
         description="Bin size (ISO-8601 duration).",
@@ -335,8 +349,10 @@ class TimeBinSizeRequestModel(TimeRequestModel):
             td_adapter.validate_python(value)
         return value
 
+    model_config = ConfigDict(title="Time Bins")
 
-class TimeIntervalRequestModel(TimeRequestModel):
+
+class TimeIntervalRequestModel(TimeRangeRequestModel):
     interval: str | None = Field(
         default=None,
         description="Interval (ISO-8601 duration).",
@@ -350,6 +366,8 @@ class TimeIntervalRequestModel(TimeRequestModel):
             # uses Pydantic internal logic to validate as timedelta
             td_adapter.validate_python(value)
         return value
+
+    model_config = ConfigDict(title="Time Series")
 
 
 class TimeSeriesRequestModel(RequestConfigModel):
@@ -379,7 +397,7 @@ class ExtractionRequestModel(RequestConfigModel):
     clip: bool = Field(
         default=True, description="Whether to clip extracted features with AOI or not."
     )
-    timestamp: datetime | Literal["latest"] | TimeRequestModel = Field(
+    timestamp: datetime | Literal["latest"] | TimeRangeRequestModel = Field(
         default="latest",
         description=(
             "Extraction timestamp (ISO-8601, UTC). "
@@ -396,26 +414,26 @@ class ExtractionRequestModel(RequestConfigModel):
     @computed_field
     @property
     def timestamp_start(self) -> datetime | Literal["earliest", "latest"]:
-        if isinstance(self.timestamp, TimeRequestModel):
+        if isinstance(self.timestamp, TimeRangeRequestModel):
             return self.timestamp.start
         return self.timestamp
 
     @computed_field
     @property
     def timestamp_end(self) -> datetime | Literal["latest"]:
-        if isinstance(self.timestamp, TimeRequestModel):
+        if isinstance(self.timestamp, TimeRangeRequestModel):
             return self.timestamp.end
         return self.timestamp
 
     @field_validator("timestamp")
     @classmethod
     def validate_timezone(
-        cls, value: datetime | Literal["latest"] | TimeRequestModel
-    ) -> datetime | Literal["latest"] | TimeRequestModel:
+        cls, value: datetime | Literal["latest"] | TimeRangeRequestModel
+    ) -> datetime | Literal["latest"] | TimeRangeRequestModel:
         if value == "latest":
             return value
 
-        if isinstance(value, TimeRequestModel):
+        if isinstance(value, TimeRangeRequestModel):
             return value
 
         # Allow only UTC.
@@ -431,12 +449,12 @@ class ExtractionRequestModel(RequestConfigModel):
     @classmethod
     def validate_timestamp(
         cls,
-        value: datetime | Literal["latest"] | TimeRequestModel,
-    ) -> datetime | Literal["latest"] | TimeRequestModel:
+        value: datetime | Literal["latest"] | TimeRangeRequestModel,
+    ) -> datetime | Literal["latest"] | TimeRangeRequestModel:
         if value == "latest":
             return value
 
-        if isinstance(value, TimeRequestModel):
+        if isinstance(value, TimeRangeRequestModel):
             return value
 
         if value >= datetime(2007, 10, 8, tzinfo=timezone.utc):
