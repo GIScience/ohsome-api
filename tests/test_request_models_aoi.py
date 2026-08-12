@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from ohsome_api.request_models import (
+from ohsome_api.request_models.aoi import (
     AoiQueryModel,
     AoiRequestModel,
 )

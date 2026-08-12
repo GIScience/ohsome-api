@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from pydantic import ValidationError
 
-from ohsome_api.request_models import TimeBinSizeRequestModel
+from ohsome_api.request_models.time import TimeBinSizeRequestModel
 
 
 def test_start_end():

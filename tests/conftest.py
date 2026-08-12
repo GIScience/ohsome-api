@@ -10,7 +10,7 @@ from testcontainers.core.image import DockerImage
 from testcontainers.postgres import PostgresContainer
 
 from ohsome_api.database import db
-from ohsome_api.request_models import BBox
+from ohsome_api.request_models.aoi import BBox
 
 
 @pytest.fixture(scope="session")
