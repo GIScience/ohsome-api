@@ -182,7 +182,7 @@ async def features_collections_extract(
         parameters.member_filter,
         parameters.aoi_wkt,
         parameters.clip,
-        parameters.timestamp,
+        parameters.time,
     )
     return StreamingResponse(
         stream,
@@ -229,7 +229,7 @@ async def features_collections_members_extract(
         parameters.member_filter,
         parameters.aoi_wkt,
         parameters.clip,
-        parameters.timestamp,
+        parameters.time,
     )
     return StreamingResponse(
         stream,

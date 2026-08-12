@@ -169,7 +169,7 @@ class ExtractionRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
 ):
-    timestamp: Timestamp | TimestampLatest = "latest"
+    time: Timestamp | TimestampLatest | TimeRangeRequestModel = "latest"
     clip: bool = Field(
         default=True,
         description="Whether to clip extracted features with AOI or not.",
@@ -179,23 +179,23 @@ class ExtractionRequestParametersModel(
     @computed_field
     @property
     def timestamp_start(self) -> datetime | Literal["earliest", "latest"]:
-        if isinstance(self.timestamp, TimeRangeRequestModel):
-            return self.timestamp.start
-        return self.timestamp
+        if isinstance(self.time, TimeRangeRequestModel):
+            return self.time.start
+        return self.time
 
     @computed_field
     @property
     def timestamp_end(self) -> datetime | Literal["latest"]:
-        if isinstance(self.timestamp, TimeRangeRequestModel):
-            return self.timestamp.end
-        return self.timestamp
+        if isinstance(self.time, TimeRangeRequestModel):
+            return self.time.end
+        return self.time
 
 
 class ExtractionQueryParametersModel(
     AoiQueryModel,
     FilterRequestModel,
 ):
-    timestamp: Timestamp | TimestampLatest = "latest"
+    time: Timestamp | TimestampLatest = "latest"
     clip: bool = Field(
         default=True,
         description="Whether to clip extracted features with AOI or not.",
@@ -205,16 +205,16 @@ class ExtractionQueryParametersModel(
     @computed_field
     @property
     def timestamp_start(self) -> datetime | Literal["earliest", "latest"]:
-        if isinstance(self.timestamp, TimeRangeRequestModel):
-            return self.timestamp.start
-        return self.timestamp
+        if isinstance(self.time, TimeRangeRequestModel):
+            return self.time.start
+        return self.time
 
     @computed_field
     @property
     def timestamp_end(self) -> datetime | Literal["latest"]:
-        if isinstance(self.timestamp, TimeRangeRequestModel):
-            return self.timestamp.end
-        return self.timestamp
+        if isinstance(self.time, TimeRangeRequestModel):
+            return self.time.end
+        return self.time
 
     pass
 
@@ -225,7 +225,7 @@ class CollectionsExtractionRequestParametersModel(
     CollectionsMemberFilterRequestModel,
     CollectionExtractionRequestModel,
 ):
-    timestamp: Timestamp | TimestampLatest = "latest"
+    time: Timestamp | TimestampLatest = "latest"
 
 
 class CollectionsExtractionQueryParametersModel(
@@ -234,8 +234,7 @@ class CollectionsExtractionQueryParametersModel(
     CollectionsMemberFilterRequestModel,
     CollectionExtractionRequestModel,
 ):
-    timestamp: Timestamp | TimestampLatest = "latest"
-    pass
+    time: Timestamp | TimestampLatest = "latest"
 
 
 class TimeBinsRequestParametersModel(

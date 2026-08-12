@@ -15,18 +15,18 @@ from starlette.status import (
 from ohsome_api.api import VERSION
 
 
-@pytest.mark.parametrize("timestamp", ["latest", None])
+@pytest.mark.parametrize("time", ["latest", None])
 def test_extraction_latest(
     client: TestClient,
     aoi_audimax: dict,
-    timestamp: Literal["latest"] | None,
+    time: Literal["latest"] | None,
 ):
     json_body = {
         "filter": "id:node/1702635807",
         "aoi": aoi_audimax,
     }
-    if timestamp is not None:
-        json_body["timestamp"] = timestamp
+    if time is not None:
+        json_body["time"] = time
     response = client.post("/extraction/features.parquet", json=json_body)
 
     assert response.status_code == HTTP_200_OK
@@ -84,17 +84,17 @@ def test_extraction_latest(
     assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
 
 
-@pytest.mark.parametrize("timestamp", ["latest", None])
+@pytest.mark.parametrize("time", ["latest", None])
 def test_extraction_latest_get(
     client: TestClient,
-    timestamp: Literal["latest"] | None,
+    time: Literal["latest"] | None,
 ):
     parameters = {
         "filter": "id:node/1702635807",
         "aoi": "8.670919,49.416393,8.673839,49.417686",
     }
-    if timestamp is not None:
-        parameters["timestamp"] = timestamp
+    if time is not None:
+        parameters["time"] = time
     response = client.get("/extraction/features.parquet", params=parameters)
 
     # NOTE: Same asserts as previous test
@@ -153,13 +153,13 @@ def test_extraction_latest_get(
     assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
 
 
-def test_extraction_history(client: TestClient, aoi_audimax: dict):
+def test_extraction_history_timestamp(client: TestClient, aoi_audimax: dict):
     response = client.post(
         "/extraction/features.parquet",
         json={
             "filter": "id:node/1702635807",
             "aoi": aoi_audimax,
-            "timestamp": "2017-09-23T00:00:00Z",
+            "time": "2017-09-23T00:00:00Z",
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -167,12 +167,48 @@ def test_extraction_history(client: TestClient, aoi_audimax: dict):
     response_file = io.BytesIO(response.content)
     table = parquet.read_table(response_file)
 
+    assert table.num_rows == 1
+
     assert table["osm_id"][0].as_py() == 1702635807
     assert table["osm_type"][0].as_py() == "node"
     assert table["osm_version"][0].as_py() == 3
     assert table["osm_user_name"][0].as_py() == "ezelo"
     assert table["osm_changeset_id"][0].as_py() == 49417407
     assert ("name", "Einstein trifft Dürer auf Reisen") in table["osm_tags"][0].as_py()
+
+
+def test_extraction_history_time_range(client: TestClient, aoi_audimax: dict):
+    response = client.post(
+        "/extraction/features.parquet",
+        json={
+            "filter": "id:node/1702635807",
+            "aoi": aoi_audimax,
+            "time": {
+                "start": "2017-09-23T00:00:00Z",
+                "end": "2017-10-30T00:00:00Z",
+            },
+        },
+    )
+    assert response.status_code == HTTP_200_OK
+
+    response_file = io.BytesIO(response.content)
+    table = parquet.read_table(response_file)
+
+    assert table.num_rows == 2
+
+    assert table["osm_id"][0].as_py() == 1702635807
+    assert table["osm_type"][0].as_py() == "node"
+    assert table["osm_version"][0].as_py() == 3
+    assert table["osm_user_name"][0].as_py() == "ezelo"
+    assert table["osm_changeset_id"][0].as_py() == 49417407
+    assert ("name", "Einstein trifft Dürer auf Reisen") in table["osm_tags"][0].as_py()
+
+    assert table["osm_id"][1].as_py() == 1702635807
+    assert table["osm_type"][1].as_py() == "node"
+    assert table["osm_version"][1].as_py() == 4
+    assert table["osm_user_name"][1].as_py() == "Tiamate"
+    assert table["osm_changeset_id"][1].as_py() == 53333618
+    assert ("name", "Dürer trifft Einstein auf Reisen") in table["osm_tags"][1].as_py()
 
 
 def test_extraction_not_clipped(
@@ -233,20 +269,52 @@ def test_extraction_deleted_features(
     assert table.num_rows == 0
 
 
-def test_extraction_route(client: TestClient):
-    response = client.post(
-        "/extraction/collections.parquet",
-        json={
-            "filter": "type=route and route=bus and service=night",
-            "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
-        },
-    )
+@pytest.mark.parametrize("time", ["latest", None])
+def test_extraction_route(client: TestClient, time: Literal["latest"] | None):
+    json_body = {
+        "filter": "type=route and route=bus and service=night",
+        "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
+    }
+    if time is not None:
+        json_body["time"] = time
+
+    response = client.post("/extraction/collections.parquet", json=json_body)
     assert response.status_code == HTTP_200_OK
 
     response_file = io.BytesIO(response.content)
 
     table = parquet.read_table(response_file)
     assert table.num_rows == 3
+
+
+@pytest.mark.skip("Fails against test but not prod db.")
+def test_extraction_route_history(client: TestClient):
+    # https://www.openstreetmap.org/relation/57255/history/56
+    json_body = {
+        "filter": "id:relation/57255",
+        "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
+        "time": "2025-12-15T00:00:00Z",
+        "clip": False,
+    }
+
+    response = client.post("/extraction/collections.parquet", json=json_body)
+    assert response.status_code == HTTP_200_OK
+
+    response_file = io.BytesIO(response.content)
+
+    table = parquet.read_table(response_file)
+    assert table.num_rows == 2  # one for points, one for lines
+
+    for i in (0, 1):
+        assert table["osm_id"][i].as_py() == 57255
+        assert table["osm_type"][i].as_py() == "relation"
+        assert table["osm_version"][i].as_py() == 56
+        assert table["osm_user_name"][i].as_py() == "tyr_asd"
+        assert table["osm_changeset_id"][i].as_py() == 175922956
+        assert ("ref", "37") in table["osm_tags"][i].as_py()
+
+    assert table["geom_type"][0].as_py() == "Point"
+    assert table["geom_type"][1].as_py() == "LineString"
 
 
 def test_extraction_route_points_only(client: TestClient):
@@ -266,33 +334,40 @@ def test_extraction_route_points_only(client: TestClient):
     assert table.num_rows == 1
 
 
+@pytest.mark.skip("Fails against test but not prod db.")
 def test_extraction_route_members(client: TestClient):
     response = client.post(
         "/extraction/collections_members.parquet",
         json={
-            "filter": "type=route and route=bus and service=night",
+            "filter": "id:relation/57255",
             "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
+            "time": "2025-12-15T00:00:00Z",
+            "clip": False,
         },
     )
     assert response.status_code == HTTP_200_OK
 
     response_file = io.BytesIO(response.content)
 
-    with open("collection_members.parquet", "wb") as f:
-        f.write(response_file.getvalue())
-
     table = parquet.read_table(response_file)
-    assert table.num_rows == 3
+    assert table.num_rows == 132
 
 
-def test_extraction_route_members_no_clip(client: TestClient):
+@pytest.mark.parametrize("time", ["latest", None])
+def test_extraction_route_members_no_clip(
+    client: TestClient,
+    time: Literal["latest"] | None,
+):
+    json_body = {
+        "filter": "type=route and route=bus and service=night",
+        "clip": False,
+        "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
+    }
+    if time is not None:
+        json_body["time"] = time
     response = client.post(
         "/extraction/collections_members.parquet",
-        json={
-            "filter": "type=route and route=bus and service=night",
-            "clip": False,
-            "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
-        },
+        json=json_body,
     )
     assert response.status_code == HTTP_200_OK
 

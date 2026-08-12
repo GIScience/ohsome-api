@@ -157,7 +157,7 @@ class TimeSeriesRequestModel(TimeRangeRequestModel):
         # description=(
         #     "Time series defined using a start/end timestamp (ISO-8601, UTC) "
         #     "and a interval (ISO-8601 duration). "
-        #     "The interval between the last two timestamp might not fit given duration. "
+        #     "The interval between the last two timestamp might not fit given duration. "  # noqa
         #     "Please take a look at the "
         #     f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
         # ),
