@@ -159,7 +159,7 @@ async def get_features_rows(
 
 async def get_features_columns(
     ohsome_filter: OhsomeFilter,
-    start: datetime,
+    start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
     interval: str | None,
     aoi_wkt: str,
@@ -168,8 +168,12 @@ async def get_features_columns(
 ) -> SnapshotColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
-    if end == "latest":
+    if start == "latest":
+        start = await get_latest_timestamp()
+        end = start
+    elif end == "latest":
         end = await get_latest_timestamp()
+
     series = await generate_timestamp_series(start, end, interval)
 
     if group_by is None:
