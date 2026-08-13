@@ -369,7 +369,7 @@ def extract_features(
     aoi_wkt: str,
     clip: bool,
     start: datetime | Literal["latest"],
-    end: datetime | Literal["latest"],
+    end: datetime,
     contributions: bool,
 ) -> AsyncIterator[list[ExtractionRow]]:
     """Extract all features"""

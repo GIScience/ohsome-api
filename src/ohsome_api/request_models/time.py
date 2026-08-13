@@ -94,10 +94,10 @@ TimestampLatest = Annotated[
 
 class TimeRangeRequestModel(RequestConfigModel):
     start: Timestamp | TimestampEarliest = Field(
-        json_schema_extra={"examples": ["2025-01-01T00:00:00Z"]},
+        json_schema_extra={"example": "2025-01-01T00:00:00Z"},
     )
     end: Timestamp | TimestampLatest = Field(
-        json_schema_extra={"examples": ["2026-01-01T00:00:00Z"]},
+        json_schema_extra={"example": "2026-01-01T00:00:00Z"},
     )
 
     @model_validator(mode="after")
