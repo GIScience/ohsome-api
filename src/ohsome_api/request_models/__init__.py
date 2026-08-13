@@ -4,7 +4,6 @@ from typing import Literal, Optional, cast
 
 from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import (
-    AliasChoices,
     BaseModel,
     ConfigDict,
     Field,
@@ -18,7 +17,6 @@ from ohsome_api.request_models.aoi import AoiQueryModel, AoiRequestModel
 from ohsome_api.request_models.time import (
     TimeBinsRequestModel,
     TimeRangeRequestModel,
-    TimeSeriesRequestModel,
     Timestamp,
     TimestampLatest,
 )
@@ -190,39 +188,3 @@ class TimeBinsRequestParametersModel(
     FilterRequestModel,
 ):
     time_bins: TimeBinsRequestModel
-
-
-class TimeSeriesRequestParametersModel(
-    AoiRequestModel,
-    FilterRequestModel,
-    GroupByRequestModel,
-):
-    time: TimeSeriesRequestModel | Timestamp | TimestampLatest = Field(
-        validation_alias=AliasChoices("time", "timeSeries"),
-    )
-
-    @computed_field
-    @property
-    def start(self) -> datetime | Literal["latest"]:
-        if isinstance(self.time, TimeRangeRequestModel):
-            return cast(datetime | Literal["latest"], self.time.start)
-        return self.time
-
-    @computed_field
-    @property
-    def end(self) -> datetime | Literal["latest"]:
-        if isinstance(self.time, TimeRangeRequestModel):
-            return self.time.end
-        return self.time
-
-    @computed_field
-    @property
-    def interval(self) -> str | None:
-        if isinstance(self.time, TimeSeriesRequestModel):
-            return self.time.interval
-        return None
-
-    model_config = ConfigDict(
-        populate_by_name=True,
-        extra="forbid",
-    )
