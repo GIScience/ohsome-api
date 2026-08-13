@@ -176,8 +176,6 @@ async def get_features_columns(
         return await db.get_features(
             query_where_clause,
             query_args,
-            start,
-            end,
             series,
             aoi_wkt,
             measure,
@@ -186,8 +184,6 @@ async def get_features_columns(
         return await db.get_features_grouped_by_tag(
             query_where_clause,
             query_args,
-            start,
-            end,
             series,
             aoi_wkt,
             measure,

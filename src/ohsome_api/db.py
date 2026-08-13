@@ -225,8 +225,6 @@ def aggregation_clause(measure: MeasureEnum) -> str:
 async def get_features(
     filter_where_clause: str,
     filter_args: tuple,
-    start: datetime,
-    end: datetime,
     series: list[datetime],
     aoi_wkt: str,
     measure: MeasureEnum,
@@ -234,10 +232,10 @@ async def get_features(
     filter_args_count = len(filter_args)
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
+            SELECT ST_GeomFromText(${filter_args_count + 2}, 4326) as geom
         ),
         series AS (
-            SELECT unnest(${filter_args_count + 3}::timestamptz[]) AS ts
+            SELECT unnest(${filter_args_count + 1}::timestamptz[]) AS ts
         )
         SELECT
             {aggregation_clause(measure)},
@@ -245,9 +243,10 @@ async def get_features(
         FROM "{SCHEMA}".contributions c, aoi, series
         WHERE 1=1
             AND ({filter_where_clause})
-            -- global time filter
-            AND valid_from <= ${filter_args_count + 2}::timestamptz
-            AND valid_to > ${filter_args_count + 1}::timestamptz
+            -- Global time filter has been part of this query from the beginning on,
+            -- but is now disabled because we believe its not necessary.
+            -- AND valid_from <= $end::timestamptz
+            -- AND valid_to > $start::timestamptz
             AND ST_Intersects(c.geom, aoi.geom)
             -- exclude deleted and invalid states
             AND (status_geom_type).status in ('history', 'latest')
@@ -260,8 +259,6 @@ async def get_features(
     records = await db.fetch_rows(
         sql,
         *filter_args,
-        start,
-        end,
         series,
         aoi_wkt,
     )  # order matters!
@@ -280,8 +277,6 @@ async def get_features(
 async def get_features_grouped_by_tag(
     filter_where_clause: str,
     filter_args: tuple,
-    start: datetime,
-    end: datetime,
     series: list[datetime],
     aoi_wkt: str,
     measure: MeasureEnum,
@@ -291,21 +286,22 @@ async def get_features_grouped_by_tag(
     limit = CONFIG.group_by_time_series_size_limit
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
+            SELECT ST_GeomFromText(${filter_args_count + 2}, 4326) as geom
         ),
         series AS (
-            SELECT unnest(${filter_args_count + 3}::timestamptz[]) AS ts
+            SELECT unnest(${filter_args_count + 1}::timestamptz[]) AS ts
         )
         SELECT
             {aggregation_clause(measure)},
             series.ts AS ts,
-            tags->>${filter_args_count + 5} as tag_value
+            tags->>${filter_args_count + 3} as tag_value
         FROM "{SCHEMA}".contributions c, aoi, series
         WHERE 1=1
             AND ({filter_where_clause})
-            -- global time filter
-            AND valid_from <= ${filter_args_count + 2}::timestamptz
-            AND valid_to > ${filter_args_count + 1}::timestamptz
+            -- Global time filter has been part of this query from the beginning on,
+            -- but is now disabled because we believe its not necessary.
+            -- AND valid_from <= $end::timestamptz
+            -- AND valid_to > $start::timestamptz
             AND ST_Intersects(c.geom, aoi.geom)
             -- exclude deleted and invalid states
             AND (status_geom_type).status in ('history', 'latest')
@@ -319,8 +315,6 @@ async def get_features_grouped_by_tag(
     records = await db.fetch_rows(
         sql,
         *filter_args,
-        start,
-        end,
         series,
         aoi_wkt,
         group_by_tag,
