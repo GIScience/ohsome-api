@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from enum import StrEnum
-from typing import Literal, Optional
+from typing import Literal, Optional, cast
 
 from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import (
@@ -111,9 +111,9 @@ class ExtractionRequestParametersModel(
 
     @computed_field
     @property
-    def start(self) -> datetime | Literal["earliest", "latest"]:
+    def start(self) -> datetime | Literal["latest"]:
         if isinstance(self.time, TimeRangeRequestModel):
-            return self.time.start
+            return cast(datetime | Literal["latest"], self.time.start)
         return self.time
 
     @computed_field
@@ -136,9 +136,9 @@ class ExtractionQueryParametersModel(
 
     @computed_field
     @property
-    def start(self) -> datetime | Literal["earliest", "latest"]:
+    def start(self) -> datetime | Literal["latest"]:
         if isinstance(self.time, TimeRangeRequestModel):
-            return self.time.start
+            return cast(datetime | Literal["latest"], self.time.start)
         return self.time
 
     @computed_field
