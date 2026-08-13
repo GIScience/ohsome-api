@@ -25,6 +25,9 @@ async def generate_timestamp_series(
     end: datetime,
     interval: str | None,
 ) -> list[datetime]:
+    if start == end:
+        return [start]
+
     if interval is None:
         return [start, end]
 

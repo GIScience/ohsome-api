@@ -14,6 +14,13 @@ async def test_generate_timestamp_series_single_time_bin():
     assert series == [start, end_one_month_later]
 
 
+async def test_generate_timestamp_series_start_equals_end():
+    start = datetime(2026, 11, 1, tzinfo=timezone.utc)
+    end = start
+    series = await generate_timestamp_series(start, end, None)
+    assert series == [start]
+
+
 async def test_generate_timestamp_series_monthly_1_month():
     start = datetime(2026, 11, 1, tzinfo=timezone.utc)
     end_one_month_later = datetime(2026, 12, 1, tzinfo=timezone.utc)
