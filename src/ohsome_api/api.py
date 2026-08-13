@@ -120,6 +120,10 @@ async def time_series_too_large_error(
 
 @app.exception_handler(TimeoutError)
 async def timeout_error(request: Request, error: TimeoutError) -> JSONResponse:
+    # Asyncpg raises timeouts via asyncio
+
+    # Timeout raised during streaming (/extraction)
+    # can not be handled since response has already started.
     return JSONResponse(
         status_code=422,
         content={
