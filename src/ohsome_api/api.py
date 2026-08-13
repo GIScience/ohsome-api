@@ -118,6 +118,27 @@ async def time_series_too_large_error(
     )
 
 
+@app.exception_handler(TimeoutError)
+async def timeout_error(request: Request, error: TimeoutError) -> JSONResponse:
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": [
+                {
+                    "type": "timeout_error",
+                    "msg": (
+                        f"Query timeout limit has been exceeded. "
+                        f"For statistics endpoints the timeout limit is "
+                        f"{CONFIG.ohsomedb.timeout_stats}. "
+                        f"For extraction endpoints the timeout limit is "
+                        f"{CONFIG.ohsomedb.timeout_stats}."
+                    ),
+                }
+            ]
+        },
+    )
+
+
 class HealthCheck(BaseModel):
     status: str = "Ok"
 

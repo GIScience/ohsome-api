@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from typing import Any, AsyncIterator
@@ -82,7 +83,8 @@ class Database:
 
         async with (
             self.pool_extraction.acquire(timeout=10) as connection,
-            connection.transaction(),
+            asyncio.timeout(CONFIG.ohsomedb.timeout_extraction),
+            connection.transaction(readonly=True),
         ):
             batch: list[Record] = []
             async for record in connection.cursor(sql, *args, prefetch=batch_size):
