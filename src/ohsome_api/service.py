@@ -207,9 +207,6 @@ async def extract_features(
     """Extract features from database batch wise."""
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
-    if end == "latest":
-        end = await get_latest_timestamp()
-
     producer = db.extract_features(
         query_where_clause, query_args, aoi_wkt, clip, start, end, contributions
     )

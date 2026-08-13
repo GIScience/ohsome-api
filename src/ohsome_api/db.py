@@ -363,13 +363,72 @@ async def get_features_grouped_by_tag(
     )
 
 
+def _filter_by_time(
+    start: datetime | Literal["latest"],
+    end: datetime | Literal["latest"],
+    filter_args_count: int,
+    contributions: bool,
+) -> tuple[str, list[datetime]]:
+    if start == "latest":
+        time_args = []
+        return (
+            f"""status_geom_type = ANY(array[
+           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
+           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
+           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
+           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ])
+        """,
+            time_args,
+        )
+
+    if end == "latest":
+        time_args = [start]
+        if contributions:
+            filter_by_time_contributions = f"""
+                AND valid_from >= ${filter_args_count + 2}::timestamptz
+            """
+        else:
+            filter_by_time_contributions = f"""
+                AND valid_to    > ${filter_args_count + 2}::timestamptz
+            """
+    else:
+        time_args = [start, end]
+        if contributions:
+            filter_by_time_contributions = f"""
+                AND valid_from >= ${filter_args_count + 2}::timestamptz
+                AND valid_from  < ${filter_args_count + 3}::timestamptz
+            """
+        else:
+            filter_by_time_contributions = f"""
+                AND valid_to    > ${filter_args_count + 2}::timestamptz
+                AND valid_from <= ${filter_args_count + 3}::timestamptz
+            """
+
+    return (
+        f"""status_geom_type = ANY(array[
+       ('latest','Point')::"{SCHEMA}".status_geom_type_type,
+       ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
+       ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
+       ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+       ('history','Point')::"{SCHEMA}".status_geom_type_type,
+       ('history','LineString')::"{SCHEMA}".status_geom_type_type,
+       ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
+       ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+       ])
+       {filter_by_time_contributions}
+    """,
+        time_args,
+    )
+
+
 def extract_features(
     filter_where_clause: str,
     filter_args: tuple,
     aoi_wkt: str,
     clip: bool,
     start: datetime | Literal["latest"],
-    end: datetime,
+    end: datetime | Literal["latest"],
     contributions: bool,
 ) -> AsyncIterator[list[ExtractionRow]]:
     """Extract all features"""
@@ -382,40 +441,9 @@ def extract_features(
     else:
         select_geom_sql = "c.geom as geometry, false as clipped "
 
-    if contributions:
-        filter_by_time_contributions = f"""
-            AND valid_from >= ${filter_args_count + 2}::timestamptz
-            AND valid_from  < ${filter_args_count + 3}::timestamptz
-        """
-    else:
-        filter_by_time_contributions = f"""
-            AND valid_to    > ${filter_args_count + 2}::timestamptz
-            AND valid_from <= ${filter_args_count + 3}::timestamptz
-        """
-
-    if start == "latest":
-        filter_by_time = f"""status_geom_type = ANY(array[
-           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
-           ])
-           AND 'latest' = ${filter_args_count + 2}  -- always true
-           AND 'latest' = ${filter_args_count + 3}  -- always true
-        """
-    else:
-        filter_by_time = f"""status_geom_type = ANY(array[
-           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
-           ('history','Point')::"{SCHEMA}".status_geom_type_type,
-           ('history','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
-           ])
-           {filter_by_time_contributions}
-        """
+    filter_by_time, time_args = _filter_by_time(
+        start, end, filter_args_count, contributions
+    )
 
     sql = f"""
         WITH aoi AS (
@@ -456,7 +484,7 @@ def extract_features(
         AsyncIterator[list[ExtractionRow]],
         # PERF: batch_size should be different depending on expected row size
         #   (e.g. GeometryType)
-        db.fetch_batch(sql, *filter_args, aoi_wkt, start, end, batch_size=10000),
+        db.fetch_batch(sql, *filter_args, aoi_wkt, *time_args, batch_size=10000),
     )
 
 
