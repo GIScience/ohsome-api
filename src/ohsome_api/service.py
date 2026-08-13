@@ -199,7 +199,7 @@ async def extract_features(
     ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
-    start: datetime | Literal["earliest", "latest"],
+    start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
     contributions: bool,
     sink_type: type[Sink],
@@ -231,7 +231,7 @@ async def extract_features_as_parquet(
     ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
-    start: datetime | Literal["earliest", "latest"],
+    start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
     contributions: bool,
 ) -> AsyncIterator[bytes]:
@@ -244,7 +244,7 @@ async def extract_features_as_arrow(
     ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
-    start: datetime | Literal["earliest", "latest"],
+    start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
     contributions: bool,
 ) -> AsyncIterator[bytes]:

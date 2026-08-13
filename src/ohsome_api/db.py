@@ -365,7 +365,7 @@ def extract_features(
     filter_args: tuple,
     aoi_wkt: str,
     clip: bool,
-    start: datetime | Literal["earliest", "latest"],
+    start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
     contributions: bool,
 ) -> AsyncIterator[list[ExtractionRow]]:
