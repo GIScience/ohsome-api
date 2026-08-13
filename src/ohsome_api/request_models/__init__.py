@@ -4,6 +4,7 @@ from typing import Literal, Optional, cast
 
 from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import (
+    AliasChoices,
     BaseModel,
     ConfigDict,
     Field,
@@ -79,7 +80,6 @@ class ExtractionQueryModel(RequestConfigModel):
         default=True, description="Whether to clip extracted features with AOI or not."
     )
     timestamp: datetime | Literal["latest"] = Field(
-        default="latest",
         description=(
             "Extraction timestamp (ISO-8601, UTC). "
             "For the most recent data "
@@ -103,7 +103,7 @@ class ExtractionRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
 ):
-    time: Timestamp | TimestampLatest | TimeRangeRequestModel = "latest"
+    time: Timestamp | TimestampLatest | TimeRangeRequestModel
     clip: bool = Field(
         default=True,
         description="Whether to clip extracted features with AOI or not.",
@@ -128,7 +128,7 @@ class ExtractionQueryParametersModel(
     AoiQueryModel,
     FilterRequestModel,
 ):
-    time: Timestamp | TimestampLatest = "latest"
+    time: Timestamp | TimestampLatest
     clip: bool = Field(
         default=True,
         description="Whether to clip extracted features with AOI or not.",
@@ -156,7 +156,7 @@ class CollectionsExtractionRequestParametersModel(
     FilterRequestModel,
 ):
     # TODO: Change example of ohsome filter
-    time: Timestamp | TimestampLatest = "latest"
+    time: Timestamp | TimestampLatest
     member_filter: OhsomeFilter = Field(
         default="*",
         description="Specific ohsome filter for members.",
@@ -173,7 +173,7 @@ class CollectionsExtractionQueryParametersModel(
     FilterRequestModel,
 ):
     # TODO: Change example of ohsome filter
-    time: Timestamp | TimestampLatest = "latest"
+    time: Timestamp | TimestampLatest
     member_filter: OhsomeFilter = Field(
         default="*",
         description="Specific ohsome filter for members.",
@@ -197,4 +197,32 @@ class TimeSeriesRequestParametersModel(
     FilterRequestModel,
     GroupByRequestModel,
 ):
-    time_series: TimeSeriesRequestModel
+    time: TimeSeriesRequestModel | Timestamp | TimestampLatest = Field(
+        validation_alias=AliasChoices("time", "timeSeries"),
+    )
+
+    @computed_field
+    @property
+    def start(self) -> datetime | Literal["latest"]:
+        if isinstance(self.time, TimeRangeRequestModel):
+            return cast(datetime | Literal["latest"], self.time.start)
+        return self.time
+
+    @computed_field
+    @property
+    def end(self) -> datetime | Literal["latest"]:
+        if isinstance(self.time, TimeRangeRequestModel):
+            return self.time.end
+        return self.time
+
+    @computed_field
+    @property
+    def interval(self) -> str | None:
+        if isinstance(self.time, TimeSeriesRequestModel):
+            return self.time.interval
+        return None
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        extra="forbid",
+    )
