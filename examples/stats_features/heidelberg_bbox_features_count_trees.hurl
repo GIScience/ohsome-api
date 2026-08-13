@@ -6,7 +6,7 @@ Content-Type: application/json
 verbose: true
 
 {
-  "timeSeries": {
+  "time": {
     "start": "2026-01-01T00:00:00Z",
     "end": "2026-04-17T00:00:00Z",
     "interval": "P1M"

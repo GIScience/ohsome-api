@@ -3,6 +3,7 @@ POST {{BASE_URL}}/extraction/features.parquet
 Authorization: {{API_KEY}}
 {
 	"filter": "type:node and natural=tree",
+	"time": "latest",
 	"aoi": {
 		"coordinates": [
 			[

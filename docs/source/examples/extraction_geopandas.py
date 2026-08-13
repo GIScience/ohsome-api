@@ -37,7 +37,12 @@ def features_extraction(
     clip: bool = True,
 ) -> GeoDataFrame:
     path = "/extraction/features.parquet"
-    json_body = {"aoi": aoi, "filter": osm_filter, "clip": clip}
+    json_body = {
+        "aoi": aoi,
+        "filter": osm_filter,
+        "time": "latest",
+        "clip": clip,
+    }
     buffer = request(path, json_body)
 
     # Read as parquet and pass OSM tag maps into dictionaries

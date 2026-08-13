@@ -6,15 +6,15 @@ CREATE SECRET http_auth (
 );
 SET force_download=true;
 
-SET VARIABLE ohsome_filter = 'building=* and geometry:polygon';
-SET VARIABLE timestamp = 'latest';
+SET VARIABLE filter = 'building=* and geometry:polygon';
+SET VARIABLE time = 'latest';
 SET VARIABLE aoi = '8.68812,49.40390,8.72362,49.41582';
 SET VARIABLE clip = 'true';
 
 SELECT * FROM read_parquet(
     getenv('OHSOME_API_URL') || '/extraction/features.parquet'
-    || '?filter=' || getvariable('ohsome_filter')
-    || '&timestamp=' || getvariable('timestamp')
+    || '?filter=' || getvariable('filter')
+    || '&time=' || getvariable('times')
     || '&aoi=' || getvariable('aoi')
     || '&clip=' || getvariable('clip')
 );
