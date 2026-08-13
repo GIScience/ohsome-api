@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from enum import StrEnum
 from typing import Literal, Optional
 
@@ -9,7 +9,6 @@ from pydantic import (
     Field,
     TypeAdapter,
     computed_field,
-    field_validator,
 )
 from pydantic.alias_generators import to_camel
 
@@ -64,22 +63,6 @@ class CollectionsFilterRequestModel(RequestConfigModel):
             "Please refer to the [ohsome filter language documentation]"
             f"({CONFIG.external_docs_url}/reference.html#filter)"
         ),
-        json_schema_extra={
-            "example": "type:relation and type=route and route=bus and service=night"
-        },
-    )
-
-
-class CollectionsMemberFilterRequestModel(RequestConfigModel):
-    member_filter: OhsomeFilter = Field(
-        alias="member_filter",
-        description=(
-            "Filter for OSM data. "
-            "Please refer to the [ohsome filter language documentation]"
-            f"({CONFIG.external_docs_url}/reference.html#filter)"
-        ),
-        json_schema_extra={"example": "geometry:line"},
-        default="*",
     )
 
 
@@ -125,44 +108,6 @@ class ExtractionQueryModel(RequestConfigModel):
     @property
     def timestamp_end(self) -> datetime | Literal["latest"]:
         return self.timestamp
-
-    @field_validator("timestamp")
-    @classmethod
-    def validate_timezone(
-        cls, value: datetime | Literal["latest"]
-    ) -> datetime | Literal["latest"]:
-        if value == "latest":
-            return value
-
-        # Allow only UTC.
-        if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-
-        if value.tzinfo == timezone.utc:
-            return value
-
-        raise ValueError("Only UTC timestamps are supported.")
-
-    @field_validator("timestamp")
-    @classmethod
-    def validate_timestamp(
-        cls,
-        value: datetime | Literal["latest"],
-    ) -> datetime | Literal["latest"]:
-        if value == "latest":
-            return value
-
-        if value >= datetime(2007, 10, 8, tzinfo=timezone.utc):
-            return value
-
-        raise ValueError("Time needs to be greater or equal then 2007-10-08.")
-
-
-class CollectionExtractionRequestModel(RequestConfigModel):
-    clip: bool = Field(
-        default=True,
-        description="Whether to clip extracted features with AOI or not.",
-    )
 
 
 class ExtractionRequestParametersModel(
@@ -221,20 +166,46 @@ class ExtractionQueryParametersModel(
 
 class CollectionsExtractionRequestParametersModel(
     AoiRequestModel,
-    CollectionsFilterRequestModel,
-    CollectionsMemberFilterRequestModel,
-    CollectionExtractionRequestModel,
+    FilterRequestModel,
 ):
+    # TODO: Change example
     time: Timestamp | TimestampLatest = "latest"
+    member_filter: OhsomeFilter = Field(
+        alias="member_filter",
+        description=(
+            "Filter for OSM data. "
+            "Please refer to the [ohsome filter language documentation]"
+            f"({CONFIG.external_docs_url}/reference.html#filter)"
+        ),
+        json_schema_extra={"example": "geometry:line"},
+        default="*",
+    )
+    clip: bool = Field(
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
+    )
 
 
 class CollectionsExtractionQueryParametersModel(
     AoiQueryModel,
-    CollectionsFilterRequestModel,
-    CollectionsMemberFilterRequestModel,
-    CollectionExtractionRequestModel,
+    FilterRequestModel,
 ):
+    # TODO: Change example
     time: Timestamp | TimestampLatest = "latest"
+    member_filter: OhsomeFilter = Field(
+        alias="member_filter",
+        description=(
+            "Filter for OSM data. "
+            "Please refer to the [ohsome filter language documentation]"
+            f"({CONFIG.external_docs_url}/reference.html#filter)"
+        ),
+        json_schema_extra={"example": "geometry:line"},
+        default="*",
+    )
+    clip: bool = Field(
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
+    )
 
 
 class TimeBinsRequestParametersModel(
