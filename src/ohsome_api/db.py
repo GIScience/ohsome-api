@@ -45,7 +45,7 @@ async def generate_timestamp_series(
 
     if len(records) > limit:
         raise TimeSeriesTooLargeError(
-            "The provided values for the timeBin or timeSeries parameter "
+            "The provided values for the time paramter (time bin or time series) "
             f"lead to a time series larger than {limit} points/bins."
         )
 

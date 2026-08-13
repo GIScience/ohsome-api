@@ -4,6 +4,7 @@ from typing import Literal, Optional, cast
 
 from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import (
+    AliasChoices,
     BaseModel,
     ConfigDict,
     Field,
@@ -187,4 +188,6 @@ class TimeBinsRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
 ):
-    time_bins: TimeBinsRequestModel
+    time: TimeBinsRequestModel = Field(
+        validation_alias=AliasChoices("time", "timeBins")
+    )
