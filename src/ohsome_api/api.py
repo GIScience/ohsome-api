@@ -135,7 +135,7 @@ async def timeout_error(request: Request, error: TimeoutError) -> JSONResponse:
                         f"For statistics endpoints the timeout limit is "
                         f"{CONFIG.ohsomedb.timeout_stats}. "
                         f"For extraction endpoints the timeout limit is "
-                        f"{CONFIG.ohsomedb.timeout_stats}."
+                        f"{CONFIG.ohsomedb.timeout_extraction}."
                     ),
                 }
             ]
