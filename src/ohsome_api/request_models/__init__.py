@@ -55,17 +55,6 @@ class FilterRequestModel(RequestConfigModel):
     )
 
 
-class CollectionsFilterRequestModel(RequestConfigModel):
-    ohsome_filter: OhsomeFilter = Field(
-        alias="filter",
-        description=(
-            "Filter for OSM data. "
-            "Please refer to the [ohsome filter language documentation]"
-            f"({CONFIG.external_docs_url}/reference.html#filter)"
-        ),
-    )
-
-
 class GroupByTagModel(BaseModel):
     type: Literal["byTag"]
     key: str
@@ -120,17 +109,16 @@ class ExtractionRequestParametersModel(
         description="Whether to clip extracted features with AOI or not.",
     )
 
-    # TODO: do we need these properties?
     @computed_field
     @property
-    def timestamp_start(self) -> datetime | Literal["earliest", "latest"]:
+    def start(self) -> datetime | Literal["earliest", "latest"]:
         if isinstance(self.time, TimeRangeRequestModel):
             return self.time.start
         return self.time
 
     @computed_field
     @property
-    def timestamp_end(self) -> datetime | Literal["latest"]:
+    def end(self) -> datetime | Literal["latest"]:
         if isinstance(self.time, TimeRangeRequestModel):
             return self.time.end
         return self.time
@@ -146,17 +134,16 @@ class ExtractionQueryParametersModel(
         description="Whether to clip extracted features with AOI or not.",
     )
 
-    # TODO: do we need these properties?
     @computed_field
     @property
-    def timestamp_start(self) -> datetime | Literal["earliest", "latest"]:
+    def start(self) -> datetime | Literal["earliest", "latest"]:
         if isinstance(self.time, TimeRangeRequestModel):
             return self.time.start
         return self.time
 
     @computed_field
     @property
-    def timestamp_end(self) -> datetime | Literal["latest"]:
+    def end(self) -> datetime | Literal["latest"]:
         if isinstance(self.time, TimeRangeRequestModel):
             return self.time.end
         return self.time
@@ -168,17 +155,12 @@ class CollectionsExtractionRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
 ):
-    # TODO: Change example
+    # TODO: Change example of ohsome filter
     time: Timestamp | TimestampLatest = "latest"
     member_filter: OhsomeFilter = Field(
-        alias="member_filter",
-        description=(
-            "Filter for OSM data. "
-            "Please refer to the [ohsome filter language documentation]"
-            f"({CONFIG.external_docs_url}/reference.html#filter)"
-        ),
-        json_schema_extra={"example": "geometry:line"},
         default="*",
+        description="Specific ohsome filter for members.",
+        json_schema_extra={"example": "geometry:line"},
     )
     clip: bool = Field(
         default=True,
@@ -190,17 +172,12 @@ class CollectionsExtractionQueryParametersModel(
     AoiQueryModel,
     FilterRequestModel,
 ):
-    # TODO: Change example
+    # TODO: Change example of ohsome filter
     time: Timestamp | TimestampLatest = "latest"
     member_filter: OhsomeFilter = Field(
-        alias="member_filter",
-        description=(
-            "Filter for OSM data. "
-            "Please refer to the [ohsome filter language documentation]"
-            f"({CONFIG.external_docs_url}/reference.html#filter)"
-        ),
-        json_schema_extra={"example": "geometry:line"},
         default="*",
+        description="Specific ohsome filter for members.",
+        json_schema_extra={"example": "geometry:line"},
     )
     clip: bool = Field(
         default=True,

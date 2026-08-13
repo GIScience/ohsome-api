@@ -62,8 +62,8 @@ async def contributions_extract(
         parameters.ohsome_filter,
         parameters.aoi_wkt,
         parameters.clip,
-        parameters.timestamp_start,
-        parameters.timestamp_end,
+        parameters.start,
+        parameters.end,
         False,
     )
     return StreamingResponse(
@@ -110,8 +110,8 @@ async def contributions_extract_as_arrow(
         parameters.ohsome_filter,
         parameters.aoi_wkt,
         parameters.clip,
-        parameters.timestamp_start,
-        parameters.timestamp_end,
+        parameters.start,
+        parameters.end,
         False,
     )
     return StreamingResponse(
