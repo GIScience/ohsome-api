@@ -24,7 +24,7 @@ verbose: true
 
 ```json
 {
-  "timeBins": {
+  "time": {
     "start": "2010-01-01T00:00:00Z",
     "end": "latest",
     "binSize": "P1M"

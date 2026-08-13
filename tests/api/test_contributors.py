@@ -9,7 +9,7 @@ def test_contributors_activity_as_json(client: TestClient, aoi_heigit: dict):
         "/stats/contributors/activity.json",
         json={
             "filter": "building=* and building!=no and type:way",
-            "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
+            "time": {"start": "2024-01-01", "end": "2025-12-31"},
             "aoi": aoi_heigit,
         },
     )
@@ -24,7 +24,7 @@ def test_contributors_activity_as_csv(client: TestClient, aoi_heigit: dict):
         "/stats/contributors/activity.csv",
         json={
             "filter": "building=* and building!=no and type:way",
-            "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
+            "time": {"start": "2024-01-01", "end": "2025-12-31"},
             "aoi": aoi_heigit,
         },
     )

@@ -11,7 +11,7 @@ def test_currentness_count_as_json(client: TestClient, aoi_heigit: dict):
         "/stats/currentness/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
-            "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
+            "time": {"start": "2024-01-01", "end": "2025-12-31"},
             "aoi": aoi_heigit,
         },
     )
@@ -26,7 +26,7 @@ def test_currentness_length_as_json(client: TestClient, aoi_heigit: dict):
         "/stats/currentness/length.json",
         json={
             "filter": "highway=* and geometry:line",
-            "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
+            "time": {"start": "2024-01-01", "end": "2025-12-31"},
             "aoi": aoi_heigit,
         },
     )
@@ -41,7 +41,7 @@ def test_currentness_area_as_json(client: TestClient, aoi_geojson_heigit: dict):
         "/stats/currentness/area.json",
         json={
             "filter": "building=* and building!=no and type:way",
-            "timeBins": {"start": "2024-01-01", "end": "2025-12-31"},
+            "time": {"start": "2024-01-01", "end": "2025-12-31"},
             "aoi": aoi_geojson_heigit,
         },
     )
@@ -56,7 +56,7 @@ def test_currentness_as_json_time_bin_size(client: TestClient, aoi_heigit: dict)
         "/stats/currentness/count.json",
         json={
             "filter": "building=* and building!=no and type:way",
-            "timeBins": {
+            "time": {
                 "start": "2024-01-01",
                 "end": "2025-12-31",
                 "binSize": "P1Y",
@@ -75,7 +75,7 @@ def test_currentness_as_csv(client: TestClient, aoi_heigit: dict):
         "/stats/currentness/count.csv",
         json={
             "filter": "building=* and building!=no and type:way",
-            "timeBins": {"start": "2023-01-01", "end": "2025-12-31", "binSize": "P1Y"},
+            "time": {"start": "2023-01-01", "end": "2025-12-31", "binSize": "P1Y"},
             "aoi": aoi_heigit,
         },
     )
