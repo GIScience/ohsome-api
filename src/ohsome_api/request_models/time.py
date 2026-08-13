@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated, Literal, Self
 
 from pydantic import (
+    AfterValidator,
     BaseModel,
     ConfigDict,
     Field,
@@ -12,6 +13,43 @@ from pydantic import (
 from pydantic.alias_generators import to_camel
 
 td_adapter = TypeAdapter(timedelta)
+
+
+def validate_timezone(
+    value: datetime | Literal["latest"],
+) -> datetime | Literal["latest"]:
+    if value == "latest":
+        return value
+
+    # Allow only UTC.
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+
+    if value.tzinfo == timezone.utc:
+        return value
+
+    raise ValueError("Only UTC timestamps are supported.")
+
+
+def validate_timestamp(
+    value: datetime | Literal["latest"],
+) -> datetime | Literal["latest"]:
+    if value == "latest":
+        return value
+
+    if value >= datetime(2007, 10, 8, tzinfo=timezone.utc):
+        return value
+
+    raise ValueError("Timestamps needs to be greater or equal then 2007-10-08.")
+
+
+def transform_earliest_to_timestamp(
+    value: datetime | Literal["earliest"],
+) -> datetime:
+    if value == "earliest":
+        return datetime(2007, 10, 8, tzinfo=timezone.utc)
+
+    return value
 
 
 class RequestConfigModel(BaseModel):
@@ -30,17 +68,19 @@ Timestamp = Annotated[
         description="Single timestamp (ISO-8601, UTC)",
         json_schema_extra={"example": "2026-01-01T00:00:00Z"},
     ),
+    AfterValidator(validate_timezone),
+    AfterValidator(validate_timestamp),
 ]
 
 TimestampEarliest = Annotated[
     Literal["earliest"],
     Field(
         title="Earliest Timestamp",
-        description="Earliest timestamp is 2007-10-08T00:00:00Z. ",
+        description="Earliest timestamp is 2007-10-08T00:00:00Z.",
         json_schema_extra={"example": "earliest"},
     ),
+    AfterValidator(transform_earliest_to_timestamp),
 ]
-
 
 TimestampLatest = Annotated[
     Literal["latest"],
@@ -59,42 +99,6 @@ class TimeRangeRequestModel(RequestConfigModel):
     end: Timestamp | TimestampLatest = Field(
         json_schema_extra={"examples": ["2026-01-01T00:00:00Z"]},
     )
-
-    @field_validator("start", mode="before")
-    @classmethod
-    def transform_earliest_to_timestamp(
-        cls,
-        value: datetime | Literal["earliest"],
-    ) -> datetime:
-        if value == "earliest":
-            return datetime(2007, 10, 8, tzinfo=timezone.utc)
-
-        return value
-
-    @field_validator("start", "end")
-    @classmethod
-    def validate_timezone(
-        cls, value: datetime | Literal["latest"]
-    ) -> datetime | Literal["latest"]:
-        if value == "latest":
-            return value
-
-        # Allow only UTC.
-        if value.tzinfo is None:
-            return value.replace(tzinfo=timezone.utc)
-
-        if value.tzinfo == timezone.utc:
-            return value
-
-        raise ValueError("Only UTC timestamps are supported.")
-
-    @field_validator("start", mode="after")
-    @classmethod
-    def validate_start(cls, value: datetime) -> datetime:
-        if value >= datetime(2007, 10, 8, tzinfo=timezone.utc):
-            return value
-
-        raise ValueError("Start needs to be greater or equal then 2007-10-08.")
 
     @model_validator(mode="after")
     def validate_end_greater_than_start(self) -> Self:
