@@ -1,7 +1,6 @@
 import io
 import json
 from datetime import datetime
-from typing import Literal
 
 import pytest
 from fastapi.testclient import TestClient
@@ -15,18 +14,15 @@ from starlette.status import (
 from ohsome_api.api import VERSION
 
 
-@pytest.mark.parametrize("time", ["latest", None])
 def test_extraction_latest(
     client: TestClient,
     aoi_audimax: dict,
-    time: Literal["latest"] | None,
 ):
     json_body = {
         "filter": "id:node/1702635807",
+        "time": "latest",
         "aoi": aoi_audimax,
     }
-    if time is not None:
-        json_body["time"] = time
     response = client.post("/extraction/features.parquet", json=json_body)
 
     assert response.status_code == HTTP_200_OK
@@ -84,17 +80,14 @@ def test_extraction_latest(
     assert metadata_api["attribution"]["text"] == "© OpenStreetMap contributors"
 
 
-@pytest.mark.parametrize("time", ["latest", None])
 def test_extraction_latest_get(
     client: TestClient,
-    time: Literal["latest"] | None,
 ):
     parameters = {
         "filter": "id:node/1702635807",
         "aoi": "8.670919,49.416393,8.673839,49.417686",
+        "time": "latest",
     }
-    if time is not None:
-        parameters["time"] = time
     response = client.get("/extraction/features.parquet", params=parameters)
 
     # NOTE: Same asserts as previous test
@@ -218,7 +211,12 @@ def test_extraction_not_clipped(
     """Check if feature has been clipped."""
     response = client.post(
         "/extraction/features.parquet",
-        json={"filter": "id:way/25961914", "aoi": aoi_audimax, "clip": False},
+        json={
+            "filter": "id:way/25961914",
+            "time": "latest",
+            "aoi": aoi_audimax,
+            "clip": False,
+        },
     )
     assert response.status_code == HTTP_200_OK
 
@@ -240,7 +238,11 @@ def test_extraction_clipped(
     """Check if feature has been clipped."""
     response = client.post(
         "/extraction/features.parquet",
-        json={"filter": "id:way/25961914", "aoi": aoi_audimax},
+        json={
+            "filter": "id:way/25961914",
+            "time": "latest",
+            "aoi": aoi_audimax,
+        },
     )
     assert response.status_code == HTTP_200_OK
 
@@ -261,7 +263,11 @@ def test_extraction_deleted_features(
 ):
     response = client.post(
         "/extraction/features.parquet",
-        json={"filter": "id:way/394983845", "aoi": aoi_heigit},
+        json={
+            "filter": "id:way/394983845",
+            "time": "latest",
+            "aoi": aoi_heigit,
+        },
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/vnd.apache.parquet"
@@ -269,14 +275,12 @@ def test_extraction_deleted_features(
     assert table.num_rows == 0
 
 
-@pytest.mark.parametrize("time", ["latest", None])
-def test_extraction_route(client: TestClient, time: Literal["latest"] | None):
+def test_extraction_route(client: TestClient):
     json_body = {
         "filter": "type=route and route=bus and service=night",
+        "time": "latest",
         "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
     }
-    if time is not None:
-        json_body["time"] = time
 
     response = client.post("/extraction/collections.parquet", json=json_body)
     assert response.status_code == HTTP_200_OK
@@ -322,6 +326,7 @@ def test_extraction_route_points_only(client: TestClient):
         "/extraction/collections.parquet",
         json={
             "filter": "type=route and route=bus and service=night",
+            "time": "latest",
             "member_filter": "geometry:point",
             "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
         },
@@ -353,18 +358,15 @@ def test_extraction_route_members(client: TestClient):
     assert table.num_rows == 132
 
 
-@pytest.mark.parametrize("time", ["latest", None])
 def test_extraction_route_members_no_clip(
     client: TestClient,
-    time: Literal["latest"] | None,
 ):
     json_body = {
         "filter": "type=route and route=bus and service=night",
         "clip": False,
+        "time": "latest",
         "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
     }
-    if time is not None:
-        json_body["time"] = time
     response = client.post(
         "/extraction/collections_members.parquet",
         json=json_body,
@@ -382,6 +384,7 @@ def test_extraction_route_members_no_clip_points_only(client: TestClient):
         "/extraction/collections_members.parquet",
         json={
             "filter": "type=route and route=bus and service=night",
+            "time": "latest",
             "member_filter": "geometry:point",
             "clip": False,
             "aoi": "POLYGON ((8.6723140 49.4197687,8.6764091 49.4197687,8.6764091 49.4165896,8.6723140 49.4165896,8.6723140 49.4197687))",  # noqa: E501
