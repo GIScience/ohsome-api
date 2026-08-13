@@ -12,7 +12,7 @@ dependencies = [
     "fastapi>=0.135.1",
     "fastapi-cli>=0.0.24",
     "geojson-pydantic>=2.1.1",
-    "ohsome-filter-to-sql>=0.8.0",
+    "ohsome-filter-to-sql>=0.14.0",
     "ohsomedb-schema",
     "pyarrow>=24.0.0",
     "pydantic>=2.12.5",
