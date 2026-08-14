@@ -8,14 +8,91 @@ Reference
 Area of Interest (AOI)
 ----------------------
 
-Area of interest as a GeoJSON Geometry, Bounding Box or Well Known Text (WKT). As geometry only Polygon or MultiPolygon are allowed.
+The ``aoi`` parameter allows to control the spatial extent of the request.
+
+It can be defined in different formats: GeoJSON Geometry, Bounding Box (BBOX) or Well Known Text (WKT).
+
+You should pass only a single ``Polygon`` or ``MultiPolygon`` geometry.
+
+All coordinates must be in WGS84 EPSG:4326 (longitude, latitude) format.
+For more details see: https://epsg.io/4326
+
+Bounding Box
+^^^^^^^^^^^^
+
+An array of coordinates in this order:
+
+* xmin, ymin, xmax, ymax
+* lon_min, lat_min, lon_max, lat_max
+
+Example:
+
+.. code-block:: json
+
+    "aoi": [8.68812,49.4039,8.72362,49.41582]
+
+
+Well Known Text
+^^^^^^^^^^^^^^^
+
+Geometry as a standard text string.
+
+Example:
+
+.. code-block:: json
+
+    "aoi": "POLYGON ((8.68812 49.4039, 8.72362 49.4039, 8.72362 49.41582, 8.68812 49.41582, 8.68812 49.4039))"
+
+
+
+GeoJSON Geometry
+^^^^^^^^^^^^^^^^
+
+This is defined as Geometry object.
+You can't pass a GeoJSON Feature or FeatureCollection.
+For further details see: https://datatracker.ietf.org/doc/html/rfc7946#section-3.1
+
+Example:
+
+.. code-block:: json
+
+    "aoi":  {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              8.68812,
+              49.4039
+            ],
+            [
+              8.72362,
+              49.4039
+            ],
+            [
+              8.72362,
+              49.41582
+            ],
+            [
+              8.68812,
+              49.41582
+            ],
+            [
+              8.68812,
+              49.4039
+            ]
+          ]
+        ]
+    }
+
+
 
 Time
 ----
 
 The ``time`` parameter allows to control the temporal extent of the request.
 
-Depending on the endpoint this temporal extent is defined differently (e.g. as single timestamp, time series or time bin).
+Depending on the endpoint this temporal extent is defined differently:
+as single timestamp, time series, time bins or time range.
 
 Timestamp
 ^^^^^^^^^
@@ -45,6 +122,54 @@ Examples:
 .. code-block:: json
 
     "time": "latest"
+
+
+Time Range
+^^^^^^^^^^
+
+.. code-block:: text
+
+   Timerange: [===]
+   The range contains all OSM data for its temporal duration
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 40 20
+
+   * - Parameter
+     - Description
+     - Format
+   * - ``start``
+     - Start timestamp. Earliest allowed: ``2007-10-08``. Shorthand: ``earliest``.
+     - ISO-8601 (UTC)
+   * - ``end``
+     - End timestamp. Must be greater than start. Shorthand: ``latest``.
+     - ISO-8601 (UTC)
+
+Examples:
+
+.. code-block:: json
+
+    "time": {
+        "start": "2025-01-01T00:00:00Z",
+        "end": "2026-01-01T00:00:00Z",
+      }
+
+.. code-block:: json
+
+    "time": {
+        "start": "earliest",
+        "end": "2026-01-01T00:00:00Z",
+      }
+
+
+.. code-block:: json
+
+    "time": {
+        "start": "2026-01-01T00:00:00Z",
+        "end": "latest",
+      }
+
 
 Time Series
 ^^^^^^^^^^^
@@ -156,57 +281,11 @@ Examples:
         "binSize": "P1M"
       }
 
-Time Range
-^^^^^^^^^^
-
-.. code-block:: text
-
-   Timerange: [===]
-   The range contains all OSM data for its temporal duration
-
-.. list-table::
-   :header-rows: 1
-   :widths: 10 40 20
-
-   * - Parameter
-     - Description
-     - Format
-   * - ``start``
-     - Start timestamp. Earliest allowed: ``2007-10-08``. Shorthand: ``earliest``.
-     - ISO-8601 (UTC)
-   * - ``end``
-     - End timestamp. Must be greater than start. Shorthand: ``latest``.
-     - ISO-8601 (UTC)
-
-Examples:
-
-.. code-block:: json
-
-    "time": {
-        "start": "2025-01-01T00:00:00Z",
-        "end": "2026-01-01T00:00:00Z",
-      }
-
-.. code-block:: json
-
-    "time": {
-        "start": "earliest",
-        "end": "2026-01-01T00:00:00Z",
-      }
-
-
-.. code-block:: json
-
-    "time": {
-        "start": "2026-01-01T00:00:00Z",
-        "end": "latest",
-      }
-
 
 Filter
 ------
 
-The filter parameter combines the following: definition of the OSM type, 
+The ``filter`` parameter combines the following: definition of the OSM type,
 the geometry (simple feature) type, as well as the OSM tag. The filter syntax is defined in textual form. 
 A filter expression can be composed out of several actual filters, which are combined with boolean operators and parentheses.
 
