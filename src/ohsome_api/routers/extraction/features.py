@@ -77,6 +77,7 @@ async def contributions_extract(
     summary="Download features.",
     description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
+    include_in_schema=False,
 )
 async def post_contributions_extract_arrow(
     parameters: ExtractionRequestParametersModel,
@@ -90,6 +91,7 @@ async def post_contributions_extract_arrow(
     summary="Download features.",
     description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
+    include_in_schema=False,
 )
 async def get_contributions_extract_arrow(
     parameters: Annotated[
