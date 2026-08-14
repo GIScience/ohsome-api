@@ -10,42 +10,42 @@ The ohsome API categorizes OSM elements by their Simple Features Geometry types,
 
 .. list-table::
    :header-rows: 1
-   :widths: 20 20 20 20 20
+   :widths: 15 20 20 20 30
 
-   * - OSM Type
-     - Category
+   * - Category
+     - OSM Type
      - Geometry Type
-     - ohsome filter
-     - example
-   * - Node
-     - Feature
+     - ohsome Filter
+     - Example
+   * - Feature
+     - node
      - Point
-     - geometry:point
+     - ``geometry:point``
      - `node/4540889804`_
-   * - Way
-     - Feature
+   * - Feature
+     - way
      - Point
-     - geometry:poing
-     - 123
-   * - Way
-     - Feature
-     - Linestring
-     - geometry:line
+     - ``geometry:point``
+     - *this is a rare edge case*
+   * - Feature
+     - way
+     - LineString
+     - ``geometry:line``
      - `way/721933838`_
-   * - Way
-     - Feature
+   * - Feature
+     - way
      - Polygon
-     - geometry:polygon
+     - ``geometry:polygon``
      - `way/27426509`_
-   * - Relation
-     - Feature
+   * - Feature
+     - relation [1]_
      - MultiPolygon
-     - geometry:polygon
+     - ``geometry:polygon``
      - `relation/9998694`_
-   * - Relation
-     - Collection
+   * - Collection
+     - relation [2]_
      - GeometryCollection
-     - geometry:collection
+     - ``geometry:collection``
      - `relation/3123494`_
 
 
@@ -54,6 +54,8 @@ The ohsome API categorizes OSM elements by their Simple Features Geometry types,
 .. _way/27426509: https://www.openstreetmap.org/way/27426509
 .. _relation/9998694: https://www.openstreetmap.org/relation/9998694
 .. _relation/3123494: https://www.openstreetmap.org/relation/3123494
+.. [1] OSM relations tagged as ``type=multipolygon`` or ``type=boundary``
+.. [2] OSM relations **not** tagged as ``type=multipolygon`` or ``type=boundary``
 
 Features
 --------
