@@ -5,6 +5,10 @@
 Explanation
 ===========
 
+
+Features vs. Collections
+------------------------
+
 The ohsome API categorizes OSM elements by their Simple Features Geometry types, not by OSM types.
 
 
@@ -57,8 +61,10 @@ The ohsome API categorizes OSM elements by their Simple Features Geometry types,
 .. [1] OSM relations tagged as ``type=multipolygon`` or ``type=boundary``
 .. [2] OSM relations **not** tagged as ``type=multipolygon`` or ``type=boundary``
 
+
 Features
---------
+^^^^^^^^
+
 Contains of OSM nodes and ways that have any tag.
 Additionally, OSM relations tagged as type=multipolygon or type=boundary are included.
 
@@ -66,7 +72,8 @@ This can be Points, Linestrings, Polygons and MultiPolygons.
 
 
 Collections
------------
+^^^^^^^^^^^
+
 OSM relations not tagged as type=multipolygon or type=boundary.
 
 This is a GeometryCollection.
@@ -85,8 +92,26 @@ For each relation all members features are returned including their metadata (e.
 
 
 
+Features vs. Contributions
+--------------------------
+
+The temporal dimension is the key factor here.
+
+Features
+^^^^^^^^
+
+
+
 Contributions
--------------
+^^^^^^^^^^^^^
+
+Focus on the edit timestamp and the previous version of the OSM element.
 
 This contains deletions and their metadata (e.g. OSM user_id or changeset_id).
+
+
+
+
+
+
 
