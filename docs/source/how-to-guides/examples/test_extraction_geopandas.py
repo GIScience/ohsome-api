@@ -1,4 +1,4 @@
-from .extraction_geopandas import features_extraction
+from .extraction_geopandas import features_extraction  # type: ignore
 
 
 def test_extraction_geopandas() -> None:
