@@ -116,7 +116,7 @@ async def get_currentness(
     return zerofill_records_to_time_bin_columns(records, series)
 
 
-async def get_contributors_activity(
+async def get_contributors_count(
     filter_where_clause: str,
     filter_args: tuple,
     start: datetime,

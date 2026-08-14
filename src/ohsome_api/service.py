@@ -75,14 +75,14 @@ async def get_currentness_columns(
     )
 
 
-async def get_contributors_activity_rows(
+async def get_contributors_count_rows(
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
 ) -> list[TimeBinRow]:
-    columns = await get_contributors_activity_columns(
+    columns = await get_contributors_count_columns(
         ohsome_filter,
         start,
         end,
@@ -97,7 +97,7 @@ async def get_contributors_activity_rows(
     ]
 
 
-async def get_contributors_activity_columns(
+async def get_contributors_count_columns(
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime | Literal["latest"],
@@ -110,7 +110,7 @@ async def get_contributors_activity_columns(
         end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, bin_size)
 
-    return await db.get_contributors_activity(
+    return await db.get_contributors_count(
         query_where_clause,
         query_args,
         start,
