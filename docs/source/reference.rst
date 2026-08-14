@@ -13,30 +13,41 @@ Area of interest as a GeoJSON Geometry, Bounding Box or Well Known Text (WKT). A
 Time
 ----
 
-Time parameters allow to control the temporal scope of the request.
+The ``time`` parameter allows to control the temporal extent of the request.
 
-Depending on the endpoint the temporal extent is defined differently (e.g. as timestamp, timeseries or timebin).
+Depending on the endpoint this temporal extent is defined differently (e.g. as single timestamp, time series or time bin).
 
 Timestamp
 ^^^^^^^^^
 
 A single point in time (snapshot) of OSM data.
 
+
 .. list-table::
    :header-rows: 1
-   :widths: 10 40 20 25
+   :widths: 10 40 20
 
    * - Parameter
      - Description
      - Format
-     - Example
-   * - timestamp
-     - Single timestamp. Earliest allowed: 2007-10-08. Shorthand: 'earliest' or 'latest'.
+   * - ``time``
+     - Single timestamp.
+       Earliest allowed: ``2007-10-08``.
+       Shorthand: ``earliest`` or ``latest``.
      - ISO-8601 (UTC)
-     - latest, 2007-10-08T00:00:00Z
 
-Timeseries
-^^^^^^^^^^
+Examples:
+
+.. code-block:: json
+
+    "time": "2007-10-08T00:00:00Z"
+
+.. code-block:: json
+
+    "time": "latest"
+
+Time Series
+^^^^^^^^^^^
 
 .. code-block:: text
 
@@ -47,28 +58,52 @@ Timeseries
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 40 20 25
+   :widths: 10 40 20
 
    * - Parameter
      - Description
      - Format
-     - Example
-   * - start
-     - Start timestamp. Earliest allowed: 2007-10-08. Shorthand: 'earliest'.
+   * - ``start``
+     - Start timestamp. Earliest allowed: ``2007-10-08``. Shorthand: ``earliest``.
      - ISO-8601 (UTC)
-     - earliest, 2007-10-08T00:00:00Z
-   * - end
-     - End timestamp. Must be greater than start. Shorthand: 'latest'.
+   * - ``end``
+     - End timestamp. Must be greater than start. Shorthand: ``latest``.
      - ISO-8601 (UTC)
-     - latest, 2026-07-09T00:00:00Z
-   * - interval
+   * - ``interval``
      - Temporal duration between each point in the series (snapshot).
      - ISO-8601 duration
-     - PT1H, P1D
 
 
-Timebins
-^^^^^^^^
+Examples:
+
+.. code-block:: json
+
+    "time": {
+        "start": "2025-01-01T00:00:00Z",
+        "end": "2026-01-01T00:00:00Z",
+        "interval": "P1M"
+      }
+
+.. code-block:: json
+
+    "time": {
+        "start": "earliest",
+        "end": "2026-01-01T00:00:00Z",
+        "interval": "P1Y"
+      }
+
+
+.. code-block:: json
+
+    "time": {
+        "start": "2026-01-01T00:00:00Z",
+        "end": "latest",
+        "interval": "P1M"
+      }
+
+
+Time Bins
+^^^^^^^^^
 
 .. code-block:: text
 
@@ -79,24 +114,93 @@ Timebins
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 40 20 25
+   :widths: 10 40 20
 
    * - Parameter
      - Description
      - Format
-     -
-   * - start
-     - Start timestamp. Earliest allowed: 2007-10-08. Shorthand: 'earliest'.
+   * - ``start``
+     - Start timestamp. Earliest allowed: ``2007-10-08``. Shorthand: ``earliest``.
      - ISO-8601 (UTC)
-     - earliest, 2007-10-08T00:00:00Z
-   * - end
-     - End timestamp. Must be greater than start. Shorthand: 'latest'.
+   * - ``end``
+     - End timestamp. Must be greater than start. Shorthand: ``latest``.
      - ISO-8601 (UTC)
-     - latest, 2026-07-09T00:00:00Z
-   * - bin_size
+   * - ``binSize``
      - Temporal duration of each bin:
      - ISO-8601 duration
-     - PT1H, P1D
+
+Examples:
+
+.. code-block:: json
+
+    "time": {
+        "start": "2025-01-01T00:00:00Z",
+        "end": "2026-01-01T00:00:00Z",
+        "binSize": "P1M"
+      }
+
+.. code-block:: json
+
+    "time": {
+        "start": "earliest",
+        "end": "2026-01-01T00:00:00Z",
+        "binSize": "P1Y"
+      }
+
+
+.. code-block:: json
+
+    "time": {
+        "start": "2026-01-01T00:00:00Z",
+        "end": "latest",
+        "binSize": "P1M"
+      }
+
+Time Range
+^^^^^^^^^^
+
+.. code-block:: text
+
+   Timerange: [===]
+   The range contains all OSM data for its temporal duration
+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 40 20
+
+   * - Parameter
+     - Description
+     - Format
+   * - ``start``
+     - Start timestamp. Earliest allowed: ``2007-10-08``. Shorthand: ``earliest``.
+     - ISO-8601 (UTC)
+   * - ``end``
+     - End timestamp. Must be greater than start. Shorthand: ``latest``.
+     - ISO-8601 (UTC)
+
+Examples:
+
+.. code-block:: json
+
+    "time": {
+        "start": "2025-01-01T00:00:00Z",
+        "end": "2026-01-01T00:00:00Z",
+      }
+
+.. code-block:: json
+
+    "time": {
+        "start": "earliest",
+        "end": "2026-01-01T00:00:00Z",
+      }
+
+
+.. code-block:: json
+
+    "time": {
+        "start": "2026-01-01T00:00:00Z",
+        "end": "latest",
+      }
 
 
 Filter
