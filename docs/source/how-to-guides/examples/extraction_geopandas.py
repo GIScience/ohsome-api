@@ -9,7 +9,7 @@ from httpx import Response
 
 OHSOME_API_URL = os.environ.get(
     "OHSOME_API_URL",
-    "https://api.heigit.org/ohsome-api/v2",
+    "https://api.heigit.org/ohsome-api/v2-rc",
 )
 OHSOME_API_KEY = os.environ["OHSOME_API_KEY"]
 

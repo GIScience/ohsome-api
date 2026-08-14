@@ -60,6 +60,6 @@ html_theme_options = {
     "extra_nav_links": {
         "Swagger UI": metadata["urls"]["Swagger"],
         "Source Code": metadata["urls"]["Repository"],
-        "Contact": metadata["urls"]["Homepage"],
+        "Contact": metadata["urls"]["Contact"],
     },
 }
