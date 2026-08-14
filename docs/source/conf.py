@@ -6,6 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import tomllib
+from datetime import datetime
 from pathlib import Path
 
 
@@ -34,6 +35,7 @@ metadata = read_metadata(pyproject_path)
 project = "ohsome API"
 author = metadata["authors"][0]["name"]
 release = metadata["version"]
+copyright = "{}, {}".format(datetime.today().year, author)  # noqa: A001
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
