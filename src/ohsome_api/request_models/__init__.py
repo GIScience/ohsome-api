@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from enum import StrEnum
-from typing import Literal, Optional, cast
+from typing import Literal, cast
 
 from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import (
@@ -19,6 +19,7 @@ from ohsome_api.request_models.time import (
     TimeBinsRequestModel,
     TimeRangeRequestModel,
     Timestamp,
+    TimestampEarliest,
     TimestampLatest,
 )
 
@@ -46,6 +47,7 @@ class MeasureRequestModel(StrEnum):
 class FilterRequestModel(RequestConfigModel):
     ohsome_filter: OhsomeFilter = Field(
         alias="filter",
+        title="Filter",
         description=(
             "Filter for OSM data. "
             "Please refer to the [ohsome filter language documentation]"
@@ -61,41 +63,37 @@ class GroupByTagModel(BaseModel):
 
 
 class GroupByRequestModel(RequestConfigModel):
-    group_by: Optional[GroupByTagModel] = Field(
+    group_by: GroupByTagModel | None = Field(
+        default=None,
         description=(
-            "(experimental, optional), if given indicates that the "
+            "`(experimental, optional)`; If given indicates that the "
             "results should also values for individual subsets of the "
             "result defined by the presence of tags with the given key"
         ),
         json_schema_extra={
             "examples": [None],
         },
-        default=None,
     )
 
 
 class ExtractionQueryModel(RequestConfigModel):
     clip: bool = Field(
-        default=True, description="Whether to clip extracted features with AOI or not."
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
     )
-    timestamp: datetime | Literal["latest"] = Field(
-        description=(
-            "Extraction timestamp (ISO-8601, UTC). "
-            "For the most recent data "
-            "'latest' can be used instead of a timestamp."
-        ),
+    timestamp: Timestamp | TimestampLatest | TimestampEarliest = Field(
         json_schema_extra={"examples": ["latest", "2026-04-17T00:00:00Z"]},
     )
 
     @computed_field
     @property
-    def timestamp_start(self) -> datetime | Literal["earliest", "latest"]:
-        return self.timestamp
+    def timestamp_start(self) -> datetime | Literal["latest"]:
+        return cast(datetime | Literal["latest"], self.timestamp)
 
     @computed_field
     @property
     def timestamp_end(self) -> datetime | Literal["latest"]:
-        return self.timestamp
+        return cast(datetime | Literal["latest"], self.timestamp)
 
 
 class ExtractionRequestParametersModel(

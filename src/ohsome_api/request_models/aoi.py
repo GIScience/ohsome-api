@@ -29,12 +29,11 @@ class RequestConfigModel(BaseModel):
 BBox = Annotated[
     tuple[float, float, float, float],
     Field(
-        title="BoundingBox",
-        description="Bounding Box (xmin, ymin, xmax, ymax)",
+        title="Bounding Box (BBOX)",
+        description="xmin, ymin, xmax, ymax",
         json_schema_extra={
             "example": (8.68812, 49.40390, 8.72362, 49.41582),
         },
-        # TODO: Specify length
     ),
 ]
 
@@ -42,8 +41,8 @@ BBox = Annotated[
 BBoxQuery = Annotated[
     str,
     Field(
-        title="BoundingBox",
-        description="Bounding Box (xmin, ymin, xmax, ymax)",
+        title="Bounding Box (BBOX)",
+        description="xmin, ymin, xmax, ymax",
         json_schema_extra={"example": "8.68812,49.40390,8.72362,49.41582"},
     ),
 ]
@@ -51,8 +50,8 @@ BBoxQuery = Annotated[
 WKT = Annotated[
     str,
     Field(
-        title="WKT",
-        description="Well-Known Text (Polygon or MultiPolygon)",
+        title="Well Known Text (WKT)",
+        description="As geometry type only POLYGON or MULTIPOLYGON is allowed.",
         json_schema_extra={
             "example": "POLYGON ((8.72362 49.41582,8.68812 49.41582,8.68812 49.4039,8.72362 49.4039,8.72362 49.41582))"  # noqa: E501
         },
@@ -62,7 +61,8 @@ WKT = Annotated[
 GeoJSONGeometry = Annotated[
     Polygon | MultiPolygon,
     Field(
-        title="GeoJSON Polygon or MultiPolygon",
+        title="GeoJSON Geometry",
+        description="As geometry type only Polygon or MultiPolygon is allowed.",
         json_schema_extra={
             "example": {
                 "type": "Polygon",
@@ -84,8 +84,8 @@ GeoJSONGeometry = Annotated[
 class AoiRequestModel(RequestConfigModel):
     aoi: BBox | GeoJSONGeometry | WKT = Field(
         description=(
-            "Area of interest as a GeoJSON Geometry, Bounding Box or WKT. "
-            "As geometry only Polygon or MultiPolygon are allowed."
+            "Area of interest as a GeoJSON Geometry, Bounding Box or Well Known Text "
+            "(WGS84, EPSG:4326)."
         ),
     )
 
@@ -161,7 +161,7 @@ class AoiRequestModel(RequestConfigModel):
 
 
 class AoiQueryModel(RequestConfigModel):
-    aoi: BBoxQuery = Field(description=("Area of interest as Bounding Box."))
+    aoi: BBoxQuery
 
     @field_validator("aoi", mode="before")
     @classmethod

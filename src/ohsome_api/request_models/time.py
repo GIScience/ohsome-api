@@ -12,6 +12,8 @@ from pydantic import (
 )
 from pydantic.alias_generators import to_camel
 
+from ohsome_api.config import CONFIG
+
 td_adapter = TypeAdapter(timedelta)
 
 
@@ -65,7 +67,7 @@ Timestamp = Annotated[
     datetime,
     Field(
         title="Timestamp",
-        description="Single timestamp (ISO-8601, UTC)",
+        description="Single timestamp (ISO-8601, UTC).",
         json_schema_extra={"example": "2026-01-01T00:00:00Z"},
     ),
     AfterValidator(validate_timezone),
@@ -86,7 +88,7 @@ TimestampLatest = Annotated[
     Literal["latest"],
     Field(
         title="Latest Timestamp",
-        description="Most recent data",
+        description="Most recent data.",
         json_schema_extra={"example": "latest"},
     ),
 ]
@@ -132,12 +134,14 @@ class TimeBinsRequestModel(TimeRangeRequestModel):
 
     model_config = ConfigDict(
         title="Time Bins",
-        # description=(
-        #     "Time bins defined using a start/end timestamp (ISO-8601, UTC) "
-        #     "and a bin size (ISO-8601 duration). Last bin might not cover bin size. "
-        #     "Please take a look at the "
-        #     f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
-        # ),
+        json_schema_extra={
+            "description": (
+                "Time bins defined using a start/end timestamp (ISO-8601, UTC) "
+                "and a bin size (ISO-8601 duration). "
+                "Last bin might not cover bin size. Please take a look at the "
+                f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
+            ),
+        },
     )
 
 
@@ -158,11 +162,12 @@ class TimeSeriesRequestModel(TimeRangeRequestModel):
 
     model_config = ConfigDict(
         title="Time Series",
-        # description=(
-        #     "Time series defined using a start/end timestamp (ISO-8601, UTC) "
-        #     "and a interval (ISO-8601 duration). "
-        #     "The interval between the last two timestamp might not fit given duration. "  # noqa
-        #     "Please take a look at the "
-        #     f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
-        # ),
+        json_schema_extra={
+            "description": (
+                "Time series defined using a start/end timestamp (ISO-8601, UTC) "
+                "and a interval (ISO-8601 duration). The interval between the last "
+                "two timestamp might not fit given duration. Please take a look at the "
+                f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
+            ),
+        },
     )
