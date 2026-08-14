@@ -11,18 +11,16 @@ from pydantic import (
     TypeAdapter,
 )
 
+import ohsome_api.routers.docs
+import ohsome_api.routers.extraction.features
+import ohsome_api.routers.filter
+import ohsome_api.routers.metadata
+import ohsome_api.routers.stats.contributors
+import ohsome_api.routers.stats.currentness
+import ohsome_api.routers.stats.features
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
 from ohsome_api.db import TimeSeriesTooLargeError
-from ohsome_api.routers import (
-    contributors,
-    currentness,
-    docs,
-    extraction,
-    features,
-    metadata,
-)
-from ohsome_api.routers import filter as filter_
 
 VERSION = importlib.metadata.version("ohsome-api")
 METADATA_PROJECT = importlib.metadata.metadata("ohsome-api")
@@ -69,13 +67,13 @@ app = FastAPI(
     },
 )
 
-app.include_router(docs.router)
-app.include_router(filter_.router)
-app.include_router(metadata.router)
-app.include_router(features.router)
-app.include_router(contributors.router)
-app.include_router(currentness.router)
-app.include_router(extraction.router)
+app.include_router(ohsome_api.routers.docs.router)
+app.include_router(ohsome_api.routers.filter.router)
+app.include_router(ohsome_api.routers.metadata.router)
+app.include_router(ohsome_api.routers.stats.features.router)
+app.include_router(ohsome_api.routers.stats.contributors.router)
+app.include_router(ohsome_api.routers.stats.currentness.router)
+app.include_router(ohsome_api.routers.extraction.features.router)
 
 
 @app.exception_handler(asyncpg.InternalServerError)
