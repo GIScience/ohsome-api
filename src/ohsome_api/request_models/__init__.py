@@ -49,7 +49,7 @@ class FilterRequestModel(RequestConfigModel):
         description=(
             "Filter for OSM data. "
             "Please refer to the [ohsome filter language documentation]"
-            f"({CONFIG.external_docs_url}/reference.html#filter)"
+            f"({CONFIG.external_docs_url}/reference.html#filter)."
         ),
         json_schema_extra={"example": "type:node and natural=tree"},
     )
