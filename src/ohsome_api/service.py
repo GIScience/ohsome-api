@@ -423,10 +423,12 @@ async def extract_contributions(
 
     async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
         with sink_type() as sink:
-            yield sink.write_batch(first)
+            yield sink.write_batch(await db.join_changesets_to_extraction_rows(first))
 
             async for batch in producer:
-                yield sink.write_batch(batch)
+                yield sink.write_batch(
+                    await db.join_changesets_to_extraction_rows(batch)
+                )
 
         # after sink is closed metadata and footer is written
         yield sink.read_bytes()

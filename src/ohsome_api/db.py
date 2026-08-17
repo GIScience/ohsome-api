@@ -728,7 +728,7 @@ async def extract_features_collection_members_features(
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
 
-def extract_contributions(
+async def extract_contributions(
     filter_where_clause: str,
     filter_args: tuple,
     aoi_wkt: str,
@@ -797,11 +797,26 @@ def extract_contributions(
               ({filter_where_clause.replace("tags", "tags_before")})
         )
     """  # noqa: E501, S608
-    print(sql)
-    print(filter_args)
-    print(aoi_wkt)
-    print(time_args)
-    return cast(
-        AsyncIterator[list[ExtractionRow]],
-        db.fetch_batch(sql, *filter_args, aoi_wkt, *time_args, batch_size=10000),
+
+    async for batch in db.fetch_batch(
+        sql, *filter_args, aoi_wkt, *time_args, batch_size=10000
+    ):
+        yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
+
+
+async def join_changesets_to_extraction_rows(
+    rows: list[ExtractionRow],
+) -> list[ExtractionRow]:
+    changeset_id: set[int] = {row["changeset_id"] for row in rows}
+    records = await db.fetch_rows(
+        f"""
+        SELECT id as changeset_id, tags
+        FROM "{SCHEMA}".changesets
+        WHERE id = ANY($1::int[])
+        """,  # noqa: S608
+        changeset_id,
     )
+    changeset_lookup = {row["changeset_id"]: row["tags"] for row in records}
+    for row in rows:
+        row["changeset_tags"] = changeset_lookup[row["changeset_id"]]
+    return rows

@@ -64,6 +64,7 @@ class ExtractionRow(TypedDict):
     user_id: int
     user_name: str
     changeset_id: int
+    changeset_tags: dict[str, str]
     contrib_type: str
     tags: dict[str, str]
     tags_before: dict[str, str]
