@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-CONTRIBUTIONS_EXTRACT_DESCRIPTION = (
+FEATURES_EXTRACT_DESCRIPTION = (
     "Nodes, ways, and relations tagged as `type=multipolygon` or `type=boundary` "
     "are included. "
     "Other relations can be queried with the `/extraction/collections.*` endpoints."
@@ -28,32 +28,32 @@ CONTRIBUTIONS_EXTRACT_DESCRIPTION = (
     "/extraction/features.parquet",
     response_class=StreamingResponse,
     summary="Download features.",
-    description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
+    description=FEATURES_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
 )
-async def post_contributions_extract(
+async def post_features_extract(
     parameters: ExtractionRequestParametersModel,
 ) -> StreamingResponse:
-    return await contributions_extract(parameters)
+    return await features_extract(parameters)
 
 
 @router.get(
     "/extraction/features.parquet",
     response_class=StreamingResponse,
     summary="Download features.",
-    description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
+    description=FEATURES_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
 )
-async def get_contributions_extract(
+async def get_features_extract(
     parameters: Annotated[
         ExtractionQueryParametersModel,
         Query(),
     ],
 ) -> StreamingResponse:
-    return await contributions_extract(parameters)
+    return await features_extract(parameters)
 
 
-async def contributions_extract(
+async def features_extract(
     parameters: ExtractionRequestParametersModel | ExtractionQueryParametersModel,
 ) -> StreamingResponse:
     stream = await service.extract_features_as_parquet(
@@ -75,34 +75,34 @@ async def contributions_extract(
     "/extraction/features.arrow",
     response_class=StreamingResponse,
     summary="Download features.",
-    description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
+    description=FEATURES_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
     include_in_schema=False,
 )
-async def post_contributions_extract_arrow(
+async def post_features_extract_arrow(
     parameters: ExtractionRequestParametersModel,
 ) -> StreamingResponse:
-    return await contributions_extract_as_arrow(parameters)
+    return await features_extract_as_arrow(parameters)
 
 
 @router.get(
     "/extraction/features.arrow",
     response_class=StreamingResponse,
     summary="Download features.",
-    description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
+    description=FEATURES_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
     include_in_schema=False,
 )
-async def get_contributions_extract_arrow(
+async def get_features_extract_arrow(
     parameters: Annotated[
         ExtractionQueryParametersModel,
         Query(),
     ],
 ) -> StreamingResponse:
-    return await contributions_extract_as_arrow(parameters)
+    return await features_extract_as_arrow(parameters)
 
 
-async def contributions_extract_as_arrow(
+async def features_extract_as_arrow(
     parameters: ExtractionRequestParametersModel | ExtractionQueryParametersModel,
 ) -> StreamingResponse:
 
