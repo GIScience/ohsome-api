@@ -18,6 +18,7 @@ from ohsome_api.models import (
 )
 from ohsome_api.parquet import (
     ArrowSink,
+    ContributionParquetSink,
     MemberArrowSink,
     MemberParquetSink,
     ParquetSink,
@@ -398,4 +399,51 @@ async def extract_features_collections_members_as_arrow(
 ) -> AsyncIterator[bytes]:
     return await extract_features_collections_members(
         ohsome_filter, member_filter, aoi_wkt, clip, time, MemberArrowSink
+    )
+
+
+async def extract_contributions(
+    ohsome_filter: OhsomeFilter,
+    aoi_wkt: str,
+    start: datetime,
+    end: datetime | Literal["latest"],
+    sink_type: type[Sink],
+) -> AsyncIterator[bytes]:
+    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
+
+    producer = db.extract_contributions(
+        query_where_clause,
+        query_args,
+        aoi_wkt,
+        start,
+        end,
+    )
+
+    first_batch = await anext(producer)
+
+    async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
+        with sink_type() as sink:
+            yield sink.write_batch(first)
+
+            async for batch in producer:
+                yield sink.write_batch(batch)
+
+        # after sink is closed metadata and footer is written
+        yield sink.read_bytes()
+
+    return stream(first_batch)
+
+
+async def extract_contributions_as_parquet(
+    ohsome_filter: OhsomeFilter,
+    aoi_wkt: str,
+    start: datetime,
+    end: datetime | Literal["latest"],
+) -> AsyncIterator[bytes]:
+    return await extract_contributions(
+        ohsome_filter,
+        aoi_wkt,
+        start,
+        end,
+        ContributionParquetSink,
     )

@@ -64,7 +64,9 @@ class ExtractionRow(TypedDict):
     user_id: int
     user_name: str
     changeset_id: int
+    contrib_type: str
     tags: dict[str, str]
+    tags_before: dict[str, str]
     xmin: float
     xmax: float
     ymin: float

@@ -101,6 +101,37 @@ MEMBER_EXTRACTION_SCHEMA = schema(
     ]
 )
 
+CONTRIBUTION_EXTRACTION_SCHEMA = schema(
+    [
+        ("osm_type", string()),
+        ("osm_id", int64()),
+        ("valid_from", timestamp("us", tz="UTC")),
+        ("valid_to", timestamp("us", tz="UTC")),
+        ("osm_version", int32()),
+        ("minor_version", int32()),
+        ("osm_edits", int32()),
+        ("osm_user_id", int32()),
+        ("osm_user_name", string()),
+        ("osm_changeset_id", int64()),
+        ("contribution_type", string()),
+        ("osm_tags", map_(string(), string())),
+        ("osm_tags_before", map_(string(), string())),
+        (
+            "bbox",
+            struct(
+                [
+                    ("xmin", float64()),
+                    ("xmax", float64()),
+                    ("ymin", float64()),
+                    ("ymax", float64()),
+                ]
+            ),
+        ),
+        ("geom_type", string()),
+        geom_field,
+    ]
+)
+
 GEOPARQUET_META = {
     "version": "1.1.0",
     "primary_column": "geom",
@@ -172,6 +203,30 @@ def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
             [r["clipped"] for r in rows],
         ],
         schema=FEATURE_EXTRACTION_SCHEMA,
+    )
+
+
+def record_batch_contribution(rows: list[ExtractionRow]) -> RecordBatch:
+    return RecordBatch.from_arrays(
+        [
+            [r["osm_type"] for r in rows],
+            [r["osm_id"] for r in rows],
+            [r["valid_from"].timestamp() * 1000000 for r in rows],
+            [r["valid_to"].timestamp() * 1000000 for r in rows],
+            [r["osm_version"] for r in rows],
+            [r["osm_minor_version"] for r in rows],
+            [r["osm_edits"] for r in rows],
+            [r["user_id"] for r in rows],
+            [r["user_name"] for r in rows],
+            [r["changeset_id"] for r in rows],
+            [r["contrib_type"] for r in rows],
+            [r["tags"] for r in rows],
+            [r["tags_before"] for r in rows],
+            [bbox(r) for r in rows],
+            [r["geom_type"] for r in rows],
+            [r["geom"] for r in rows],
+        ],
+        schema=CONTRIBUTION_EXTRACTION_SCHEMA,
     )
 
 
@@ -314,3 +369,11 @@ class MemberArrowSink(ArrowSink):
 
     def convert_batch(self, rows: list[ExtractionRow]) -> RecordBatch:
         return record_batch_member(rows)
+
+
+class ContributionParquetSink(ParquetSink):
+    def get_schema(self) -> schema:
+        return CONTRIBUTION_EXTRACTION_SCHEMA
+
+    def convert_batch(self, rows: list[ExtractionRow]) -> RecordBatch:
+        return record_batch_contribution(rows)

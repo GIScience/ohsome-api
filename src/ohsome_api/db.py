@@ -726,3 +726,82 @@ async def extract_features_collection_members_features(
         sql, *filter_args, aoi_wkt, time, ids, versions, batch_size=10000
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
+
+
+def extract_contributions(
+    filter_where_clause: str,
+    filter_args: tuple,
+    aoi_wkt: str,
+    start: datetime,
+    end: datetime | Literal["latest"],
+) -> AsyncIterator[list[ExtractionRow]]:
+    filter_args_count = len(filter_args)
+
+    if end == "latest":
+        filter_by_time_constraint = f"""
+            AND valid_from >= ${filter_args_count + 2}::timestamptz
+        """
+        time_args = [start]
+    else:
+        filter_by_time_constraint = f"""
+            AND valid_from BETWEEN ${filter_args_count + 2}::timestamptz AND ${filter_args_count + 3}::timestamptz
+        """  # noqa: E501
+        time_args = [start, end]
+
+    filter_by_time = f"""
+        status_geom_type = ANY(array[
+          ('latest','Point')::"{SCHEMA}".status_geom_type_type,
+          ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
+          ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
+          ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+          ('history','Point')::"{SCHEMA}".status_geom_type_type,
+          ('history','LineString')::"{SCHEMA}".status_geom_type_type,
+          ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
+          ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
+          ('deleted','Point')::"{SCHEMA}".status_geom_type_type,
+          ('deleted','LineString')::"{SCHEMA}".status_geom_type_type,
+          ('deleted','Polygon')::"{SCHEMA}".status_geom_type_type,
+          ('deleted','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+       ])
+       {filter_by_time_constraint}
+    """
+
+    sql = f"""
+       WITH aoi AS (
+            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) as geom
+       )
+       SELECT osm_type,
+              osm_id,
+              valid_from,
+              valid_to,
+              osm_version,
+              osm_minor_version,
+              osm_edits,
+              user_id,
+              user_name,
+              changeset_id,
+              contrib_type,
+              case when c.contrib_type = 'DELETION' then c.tags_before else c.tags end as tags,
+              tags_before,
+              (status_geom_type).geom_type as geom_type,
+              ST_AsBinary(c.geom) as geom,
+              ST_XMin(c.geom) as xmin,
+              ST_YMin(c.geom) as ymin,
+              ST_XMax(c.geom) as xmax,
+              ST_YMax(c.geom) as ymax
+       FROM "{SCHEMA}".contributions c
+       JOIN aoi ON (ST_INTERSECTS(aoi.geom, c.geom))
+       WHERE {filter_by_time}
+         AND (
+              ({filter_where_clause}) or
+              ({filter_where_clause.replace("tags", "tags_before")})
+        )
+    """  # noqa: E501, S608
+    print(sql)
+    print(filter_args)
+    print(aoi_wkt)
+    print(time_args)
+    return cast(
+        AsyncIterator[list[ExtractionRow]],
+        db.fetch_batch(sql, *filter_args, aoi_wkt, *time_args, batch_size=10000),
+    )

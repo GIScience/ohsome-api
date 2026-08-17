@@ -13,6 +13,7 @@ from pydantic import (
 
 import ohsome_api.routers.docs
 import ohsome_api.routers.extraction.collections
+import ohsome_api.routers.extraction.contributions
 import ohsome_api.routers.extraction.features
 import ohsome_api.routers.filter
 import ohsome_api.routers.metadata
@@ -76,6 +77,7 @@ app.include_router(ohsome_api.routers.stats.contributors.router)
 app.include_router(ohsome_api.routers.stats.currentness.router)
 app.include_router(ohsome_api.routers.extraction.features.router)
 app.include_router(ohsome_api.routers.extraction.collections.router)
+app.include_router(ohsome_api.routers.extraction.contributions.router)
 
 
 @app.exception_handler(asyncpg.InternalServerError)
