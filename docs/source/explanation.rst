@@ -1,6 +1,6 @@
 .. Explanation is a discursive treatment of a subject, that permits reflection.
    Explanation is understanding-oriented.
-   https://diataxis.fr/
+   https://diataxis.fr/explanation
 
 Explanation
 ===========
@@ -65,53 +65,46 @@ The ohsome API categorizes OSM elements by their Simple Features Geometry types,
 Features
 ^^^^^^^^
 
-Contains of OSM nodes and ways that have any tag.
-Additionally, OSM relations tagged as type=multipolygon or type=boundary are included.
+Features are OSM nodes and ways that have at least one tag.
+Additionally, OSM relations tagged as ``type=multipolygon`` or ``type=boundary`` are included.
 
-This can be Points, Linestrings, Polygons and MultiPolygons.
+Features are one of the Simple Features Geometry types Points, Linestrings, Polygons or MultiPolygons.
+
+Features have a lifespan (``[edit_timestamp, valid_to_timestamp]``).
+During that lifespan they are visible on the map.
+The ``edit_timestamp`` is the moment when the feature became visible on the map.
+The ``valid_to_timestamp`` is the moment when the feature vanished from the map.
+
+
+Features vs. OSM Elements
+--------------------------
 
 
 Collections
 ^^^^^^^^^^^
 
-OSM relations not tagged as type=multipolygon or type=boundary.
+Collections are OSM relations not tagged as ``type=multipolygon`` or ``type=boundary``.
 
-This is a GeometryCollection.
+Collections are GeometryCollection containing any of the Simple Feature Geometry types mentioned for Features.
 
-For each relation a separate row is returned for their linear, polygonal or point members.
+For each OSM relation a separate GeometryCollection is returned for their linear, polygonal or point members.
 
 
 Collections Members
 -------------------
 
-OSM ways and nodes that are members of OSM relations (not tagged as type=multipolygon or type=boundary).
+Collection Members are OSM ways and nodes that are members of OSM relations not tagged as ``type=multipolygon or type=boundary`` (Collections).
 
-For each relation all members features are returned including their metadata (e.g. role or position).
-
-
-
-
-
-Features vs. Contributions
---------------------------
-
-The temporal dimension is the key factor here.
-
-Features
-^^^^^^^^
-
+A single Collection contains only the geometries of its member as GeometryCollection (see above), but not their attributes such as OSM tags.
+To get each individual member including geometry add all other attributes such as OSM tags Collection Members must be requested.
 
 
 Contributions
 ^^^^^^^^^^^^^
 
-Focus on the edit timestamp and the previous version of the OSM element.
+Contributions happen at a single point in time (``edit_timestamp``).
+They contain additional metadata such as changeset information and tags before the change.
+Contributions also contain information about deleted OSM elements (see ``contributions_type`` attribute).
 
-This contains deletions and their metadata (e.g. OSM user_id or changeset_id).
-
-
-
-
-
-
-
+Usually you would use Contributions if you are interested in Mapping Activity (i.e. all the road edits in between a time range).
+You would use Features if you are interested in all visible OSM elements in a given time regardless of their ``edit_timestamp``.
