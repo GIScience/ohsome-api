@@ -432,12 +432,29 @@ def extract_features(
     """Extract all features"""
     filter_args_count = len(filter_args)
     if clip:
-        select_geom_sql = (
-            "CASE WHEN ST_Within(c.geom, aoi.geom) THEN c.geom ELSE ST_Intersection(c.geom, aoi.geom) END AS geometry, "  # noqa: E501
-            "NOT ST_Within(c.geom, aoi.geom ) as clipped "
-        )
+        clipped_geom_sql = """
+        -- is clipped
+        CROSS JOIN LATERAL (
+          SELECT ST_Covers(aoi.geom, c.geom) as is_covered
+        ) cov
+        CROSS JOIN LATERAL (
+          SELECT
+            NOT cov.is_covered AS clipped,
+          CASE
+            WHEN cov.is_covered THEN c.geom
+            ELSE ST_Intersection(c.geom, aoi.geom)
+          END AS geom
+        ) proc
+        """
     else:
-        select_geom_sql = "c.geom as geometry, false as clipped "
+        clipped_geom_sql = """
+        -- not clipping
+        CROSS JOIN LATERAL (
+        SELECT
+          false as clipped,
+          c.geom as geom
+        ) proc
+        """
 
     filter_by_time, time_args = _filter_by_time(
         start, end, filter_args_count, contributions
@@ -458,22 +475,18 @@ def extract_features(
                user_name,
                changeset_id,
                tags,
-               ST_XMin(geometry) as xmin,
-               ST_YMin(geometry) as ymin,
-               ST_XMax(geometry) as xmax,
-               ST_YMax(geometry) as ymax,
-               geom_type,
-               ST_AsBinary(geometry) as geom,
-               clipped
-        FROM (
-        SELECT *,
+               ST_XMin(proc.geom) as xmin,
+               ST_YMin(proc.geom) as ymin,
+               ST_XMax(proc.geom) as xmax,
+               ST_YMax(proc.geom) as ymax,
                (status_geom_type).geom_type as geom_type,
-               {select_geom_sql}
+               ST_AsBinary(proc.geom) as geom,
+               proc.clipped
         FROM "{SCHEMA}".contributions as c
         JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
+        {clipped_geom_sql}
         WHERE {filter_by_time}
            AND ({filter_where_clause})
-        ) as c
     """  # noqa: S608
 
     # cast generic asyncpg Record to ExtractionRow
@@ -682,14 +695,30 @@ async def extract_features_collection_members_features(
            AND valid_to > ${filter_args_count + 2}::timestamptz
         """
     if clip:
-        select_geom_sql = (
-            "ST_AsBinary(ST_Intersection(c.geom, aoi.geom)) as geom, "
-            "NOT ST_Within( c.geom, aoi.geom ) as clipped "
-        )
-        join_geom_sql = "JOIN aoi ON ST_Intersects(c.geom, aoi.geom)"
+        clipped_geom_sql = """
+        -- is clipped
+        JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
+        CROSS JOIN LATERAL (
+          SELECT ST_Covers(aoi.geom, c.geom) as is_covered
+        ) cov
+        CROSS JOIN LATERAL (
+          SELECT
+            NOT cov.is_covered AS clipped,
+          CASE
+            WHEN cov.is_covered THEN c.geom
+            ELSE ST_Intersection(c.geom, aoi.geom)
+          END AS geom
+        ) proc
+        """
     else:
-        select_geom_sql = "ST_AsBinary(c.geom) as geom, false as clipped "
-        join_geom_sql = ""
+        clipped_geom_sql = """
+        -- not clipping
+        CROSS JOIN LATERAL (
+        SELECT
+          false as clipped,
+          c.geom as geom
+        ) proc
+        """
 
     sql = f"""
         WITH aoi AS (
@@ -706,15 +735,16 @@ async def extract_features_collection_members_features(
                user_name,
                changeset_id,
                tags,
+               ST_XMin(proc.geom) as xmin,
+               ST_YMin(proc.geom) as ymin,
+               ST_XMax(proc.geom) as xmax,
+               ST_YMax(proc.geom) as ymax,
+               (status_geom_type).geom_type as geom_type,
+               ST_AsBinary(proc.geom) as geom,
+               proc.clipped,
                m.relation_osm_id as part_of,
                m.member_role as part_of_role,
-               m.member_pos_list[array_position(m.relation_osm_version_list , col.version)] as part_of_pos,
-               ST_XMin(c.geom) as xmin,
-               ST_YMin(c.geom) as ymin,
-               ST_XMax(c.geom) as xmax,
-               ST_YMax(c.geom) as ymax,
-               (status_geom_type).geom_type as geom_type,
-               {select_geom_sql}
+               m.member_pos_list[array_position(m.relation_osm_version_list , col.version)] as part_of_pos
         FROM unnest(${filter_args_count + 3}::int[], ${filter_args_count + 4}::int[]) AS col(id, version)
         JOIN "{SCHEMA}".contributions_members m ON (
             col.id = m.relation_osm_id
@@ -722,10 +752,11 @@ async def extract_features_collection_members_features(
         JOIN "{SCHEMA}".contributions AS c ON (
             m.member_osm_type = c.osm_type
             AND m.member_osm_id = c.osm_id)
-        {join_geom_sql}
+        {clipped_geom_sql}
         WHERE {filter_by_time}
           AND ({filter_where_clause})
     """  # noqa: E501, S608
+
     async for batch in db.fetch_batch(
         sql, *filter_args, aoi_wkt, time, ids, versions, batch_size=10000
     ):

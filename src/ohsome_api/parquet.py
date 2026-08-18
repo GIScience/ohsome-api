@@ -36,6 +36,18 @@ geom_field = field(
     },
 )
 
+bbox_field = field(
+    "bbox",
+    struct(
+        [
+            ("xmin", float64()),
+            ("xmax", float64()),
+            ("ymin", float64()),
+            ("ymax", float64()),
+        ]
+    ),
+)
+
 FEATURE_EXTRACTION_SCHEMA = schema(
     [
         ("osm_type", string()),
@@ -44,7 +56,7 @@ FEATURE_EXTRACTION_SCHEMA = schema(
         (
             "valid_to_timestamp",
             timestamp("us", tz="UTC"),
-        ),  # valid_to from latest 2222-01-01 00:00:00.000 +0000 2525
+        ),  # valid_to from latest 2222-01-01
         ("osm_version", int32()),
         ("minor_version", int32()),
         ("osm_edits", int32()),
@@ -52,17 +64,7 @@ FEATURE_EXTRACTION_SCHEMA = schema(
         ("osm_user_name", string()),
         ("osm_changeset_id", int64()),  # later hashtags
         ("osm_tags", map_(string(), string())),
-        (
-            "bbox",
-            struct(
-                [
-                    ("xmin", float64()),
-                    ("xmax", float64()),
-                    ("ymin", float64()),
-                    ("ymax", float64()),
-                ]
-            ),
-        ),
+        bbox_field,
         ("geom_type", string()),
         geom_field,
         ("clipped", bool_()),
@@ -74,7 +76,11 @@ MEMBER_EXTRACTION_SCHEMA = schema(
     [
         ("osm_type", string()),
         ("osm_id", int64()),
-        ("last_edit", timestamp("us", tz="UTC")),
+        ("edit_timestamp", timestamp("us", tz="UTC")),
+        (
+            "valid_to_timestamp",
+            timestamp("us", tz="UTC"),
+        ),  # valid_to from latest 2222-01-01
         ("osm_version", int32()),
         ("minor_version", int32()),
         ("osm_edits", int32()),
@@ -85,17 +91,7 @@ MEMBER_EXTRACTION_SCHEMA = schema(
         ("collection_osm_id", int64()),
         ("member_role", string()),
         ("member_pos", int32()),
-        (
-            "bbox",
-            struct(
-                [
-                    ("xmin", float64()),
-                    ("xmax", float64()),
-                    ("ymin", float64()),
-                    ("ymax", float64()),
-                ]
-            ),
-        ),
+        bbox_field,
         ("geom_type", string()),
         geom_field,
         ("clipped", bool_()),
@@ -110,7 +106,7 @@ CONTRIBUTION_EXTRACTION_SCHEMA = schema(
         (
             "valid_to_timestamp",
             timestamp("us", tz="UTC"),
-        ),  # valid_to from latest 2222-01-01 00:00:00.000 +0000 2525
+        ),  # valid_to from latest 2222-01-01
         ("osm_version", int32()),
         ("minor_version", int32()),
         ("osm_edits", int32()),
@@ -121,17 +117,7 @@ CONTRIBUTION_EXTRACTION_SCHEMA = schema(
         ("contribution_type", string()),
         ("osm_tags", map_(string(), string())),
         ("osm_tags_before", map_(string(), string())),
-        (
-            "bbox",
-            struct(
-                [
-                    ("xmin", float64()),
-                    ("xmax", float64()),
-                    ("ymin", float64()),
-                    ("ymax", float64()),
-                ]
-            ),
-        ),
+        bbox_field,
         ("geom_type", string()),
         geom_field,
     ]
@@ -242,7 +228,7 @@ def record_batch_member(rows: list[ExtractionRow]) -> RecordBatch:
             [r["osm_type"] for r in rows],
             [r["osm_id"] for r in rows],
             [r["valid_from"].timestamp() * 1000000 for r in rows],
-            #            [r["valid_to"].timestamp()   * 1000000 for r in rows],
+            [r["valid_to"].timestamp() * 1000000 for r in rows],
             [r["osm_version"] for r in rows],
             [r["osm_minor_version"] for r in rows],
             [r["osm_edits"] for r in rows],
