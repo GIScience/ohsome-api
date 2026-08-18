@@ -55,9 +55,9 @@ class StatsFeaturesRequestModel(
     clip: bool = Field(
         default=False,
         description=(
-            "If true, length or area will be based on the clipped feature geometries. "
-            "Depending on your ohsome filter, clipping feature geometryes for large "
-            "AOIs can be very expensive (and is usually not needed)."
+            "If true, length and area calculations use the clipped feature geometries. "
+            "Clipping can be computationally expensive for large AOIs, "
+            "depending on your ohsome filter, and is usually unnecessary."
         ),
     )
 
