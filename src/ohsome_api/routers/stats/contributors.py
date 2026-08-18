@@ -4,11 +4,14 @@ from typing import cast
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from pydantic import AliasChoices, Field
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import TimeBinColumns, TimeBinRow
-from ohsome_api.request_models import TimeBinsRequestParametersModel
+from ohsome_api.request_models import FilterRequestModel
+from ohsome_api.request_models.aoi import AoiRequestModel
+from ohsome_api.request_models.time import TimeBinsRequestModel
 from ohsome_api.response_models import (
     TimeBinsColumnsResponseModel,
     TimeBinsResponseModel,
@@ -23,6 +26,15 @@ VERSION = version("ohsome-api")
 router = APIRouter(
     dependencies=[Depends(api_key_header_scheme)],
 )
+
+
+class TimeBinsRequestParametersModel(
+    AoiRequestModel,
+    FilterRequestModel,
+):
+    time: TimeBinsRequestModel = Field(
+        validation_alias=AliasChoices("time", "timeBins")
+    )
 
 
 @router.post(
