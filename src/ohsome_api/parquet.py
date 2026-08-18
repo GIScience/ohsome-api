@@ -69,6 +69,7 @@ FEATURE_EXTRACTION_SCHEMA = schema(
     ]
 )
 
+# TODO: rename last_edit and add valid_to
 MEMBER_EXTRACTION_SCHEMA = schema(
     [
         ("osm_type", string()),
@@ -105,8 +106,11 @@ CONTRIBUTION_EXTRACTION_SCHEMA = schema(
     [
         ("osm_type", string()),
         ("osm_id", int64()),
-        ("valid_from", timestamp("us", tz="UTC")),
-        ("valid_to", timestamp("us", tz="UTC")),
+        ("edit_timestamp", timestamp("us", tz="UTC")),  # valid_from / edit_timestamp
+        (
+            "valid_to_timestamp",
+            timestamp("us", tz="UTC"),
+        ),  # valid_to from latest 2222-01-01 00:00:00.000 +0000 2525
         ("osm_version", int32()),
         ("minor_version", int32()),
         ("osm_edits", int32()),
