@@ -20,6 +20,10 @@ class TimeSeriesTooLargeError(ValueError):
     pass
 
 
+class ResultTooLargeError(ValueError):
+    pass
+
+
 async def generate_timestamp_series(
     start: datetime,
     end: datetime,
@@ -331,10 +335,10 @@ async def get_features_grouped_by_tag(
         all_tags.add(record["tag_value"])
 
     if len(all_tags) * len(series) > limit:
-        raise TimeSeriesTooLargeError(
+        raise ResultTooLargeError(
             "The provided query produced too many results. The given "
-            "time series parameters in combination with the resulting"
-            f"group by tags lead to a result larger than {limit} rows."
+            "time series parameters in combination with the "
+            f"group by tags parameter lead to a result larger than {limit} rows."
         )
 
     zerofilled_results: dict[str, dict[datetime, int]] = dict()

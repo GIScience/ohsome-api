@@ -22,7 +22,7 @@ import ohsome_api.routers.stats.currentness
 import ohsome_api.routers.stats.features
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
-from ohsome_api.db import TimeSeriesTooLargeError
+from ohsome_api.db import ResultTooLargeError, TimeSeriesTooLargeError
 
 VERSION = importlib.metadata.version("ohsome-api")
 METADATA_PROJECT = importlib.metadata.metadata("ohsome-api")
@@ -113,6 +113,23 @@ async def time_series_too_large_error(
             "detail": [
                 {
                     "type": "time_series_too_large_error",
+                    "msg": str(exception),
+                }
+            ]
+        },
+    )
+
+
+@app.exception_handler(ResultTooLargeError)
+async def result_too_large_error(
+    _: Request, exception: ResultTooLargeError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": [
+                {
+                    "type": "result_too_large_error",
                     "msg": str(exception),
                 }
             ]
