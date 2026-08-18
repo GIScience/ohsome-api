@@ -148,40 +148,6 @@ class ExtractionQueryParametersModel(
     pass
 
 
-class CollectionsExtractionRequestParametersModel(
-    AoiRequestModel,
-    FilterRequestModel,
-):
-    # TODO: Change example of ohsome filter
-    time: Timestamp | TimestampLatest
-    member_filter: OhsomeFilter = Field(
-        default="*",
-        description="Specific ohsome filter for members.",
-        json_schema_extra={"example": "geometry:line"},
-    )
-    clip: bool = Field(
-        default=True,
-        description="Whether to clip extracted features with AOI or not.",
-    )
-
-
-class CollectionsExtractionQueryParametersModel(
-    AoiQueryModel,
-    FilterRequestModel,
-):
-    # TODO: Change example of ohsome filter
-    time: Timestamp | TimestampLatest
-    member_filter: OhsomeFilter = Field(
-        default="*",
-        description="Specific ohsome filter for members.",
-        json_schema_extra={"example": "geometry:line"},
-    )
-    clip: bool = Field(
-        default=True,
-        description="Whether to clip extracted features with AOI or not.",
-    )
-
-
 class TimeBinsRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,

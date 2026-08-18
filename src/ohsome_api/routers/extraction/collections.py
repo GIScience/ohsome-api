@@ -3,13 +3,17 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
+from ohsome_filter_to_sql import OhsomeFilter
+from pydantic import Field, computed_field
 
 from ohsome_api import service
+from ohsome_api.config import CONFIG
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import (
-    CollectionsExtractionQueryParametersModel,
-    CollectionsExtractionRequestParametersModel,
+    RequestConfigModel,
 )
+from ohsome_api.request_models.aoi import AoiQueryModel, AoiRequestModel
+from ohsome_api.request_models.time import Timestamp, TimestampLatest
 
 VERSION = version("ohsome-api")
 router = APIRouter(
@@ -38,6 +42,71 @@ FEATURES_COLLECTIONS_EXTRACT_EXAMPLE = {
         "clip": True,
     }
 }
+
+
+class CollectionsFilter(RequestConfigModel):
+    ohsome_filter: OhsomeFilter = Field(
+        alias="filter",
+        title="Filter",
+        description=(
+            "Filter for OSM data. "
+            "Please refer to the [ohsome filter language documentation]"
+            f"({CONFIG.external_docs_url}/reference.html#filter)."
+        ),
+        json_schema_extra={
+            "example": "type:relation and type=route and route=bus and service=night"
+        },
+    )
+
+
+class CollectionsExtractionRequestParametersModel(
+    AoiRequestModel,
+    CollectionsFilter,
+):
+    time: Timestamp | TimestampLatest
+    member_filter_: OhsomeFilter | None = Field(
+        default=None,
+        alias="member_filter",
+        description="Specific ohsome filter for members.",
+        json_schema_extra={"example": "geometry:line"},
+    )
+    clip: bool = Field(
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
+    )
+
+    @computed_field
+    @property
+    def member_filter(self) -> OhsomeFilter:
+        if self.member_filter_ is None:
+            return "*"
+
+        return self.member_filter_
+
+
+class CollectionsExtractionQueryParametersModel(
+    AoiQueryModel,
+    CollectionsFilter,
+):
+    time: Timestamp | TimestampLatest
+    member_filter_: OhsomeFilter | None = Field(
+        default=None,
+        alias="member_filter",
+        description="Specific ohsome filter for members.",
+        json_schema_extra={"example": "geometry:line"},
+    )
+    clip: bool = Field(
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
+    )
+
+    @computed_field
+    @property
+    def member_filter(self) -> OhsomeFilter:
+        if self.member_filter_ is None:
+            return "*"
+
+        return self.member_filter_
 
 
 @router.post(
