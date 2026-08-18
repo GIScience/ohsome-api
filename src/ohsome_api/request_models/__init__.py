@@ -22,6 +22,9 @@ from ohsome_api.request_models.time import (
     TimestampEarliest,
     TimestampLatest,
 )
+from ohsome_api.request_models.time import (
+    TimeRangeStr as TimeRangeStr,
+)
 
 td_adapter = TypeAdapter(timedelta)
 
@@ -125,7 +128,7 @@ class ExtractionQueryParametersModel(
     AoiQueryModel,
     FilterRequestModel,
 ):
-    time: Timestamp | TimestampLatest
+    time: Timestamp | TimestampLatest | TimeRangeStr
     clip: bool = Field(
         default=True,
         description="Whether to clip extracted features with AOI or not.",
@@ -136,14 +139,14 @@ class ExtractionQueryParametersModel(
     def start(self) -> datetime | Literal["latest"]:
         if isinstance(self.time, TimeRangeRequestModel):
             return cast(datetime | Literal["latest"], self.time.start)
-        return self.time
+        return cast(datetime | Literal["latest"], self.time)
 
     @computed_field
     @property
     def end(self) -> datetime | Literal["latest"]:
         if isinstance(self.time, TimeRangeRequestModel):
             return self.time.end
-        return self.time
+        return cast(datetime | Literal["latest"], self.time)
 
     pass
 

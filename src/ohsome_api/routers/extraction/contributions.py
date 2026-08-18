@@ -1,8 +1,8 @@
 from datetime import datetime
 from importlib.metadata import version
-from typing import Literal, cast
+from typing import Annotated, Literal, cast
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from pydantic import (
     computed_field,
@@ -11,9 +11,10 @@ from pydantic import (
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import FilterRequestModel
-from ohsome_api.request_models.aoi import AoiRequestModel
+from ohsome_api.request_models.aoi import AoiQueryModel, AoiRequestModel
 from ohsome_api.request_models.time import (
     TimeRangeRequestModel,
+    TimeRangeStr,
 )
 
 VERSION = version("ohsome-api")
@@ -45,6 +46,23 @@ class ContributionsExtractionRequestParametersModel(
         return self.time.end
 
 
+class ContributionsExtractionQueryParametersModel(
+    AoiQueryModel,
+    FilterRequestModel,
+):
+    time: TimeRangeStr
+
+    @computed_field
+    @property
+    def start(self) -> datetime:
+        return cast(datetime, cast(TimeRangeRequestModel, self.time).start)
+
+    @computed_field
+    @property
+    def end(self) -> datetime | Literal["latest"]:
+        return cast(TimeRangeRequestModel, self.time).end
+
+
 @router.post(
     path="/extraction/contributions.parquet",
     response_class=StreamingResponse,
@@ -58,8 +76,25 @@ async def post_contributions_extract(
     return await contributions_extract(parameters)
 
 
+@router.get(
+    path="/extraction/contributions.parquet",
+    response_class=StreamingResponse,
+    summary="Download contributions.",
+    description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
+    tags=["Extraction"],
+)
+async def get_contributions_extract(
+    parameters: Annotated[
+        ContributionsExtractionQueryParametersModel,
+        Query(),
+    ],
+) -> StreamingResponse:
+    return await contributions_extract(parameters)
+
+
 async def contributions_extract(
-    parameters: ContributionsExtractionRequestParametersModel,
+    parameters: ContributionsExtractionRequestParametersModel
+    | ContributionsExtractionQueryParametersModel,
 ) -> StreamingResponse:
     stream = await service.extract_contributions_as_parquet(
         parameters.ohsome_filter,

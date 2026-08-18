@@ -54,6 +54,13 @@ def transform_earliest_to_timestamp(
     return value
 
 
+def transform_time_timerange(value: str) -> TimeRangeRequestModel:
+    parts = value.split("/")
+    if len(parts) == 2 and all(parts):
+        return TimeRangeRequestModel(start=parts[0], end=parts[1])
+    raise ValueError("Invalid time range format.")
+
+
 class RequestConfigModel(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
@@ -91,6 +98,20 @@ TimestampLatest = Annotated[
         description="Most recent data.",
         json_schema_extra={"example": "latest"},
     ),
+]
+
+TimeRangeStr = Annotated[
+    str,
+    Field(
+        title="Time Range",
+        # TODO update documentation
+        description=(
+            "Time range defined using a start/end timestamp (ISO-8601, UTC). "
+            "Please take a look at the PLACEHOLDER TODO."
+        ),
+        json_schema_extra={"example": "2025-01-01T00:00:00Z/2026-01-01T00:00:00Z"},
+    ),
+    AfterValidator(transform_time_timerange),
 ]
 
 
