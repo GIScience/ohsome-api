@@ -29,7 +29,7 @@ CONTRIBUTIONS_EXTRACT_DESCRIPTION = (
 )
 
 
-class ExtractionRequestParametersModel(
+class ContributionsExtractionRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
 ):
@@ -54,13 +54,13 @@ class ExtractionRequestParametersModel(
     tags=["Extraction"],
 )
 async def get_contributions_extract(
-    parameters: ExtractionRequestParametersModel,
+    parameters: ContributionsExtractionRequestParametersModel,
 ) -> StreamingResponse:
     return await contributions_extract(parameters)
 
 
 async def contributions_extract(
-    parameters: ExtractionRequestParametersModel,
+    parameters: ContributionsExtractionRequestParametersModel,
 ) -> StreamingResponse:
     stream = await service.extract_contributions_as_parquet(
         parameters.ohsome_filter,
