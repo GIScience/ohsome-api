@@ -47,6 +47,7 @@ async def post_currentness_as_json(
             bin_size=parameters.time.bin_size,
             aoi_wkt=parameters.aoi_wkt,
             measure=cast(MeasureEnum, measure),
+            clip=parameters.clip,
         )
     }
 
@@ -81,5 +82,6 @@ async def post_currentness_as_csv(
             bin_size=parameters.time.bin_size,
             aoi_wkt=parameters.aoi_wkt,
             measure=cast(MeasureEnum, measure),
+            clip=parameters.clip,
         )
     }

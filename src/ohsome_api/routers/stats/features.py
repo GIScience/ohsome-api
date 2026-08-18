@@ -109,6 +109,7 @@ async def post_features_as_json(
             aoi_wkt=parameters.aoi_wkt,
             measure=cast(MeasureEnum, measure),
             group_by=parameters.group_by,
+            clip=parameters.clip,
         )
     }
 
@@ -144,5 +145,6 @@ async def post_features_as_csv(
             aoi_wkt=parameters.aoi_wkt,
             measure=cast(MeasureEnum, measure),
             group_by=parameters.group_by,
+            clip=parameters.clip,
         )
     }

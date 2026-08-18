@@ -90,6 +90,7 @@ async def get_currentness(
     series: list[datetime],
     aoi_wkt: str,
     measure: MeasureEnum,
+    clip: bool,
 ) -> TimeBinColumns:
     filter_args_count = len(filter_args)
     sql = f"""
@@ -97,7 +98,7 @@ async def get_currentness(
             SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
         )
         SELECT
-            {aggregation_clause(measure)},
+            {aggregation_clause(measure, clip)},
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
         FROM "{SCHEMA}".contributions c, aoi
         WHERE ({filter_where_clause})
@@ -178,19 +179,24 @@ def zerofill_records_to_time_bin_columns(
     return TimeBinColumns(start=start_timestamps, end=end_timestamps, value=values)
 
 
-def aggregation_clause(measure: MeasureEnum) -> str:
+def aggregation_clause(measure: MeasureEnum, clip: bool) -> str:  # noqa: C901
     match measure:
         case MeasureEnum.COUNT:
             return "COUNT(*) AS value"
         case MeasureEnum.LENGTH:
             # [m]
+            if not clip:
+                return """
+                ROUND(SUM(c.length)) AS value
+                """
+
             return """
             ROUND(
                 SUM(
                     CASE
-                        WHEN ST_Within(
-                            c.geom,
-                            aoi.geom
+                        WHEN ST_Covers(
+                            aoi.geom,
+                            c.geom
                         )
                         THEN c.length -- Use precomputed length from ohsome-planet
                         ELSE ST_Length(
@@ -205,13 +211,17 @@ def aggregation_clause(measure: MeasureEnum) -> str:
             """
         case MeasureEnum.AREA:
             # [m²]
+            if not clip:
+                return """
+                ROUND(SUM(c.area)) AS value
+                """
             return """
             ROUND(
                 SUM(
                     CASE
-                        WHEN ST_Within(
-                            c.geom,
-                            aoi.geom
+                        WHEN ST_Covers(
+                            aoi.geom,
+                            c.geom
                         )
                         THEN c.area -- Use precomputed area from ohsome-planet
                         ELSE ST_Area(
@@ -232,6 +242,7 @@ async def get_features(
     series: list[datetime],
     aoi_wkt: str,
     measure: MeasureEnum,
+    clip: bool,
 ) -> SnapshotColumns:
     filter_args_count = len(filter_args)
     sql = f"""
@@ -242,7 +253,7 @@ async def get_features(
             SELECT unnest(${filter_args_count + 1}::timestamptz[]) AS ts
         )
         SELECT
-            {aggregation_clause(measure)},
+            {aggregation_clause(measure, clip)},
             series.ts AS ts
         FROM "{SCHEMA}".contributions c, aoi, series
         WHERE 1=1
@@ -285,6 +296,7 @@ async def get_features_grouped_by_tag(
     aoi_wkt: str,
     measure: MeasureEnum,
     group_by_tag: str,
+    clip: bool,
 ) -> SnapshotColumnsGrouped:
     filter_args_count = len(filter_args)
     limit = CONFIG.group_by_time_series_size_limit
@@ -296,7 +308,7 @@ async def get_features_grouped_by_tag(
             SELECT unnest(${filter_args_count + 1}::timestamptz[]) AS ts
         )
         SELECT
-            {aggregation_clause(measure)},
+            {aggregation_clause(measure, clip)},
             series.ts AS ts,
             tags->>${filter_args_count + 3} as tag_value
         FROM "{SCHEMA}".contributions c, aoi, series

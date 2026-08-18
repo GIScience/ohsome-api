@@ -18,6 +18,7 @@ async def test_get_currentness_count(aoi_wkt_heigit: str):
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
         measure=MeasureEnum.COUNT,
+        clip=True,
     )
     assert result == [
         TimeBinRow(
@@ -38,6 +39,7 @@ async def test_get_currentness_count_latest(aoi_wkt_heigit: str):
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
         measure=MeasureEnum.COUNT,
+        clip=True,
     )
     assert result == [
         TimeBinRow(
@@ -58,6 +60,7 @@ async def test_get_currentness_count_with_bin_size(aoi_wkt_heigit: str):
         "P1M",
         aoi_wkt_heigit,
         measure=MeasureEnum.COUNT,
+        clip=True,
     )
 
     assert result == [
@@ -89,6 +92,7 @@ async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
         measure=MeasureEnum.COUNT,
+        clip=True,
     )
 
     start = datetime(year=2023, month=1, day=1, tzinfo=timezone.utc)
@@ -100,6 +104,7 @@ async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
         measure=MeasureEnum.COUNT,
+        clip=True,
     )
 
     start = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
@@ -112,6 +117,7 @@ async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
         bin_size,
         aoi_wkt_heigit,
         measure=MeasureEnum.COUNT,
+        clip=True,
     )
     assert bins == [
         TimeBinRow(

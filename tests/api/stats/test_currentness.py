@@ -28,6 +28,7 @@ def test_currentness_length_as_json(client: TestClient, aoi_heigit: dict):
             "filter": "highway=* and geometry:line",
             "time": {"start": "2024-01-01", "end": "2025-12-31"},
             "aoi": aoi_heigit,
+            "clip": True,
         },
     )
     assert response.status_code == HTTP_200_OK
@@ -43,6 +44,7 @@ def test_currentness_area_as_json(client: TestClient, aoi_geojson_heigit: dict):
             "filter": "building=* and building!=no and type:way",
             "time": {"start": "2024-01-01", "end": "2025-12-31"},
             "aoi": aoi_geojson_heigit,
+            "clip": True,
         },
     )
     assert response.status_code == HTTP_200_OK

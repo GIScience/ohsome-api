@@ -39,9 +39,10 @@ async def get_currentness_row(
     bin_size: str | None,
     aoi_wkt: str,
     measure: MeasureEnum,
+    clip: bool,
 ) -> list[TimeBinRow]:
     columns = await get_currentness_columns(
-        ohsome_filter, start, end, bin_size, aoi_wkt, measure
+        ohsome_filter, start, end, bin_size, aoi_wkt, measure, clip
     )
     return [
         TimeBinRow(start=start, end=end, value=val)
@@ -58,6 +59,7 @@ async def get_currentness_columns(
     bin_size: str | None,
     aoi_wkt: str,
     measure: MeasureEnum,
+    clip: bool,
 ) -> TimeBinColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
@@ -73,6 +75,7 @@ async def get_currentness_columns(
         series,
         aoi_wkt,
         measure,
+        clip,
     )
 
 
@@ -129,9 +132,10 @@ async def get_features_rows(
     aoi_wkt: str,
     measure: MeasureEnum,
     group_by: Optional[GroupByTagModel],
+    clip: bool,
 ) -> list[SnapshotRow] | list[SnapshotRowGroupedByTag]:
     columns = await get_features_columns(
-        ohsome_filter, start, end, interval, aoi_wkt, measure, group_by
+        ohsome_filter, start, end, interval, aoi_wkt, measure, group_by, clip
     )
 
     if group_by is not None:
@@ -166,6 +170,7 @@ async def get_features_columns(
     aoi_wkt: str,
     measure: MeasureEnum,
     group_by: Optional[GroupByTagModel],
+    clip: bool,
 ) -> SnapshotColumns:
     query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
@@ -184,6 +189,7 @@ async def get_features_columns(
             series,
             aoi_wkt,
             measure,
+            clip,
         )
     else:
         return await db.get_features_grouped_by_tag(
@@ -193,6 +199,7 @@ async def get_features_columns(
             aoi_wkt,
             measure,
             group_by.key,
+            clip,
         )
 
 
