@@ -1,6 +1,6 @@
 from datetime import datetime
 from importlib.metadata import version
-from typing import Literal
+from typing import Literal, cast
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
@@ -14,7 +14,6 @@ from ohsome_api.request_models import FilterRequestModel
 from ohsome_api.request_models.aoi import AoiRequestModel
 from ohsome_api.request_models.time import (
     TimeRangeRequestModel,
-    transform_earliest_to_timestamp,
 )
 
 VERSION = version("ohsome-api")
@@ -38,7 +37,7 @@ class ContributionsExtractionRequestParametersModel(
     @computed_field
     @property
     def start(self) -> datetime:
-        return transform_earliest_to_timestamp(self.time.start)
+        return cast(datetime, self.time.start)
 
     @computed_field
     @property
@@ -49,11 +48,11 @@ class ContributionsExtractionRequestParametersModel(
 @router.post(
     path="/extraction/contributions.parquet",
     response_class=StreamingResponse,
-    summary="Download contributions",
+    summary="Download contributions.",
     description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
     tags=["Extraction"],
 )
-async def get_contributions_extract(
+async def post_contributions_extract(
     parameters: ContributionsExtractionRequestParametersModel,
 ) -> StreamingResponse:
     return await contributions_extract(parameters)
