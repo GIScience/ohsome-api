@@ -794,10 +794,13 @@ async def extract_contributions(
        WHERE {filter_by_time}
          AND (
               ({filter_where_clause}) or
+              -- HACK: ohsome-filter-to-sql does not know about tags before.
+              -- Apply same tag filter to tags_before.
+              -- In this case all other filter parts are duplicated
+              -- and hopefully ignored by query planner.
               ({filter_where_clause.replace("tags", "tags_before")})
         )
     """  # noqa: E501, S608
-
     async for batch in db.fetch_batch(
         sql, *filter_args, aoi_wkt, *time_args, batch_size=10000
     ):
