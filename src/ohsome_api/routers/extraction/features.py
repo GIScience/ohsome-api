@@ -1,14 +1,24 @@
+from datetime import datetime
 from importlib.metadata import version
-from typing import Annotated
+from typing import Annotated, Literal, cast
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
+from pydantic import (
+    Field,
+    computed_field,
+)
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.request_models import (
-    ExtractionQueryParametersModel,
-    ExtractionRequestParametersModel,
+from ohsome_api.request_models import FilterRequestModel, RequestConfigModel
+from ohsome_api.request_models.aoi import AoiQueryModel, AoiRequestModel
+from ohsome_api.request_models.time import (
+    TimeRangeRequestModel,
+    TimeRangeStr,
+    Timestamp,
+    TimestampEarliest,
+    TimestampLatest,
 )
 
 VERSION = version("ohsome-api")
@@ -22,6 +32,78 @@ FEATURES_EXTRACT_DESCRIPTION = (
     "are included. "
     "Other relations can be queried with the `/extraction/collections.*` endpoints."
 )
+
+
+class ExtractionQueryModel(RequestConfigModel):
+    clip: bool = Field(
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
+    )
+    timestamp: Timestamp | TimestampLatest | TimestampEarliest = Field(
+        json_schema_extra={"examples": ["latest", "2026-04-17T00:00:00Z"]},
+    )
+
+    @computed_field
+    @property
+    def timestamp_start(self) -> datetime | Literal["latest"]:
+        return cast(datetime | Literal["latest"], self.timestamp)
+
+    @computed_field
+    @property
+    def timestamp_end(self) -> datetime | Literal["latest"]:
+        return cast(datetime | Literal["latest"], self.timestamp)
+
+
+class ExtractionRequestParametersModel(
+    AoiRequestModel,
+    FilterRequestModel,
+):
+    time: Timestamp | TimestampLatest | TimeRangeRequestModel
+    clip: bool = Field(
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
+    )
+
+    @computed_field
+    @property
+    def start(self) -> datetime | Literal["latest"]:
+        if isinstance(self.time, TimeRangeRequestModel):
+            return cast(datetime | Literal["latest"], self.time.start)
+        return self.time
+
+    @computed_field
+    @property
+    def end(self) -> datetime | Literal["latest"]:
+        if isinstance(self.time, TimeRangeRequestModel):
+            return self.time.end
+        return self.time
+
+
+class ExtractionQueryParametersModel(
+    AoiQueryModel,
+    FilterRequestModel,
+):
+    time: Timestamp | TimestampLatest | TimeRangeStr
+    clip: bool = Field(
+        default=True,
+        description="Whether to clip extracted features with AOI or not.",
+    )
+
+    @computed_field
+    @property
+    def start(self) -> datetime | Literal["latest"]:
+        if isinstance(self.time, TimeRangeRequestModel):
+            return cast(datetime | Literal["latest"], self.time.start)
+        return cast(datetime | Literal["latest"], self.time)
+
+    @computed_field
+    @property
+    def end(self) -> datetime | Literal["latest"]:
+        if isinstance(self.time, TimeRangeRequestModel):
+            return self.time.end
+        return cast(datetime | Literal["latest"], self.time)
+
+    pass
 
 
 @router.post(
