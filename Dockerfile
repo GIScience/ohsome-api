@@ -36,4 +36,4 @@ COPY --from=builder /app/.venv /app/.venv
 
 EXPOSE 8000
 
-ENTRYPOINT ["hypercorn", "ohsome_api.api:app"]
+ENTRYPOINT ["hypercorn", "--bind", "0.0.0.0", "ohsome_api.api:app"]
