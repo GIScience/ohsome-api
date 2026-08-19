@@ -71,7 +71,6 @@ FEATURE_EXTRACTION_SCHEMA = schema(
     ]
 )
 
-# TODO: rename last_edit and add valid_to
 MEMBER_EXTRACTION_SCHEMA = schema(
     [
         ("osm_type", string()),
