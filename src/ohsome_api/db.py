@@ -868,5 +868,6 @@ async def join_changesets_to_extraction_rows(
     )
     changeset_lookup = {row["changeset_id"]: row["tags"] for row in records}
     for row in rows:
-        row["changeset_tags"] = changeset_lookup[row["changeset_id"]]
+        if tags := changeset_lookup.get(row["changeset_id"]):
+            row["changeset_tags"] = tags
     return rows
