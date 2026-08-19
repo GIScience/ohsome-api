@@ -104,10 +104,10 @@ TimeRangeStr = Annotated[
     str,
     Field(
         title="Time Range",
-        # TODO update documentation
         description=(
             "Time range defined using a start/end timestamp (ISO-8601, UTC). "
-            "Please take a look at the PLACEHOLDER TODO."
+            "Please take a look at the "
+            f"[documentation]({CONFIG.external_docs_url}/reference.html#time)."
         ),
         json_schema_extra={"example": "2025-01-01T00:00:00Z/2026-01-01T00:00:00Z"},
     ),
