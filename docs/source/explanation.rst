@@ -5,12 +5,10 @@
 Explanation
 ===========
 
-
-Features vs. Collections
-------------------------
+Features & Collections
+----------------------
 
 The ohsome API categorizes OSM elements by their Simple Features Geometry types, not by OSM types.
-
 
 .. list-table::
    :header-rows: 1
@@ -63,7 +61,7 @@ The ohsome API categorizes OSM elements by their Simple Features Geometry types,
 
 
 Features
-^^^^^^^^
+--------
 
 Features are OSM nodes and ways that have at least one tag.
 Additionally, OSM relations tagged as ``type=multipolygon`` or ``type=boundary`` are included.
@@ -75,36 +73,41 @@ During that lifespan they are visible on the map.
 The ``edit_timestamp`` is the moment when the feature became visible on the map.
 The ``valid_to_timestamp`` is the moment when the feature vanished from the map.
 
-
 Features vs. OSM Elements
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Contrasted with plain OSM elements, Features are the ohsome API's own abstraction:
+they group nodes, ways and eligible relations by geometry rather than by raw OSM type.
 
 
 Collections
-^^^^^^^^^^^
+-----------
 
 Collections are OSM relations not tagged as ``type=multipolygon`` or ``type=boundary``.
 
-Collections are GeometryCollection containing any of the Simple Feature Geometry types mentioned for Features.
+Collections are GeometryCollections containing any of the Simple Feature Geometry types mentioned for Features (see above).
 
 For each OSM relation a separate GeometryCollection is returned for their linear, polygonal or point members.
 
 
-Collections Members
--------------------
+Collection Members
+------------------
 
-Collection Members are OSM ways and nodes that are members of OSM relations not tagged as ``type=multipolygon or type=boundary`` (Collections).
+Collection Members are OSM ways and nodes that are members of OSM relations not tagged as ``type=multipolygon`` or ``type=boundary`` (Collections).
 
-A single Collection contains only the geometries of its member as GeometryCollection (see above), but not their attributes such as OSM tags.
-To get each individual member including geometry add all other attributes such as OSM tags Collection Members must be requested.
+A single Collection contains only the geometries of its members as a GeometryCollection (see above), but not their attributes such as OSM tags.
+To get each individual member including geometry and all other attributes such as OSM tags, Collection Members must be requested instead.
 
 
 Contributions
-^^^^^^^^^^^^^
+-------------
 
 Contributions happen at a single point in time (``edit_timestamp``).
 They contain additional metadata such as changeset information and tags before the change.
-Contributions also contain information about deleted OSM elements (see ``contributions_type`` attribute).
+Contributions also contain information about deleted OSM elements (see the ``contributions_type`` attribute).
 
-Usually you would use Contributions if you are interested in Mapping Activity (i.e. all the road edits in between a time range).
-You would use Features if you are interested in all visible OSM elements in a given time regardless of their ``edit_timestamp``.
+Contributions vs. Features
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Use Contributions if you are interested in mapping activity (i.e. all the road edits within a time range).
+Use Features if you are interested in all visible OSM elements at given points in time, regardless of their ``edit_timestamp``.
