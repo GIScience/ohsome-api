@@ -19,7 +19,7 @@ class DatabaseConfig(BaseModel):
     pool_min_size_extraction: int = 0
     pool_max_size_extraction: int = 10
     timeout_stats: int = 60 * 3
-    timeout_extraction: int = 60 * 3
+    timeout_extraction: int = 60 * 10
 
     @computed_field
     @property
