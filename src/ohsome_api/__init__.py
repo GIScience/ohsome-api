@@ -26,6 +26,3 @@ if log_level is not None:
     logging.getLogger().setLevel(log_level)
     logging.getLogger("ohsome-api").setLevel(log_level)
     logging.getLogger("uvicorn").setLevel(log_level)
-    logging.getLogger("uvicorn.access").setLevel(log_level)
-
-logging.getLogger("uvicorn.access").addFilter(HealthEndpointFilter())
