@@ -4,14 +4,17 @@ from typing import cast
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from pydantic import AliasChoices, Field
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import MeasureEnum, TimeBinColumns
 from ohsome_api.request_models import (
+    FilterRequestModel,
     MeasureRequestModel,
-    TimeBinsRequestParametersModel,
 )
+from ohsome_api.request_models.aoi import AoiRequestModel
+from ohsome_api.request_models.time import TimeBinsRequestModel
 from ohsome_api.response_models import (
     TimeBinsColumnsResponseModel,
     TimeBinsResponseModel,
@@ -26,6 +29,24 @@ VERSION = version("ohsome-api")
 router = APIRouter(
     dependencies=[Depends(api_key_header_scheme)],
 )
+
+
+# TODO: Rename request model to reflect currentness
+class TimeBinsRequestParametersModel(
+    AoiRequestModel,
+    FilterRequestModel,
+):
+    time: TimeBinsRequestModel = Field(
+        validation_alias=AliasChoices("time", "timeBins")
+    )
+    clip: bool = Field(
+        default=False,
+        description=(
+            "If true, length and area calculations use the clipped feature geometries. "
+            "Clipping can be computationally expensive for large AOIs, "
+            "depending on your ohsome filter, and is usually unnecessary."
+        ),
+    )
 
 
 @router.post(

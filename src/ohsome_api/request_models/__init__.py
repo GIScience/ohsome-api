@@ -4,7 +4,6 @@ from typing import Literal
 
 from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import (
-    AliasChoices,
     BaseModel,
     ConfigDict,
     Field,
@@ -13,13 +12,6 @@ from pydantic import (
 from pydantic.alias_generators import to_camel
 
 from ohsome_api.config import CONFIG
-from ohsome_api.request_models.aoi import AoiRequestModel
-from ohsome_api.request_models.time import (
-    TimeBinsRequestModel,
-)
-from ohsome_api.request_models.time import (
-    TimeRangeStr as TimeRangeStr,
-)
 
 td_adapter = TypeAdapter(timedelta)
 
@@ -71,21 +63,4 @@ class GroupByRequestModel(RequestConfigModel):
         json_schema_extra={
             "examples": [None],
         },
-    )
-
-
-class TimeBinsRequestParametersModel(
-    AoiRequestModel,
-    FilterRequestModel,
-):
-    time: TimeBinsRequestModel = Field(
-        validation_alias=AliasChoices("time", "timeBins")
-    )
-    clip: bool = Field(
-        default=False,
-        description=(
-            "If true, length and area calculations use the clipped feature geometries. "
-            "Clipping can be computationally expensive for large AOIs, "
-            "depending on your ohsome filter, and is usually unnecessary."
-        ),
     )
