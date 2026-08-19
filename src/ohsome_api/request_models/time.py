@@ -3,16 +3,15 @@ from typing import Annotated, Literal, Self
 
 from pydantic import (
     AfterValidator,
-    BaseModel,
     ConfigDict,
     Field,
     TypeAdapter,
     field_validator,
     model_validator,
 )
-from pydantic.alias_generators import to_camel
 
 from ohsome_api.config import CONFIG
+from ohsome_api.request_models.config import RequestConfigModel
 
 td_adapter = TypeAdapter(timedelta)
 
@@ -59,14 +58,6 @@ def transform_time_timerange(value: str) -> TimeRangeRequestModel:
     if len(parts) == 2 and all(parts):
         return TimeRangeRequestModel(start=parts[0], end=parts[1])
     raise ValueError("Invalid time range format.")
-
-
-class RequestConfigModel(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True,
-        extra="forbid",
-    )
 
 
 # TODO: Validate timestamps

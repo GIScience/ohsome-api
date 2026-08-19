@@ -3,27 +3,18 @@ from typing import Annotated, Any
 
 from geojson_pydantic import MultiPolygon, Polygon
 from pydantic import (
-    BaseModel,
-    ConfigDict,
     Field,
     computed_field,
     field_validator,
 )
-from pydantic.alias_generators import to_camel
 from shapely.geometry import mapping
 from shapely.wkt import loads as load_wkt
+
+from ohsome_api.request_models.config import RequestConfigModel
 
 
 class BoundingBoxValidationError(ValueError):
     pass
-
-
-class RequestConfigModel(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True,
-        extra="forbid",
-    )
 
 
 BBox = Annotated[

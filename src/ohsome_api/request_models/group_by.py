@@ -2,18 +2,10 @@ from typing import Literal
 
 from pydantic import (
     BaseModel,
-    ConfigDict,
     Field,
 )
-from pydantic.alias_generators import to_camel
 
-
-class RequestConfigModel(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True,
-        extra="forbid",
-    )
+from ohsome_api.request_models.config import RequestConfigModel
 
 
 class GroupByTagModel(BaseModel):
