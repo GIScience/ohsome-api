@@ -870,4 +870,6 @@ async def join_changesets_to_extraction_rows(
     for row in rows:
         if tags := changeset_lookup.get(row["changeset_id"]):
             row["changeset_tags"] = tags
+        else:
+            row["changeset_tags"] = {}
     return rows
