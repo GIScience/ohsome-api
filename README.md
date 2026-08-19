@@ -52,3 +52,5 @@ export OHSOME_API_LOG_LEVEL=DEBUG
 ```sh
 uv run fastapi dev
 ```
+
+Be aware that this method does not use the production ASGI server and behaves differently in some cases.

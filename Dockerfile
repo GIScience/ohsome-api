@@ -36,4 +36,4 @@ COPY --from=builder /app/.venv /app/.venv
 
 EXPOSE 8000
 
-ENTRYPOINT ["fastapi", "run", "--entrypoint", "ohsome_api.api:app"]
+ENTRYPOINT ["hypercorn", "ohsome_api.api:app"]
