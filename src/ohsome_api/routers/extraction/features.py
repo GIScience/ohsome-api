@@ -36,7 +36,7 @@ FEATURES_EXTRACT_DESCRIPTION = (
 
 class ExtractionQueryModel(RequestConfigModel):
     clip: bool = Field(
-        default=True,
+        default=False,
         description="Whether to clip extracted features with AOI or not.",
     )
     timestamp: Timestamp | TimestampLatest | TimestampEarliest = Field(

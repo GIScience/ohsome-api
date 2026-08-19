@@ -96,7 +96,7 @@ class CollectionsExtractionQueryParametersModel(
         json_schema_extra={"example": "geometry:line"},
     )
     clip: bool = Field(
-        default=True,
+        default=False,
         description="Whether to clip extracted features with AOI or not.",
     )
 
