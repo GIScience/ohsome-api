@@ -29,7 +29,7 @@ async def get_metadata() -> dict[str, Metadata]:
     summary="Waits 180 seconds and returns metadata",
     tags=["Debug"],
     response_model=MetadataResponseModel,
-    #    include_in_schema=False,
+    include_in_schema=False,
 )
 async def debug_timeout() -> dict[str, Metadata]:
     await asyncio.sleep(180)
