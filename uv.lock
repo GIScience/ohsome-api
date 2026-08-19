@@ -884,6 +884,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "pyproj" },
+    { name = "pyyaml" },
     { name = "shapely" },
 ]
 
@@ -922,6 +923,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.13.1" },
     { name = "pyproj", specifier = ">=3.7.2" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "shapely", specifier = ">=2.1.2" },
 ]
 
