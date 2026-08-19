@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
+from datetime import datetime
 from typing import Any, AsyncIterator
 
 import asyncpg
@@ -29,6 +30,15 @@ class QueryTimeoutError(TimeoutError):
             f"{CONFIG.ohsomedb.timeout_extraction}."
         )
         super().__init__(message)
+
+
+def convert_datetime_to_timestamp(input_: Any) -> Any:  # noqa ANN401
+    if isinstance(input_, list | tuple):
+        return [convert_datetime_to_timestamp(i) for i in input_]
+    if isinstance(input_, datetime):
+        return input_.isoformat()
+    else:
+        return input_
 
 
 async def jsonb_codec(connection: Connection) -> None:
@@ -100,6 +110,8 @@ class Database:
     async def fetch_row(self, sql: str, *args: Any) -> Record:  # noqa: ANN401
         async with self.acquire_connection() as connection:
             try:
+                if CONFIG.ohsomedb.debug:
+                    await self.debug_query(sql, *args)
                 record: Record = await connection.fetchrow(sql, *args)
             except TimeoutError as error:
                 raise QueryTimeoutError() from error
@@ -112,6 +124,8 @@ class Database:
     async def fetch_rows(self, sql: str, *args: Any) -> list[Record]:  # noqa: ANN401
         async with self.acquire_connection() as connection:
             try:
+                if CONFIG.ohsomedb.debug:
+                    await self.debug_query(sql, *args)
                 records: list[Record] = await connection.fetch(sql, *args)
             except TimeoutError as error:
                 raise QueryTimeoutError() from error
@@ -134,6 +148,8 @@ class Database:
         ):
             batch: list[Record] = []
             try:
+                if CONFIG.ohsomedb.debug:
+                    await self.debug_query(sql, *args)
                 async for record in connection.cursor(sql, *args, prefetch=batch_size):
                     batch.append(record)
                     if len(batch) >= batch_size:
@@ -143,6 +159,26 @@ class Database:
                 raise QueryTimeoutError() from error
 
             yield batch
+
+    async def explain(self, sql: str, *args: Any, analyze: bool = False) -> str:  # noqa ANN401
+        if self.pool is None:
+            raise ValueError("Database connection pool not initialized")
+
+        explain_sql = "EXPLAIN "
+        if analyze:
+            explain_sql += "ANALYZE "
+        explain_sql += sql
+
+        async with self.pool.acquire() as connection:
+            result = await connection.fetch(explain_sql, *args)
+            return "\n".join(r["QUERY PLAN"] for r in result)
+
+    async def debug_query(self, sql: str, *args: Any) -> None:  # noqa ANN401
+        plan = await self.explain(sql, *args, analyze=True)
+        logger.debug(plan)
+
+        logger.debug("SQL Query: \n" + sql)
+        logger.debug("Args: \n" + str(convert_datetime_to_timestamp(args)))
 
 
 db = Database()

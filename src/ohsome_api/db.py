@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import AsyncIterator, Literal, cast
 
@@ -611,6 +612,10 @@ async def extract_features_collection(
         WHERE {filter_by_time}
            AND ({filter_where_clause})
     """  # noqa: E501, S608
+
+    if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+        plan = await db.explain(sql, *filter_args, aoi_wkt, time, analyze=True)
+        logging.debug(plan)
 
     # TODO: make batch size configurable (maybe as function arg)
     async for batch in db.fetch_batch(sql, *filter_args, aoi_wkt, time, batch_size=200):
