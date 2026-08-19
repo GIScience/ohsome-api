@@ -95,7 +95,7 @@ async def get_currentness(
     filter_args_count = len(filter_args)
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
+            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 4}, 4326))).geom as geom
         )
         SELECT
             {aggregation_clause(measure, clip)},
@@ -132,7 +132,7 @@ async def get_contributors_count(
     filter_args_count = len(filter_args)
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 4}, 4326) as geom
+            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 4}, 4326))).geom as geom
         )
         SELECT
             count(distinct user_id) AS value,
@@ -247,7 +247,7 @@ async def get_features(
     filter_args_count = len(filter_args)
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 2}, 4326) as geom
+            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 2}, 4326))).geom as geom
         ),
         series AS (
             SELECT unnest(${filter_args_count + 1}::timestamptz[]) AS ts
@@ -270,7 +270,7 @@ async def get_features(
             AND valid_to > series.ts
         GROUP BY series.ts
         ORDER BY series.ts
-    """  # noqa: S608
+    """  # noqa: E501, S608
     records = await db.fetch_rows(
         sql,
         *filter_args,
@@ -302,7 +302,7 @@ async def get_features_grouped_by_tag(
     limit = CONFIG.group_by_time_series_size_limit
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 2}, 4326) as geom
+            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 2}, 4326))).geom as geom
         ),
         series AS (
             SELECT unnest(${filter_args_count + 1}::timestamptz[]) AS ts
@@ -327,7 +327,7 @@ async def get_features_grouped_by_tag(
         GROUP BY series.ts, tag_value
         ORDER BY series.ts, tag_value
         LIMIT {limit + 1}
-    """  # noqa: S608
+    """  # noqa: E501, S608
     records = await db.fetch_rows(
         sql,
         *filter_args,
@@ -474,7 +474,7 @@ def extract_features(
 
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) as geom
+            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 1}, 4326))).geom as geom
         )
         SELECT osm_type,
                osm_id,
@@ -499,7 +499,7 @@ def extract_features(
         {clipped_geom_sql}
         WHERE {filter_by_time}
            AND ({filter_where_clause})
-    """  # noqa: S608
+    """  # noqa: E501, S608
 
     # cast generic asyncpg Record to ExtractionRow
     # TODO: make batch size configurable (maybe as function arg)
@@ -537,7 +537,7 @@ async def extract_features_collection(
 
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) as geom
+            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 1}, 4326))).geom as geom
         )
         SELECT osm_type,
                osm_id,
@@ -561,7 +561,7 @@ async def extract_features_collection(
         JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
         WHERE {filter_by_time}
            AND ({filter_where_clause})
-    """  # noqa: S608
+    """  # noqa: E501, S608
 
     # TODO: make batch size configurable (maybe as function arg)
     async for batch in db.fetch_batch(sql, *filter_args, aoi_wkt, time, batch_size=10):
@@ -625,7 +625,7 @@ async def extract_features_collection_members_collections(  # noqa: C901, PLR091
 
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) AS geom
+            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 1}, 4326))).geom AS geom
         )
         SELECT
             relation_id,
@@ -734,7 +734,7 @@ async def extract_features_collection_members_features(
 
     sql = f"""
         WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) AS geom
+            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 1}, 4326))).geom AS geom
         )
         SELECT osm_type,
                osm_id,
@@ -815,7 +815,7 @@ async def extract_contributions(
 
     sql = f"""
        WITH aoi AS (
-            SELECT ST_GeomFromText(${filter_args_count + 1}, 4326) as geom
+            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 1}, 4326))).geom as geom
        )
        SELECT osm_type,
               osm_id,
