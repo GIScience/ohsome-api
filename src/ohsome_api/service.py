@@ -456,3 +456,48 @@ async def extract_contributions_as_parquet(
         end,
         ContributionParquetSink,
     )
+
+
+async def get_contributions_count_columns(
+    ohsome_filter: OhsomeFilter,
+    start: datetime,
+    end: datetime | Literal["latest"],
+    bin_size: str | None,
+    aoi_wkt: str,
+) -> TimeBinColumns:
+    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
+
+    if end == "latest":
+        end = await get_latest_timestamp()
+    series = await generate_timestamp_series(start, end, bin_size)
+
+    return await db.get_contributions_count(
+        query_where_clause,
+        query_args,
+        start,
+        end,
+        series,
+        aoi_wkt,
+    )
+
+
+async def get_contributions_count_rows(
+    ohsome_filter: OhsomeFilter,
+    start: datetime,
+    end: datetime | Literal["latest"],
+    bin_size: str | None,
+    aoi_wkt: str,
+) -> list[TimeBinRow]:
+    columns = await get_contributions_count_columns(
+        ohsome_filter,
+        start,
+        end,
+        bin_size,
+        aoi_wkt,
+    )
+    return [
+        TimeBinRow(start=start, end=end, value=val)
+        for start, end, val in zip(
+            columns.start, columns.end, columns.value, strict=True
+        )
+    ]

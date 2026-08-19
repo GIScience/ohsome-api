@@ -68,7 +68,7 @@ class ContributionsExtractionQueryParametersModel(
     response_class=StreamingResponse,
     summary="Download contributions.",
     description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
-    tags=["Extraction"],
+    tags=["Extraction (Experimental)"],
 )
 async def post_contributions_extract(
     parameters: ContributionsExtractionRequestParametersModel,
@@ -81,7 +81,7 @@ async def post_contributions_extract(
     response_class=StreamingResponse,
     summary="Download contributions.",
     description=CONTRIBUTIONS_EXTRACT_DESCRIPTION,
-    tags=["Extraction"],
+    tags=["Extraction (Experimental)"],
 )
 async def get_contributions_extract(
     parameters: Annotated[

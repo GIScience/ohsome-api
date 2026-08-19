@@ -158,6 +158,50 @@ async def get_contributors_count(
     return zerofill_records_to_time_bin_columns(records, series)
 
 
+async def get_contributions_count(
+    filter_where_clause: str,
+    filter_args: tuple,
+    start: datetime,
+    end: datetime,
+    series: list[datetime],
+    aoi_wkt: str,
+) -> TimeBinColumns:
+    filter_args_count = len(filter_args)
+    sql = f"""
+        WITH aoi AS (
+            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 4}, 4326))).geom as geom
+        )
+        SELECT
+            count(*) AS value,
+            width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
+        FROM "{SCHEMA}".contributions c
+        JOIN aoi on (ST_Intersects(c.geom, aoi.geom))
+        WHERE valid_from BETWEEN ${filter_args_count + 1}::timestamptz
+                             AND ${filter_args_count + 2}::timestamptz
+          AND (
+              ({filter_where_clause}) or
+              -- HACK: ohsome-filter-to-sql does not know about tags before.
+              -- Apply same tag filter to tags_before.
+              -- In this case all other filter parts are duplicated
+              -- and hopefully ignored by query planner.
+              ({filter_where_clause.replace("tags", "tags_before")})
+         )
+        GROUP BY time_bin
+        ORDER BY time_bin
+    """  # noqa: S608, E501
+
+    records = await db.fetch_rows(
+        sql,
+        *filter_args,
+        start,
+        end,
+        series,
+        aoi_wkt,
+    )  # order matters!
+
+    return zerofill_records_to_time_bin_columns(records, series)
+
+
 def zerofill_records_to_time_bin_columns(
     records: list[Record], series: list[datetime]
 ) -> TimeBinColumns:

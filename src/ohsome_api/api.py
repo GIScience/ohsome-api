@@ -17,6 +17,7 @@ import ohsome_api.routers.extraction.contributions
 import ohsome_api.routers.extraction.features
 import ohsome_api.routers.filter
 import ohsome_api.routers.metadata
+import ohsome_api.routers.stats.contributions
 import ohsome_api.routers.stats.contributors
 import ohsome_api.routers.stats.currentness
 import ohsome_api.routers.stats.features
@@ -31,7 +32,9 @@ td_adapter = TypeAdapter(timedelta)
 
 METADATA_TAGS = [
     {"name": "Statistics"},
+    {"name": "Statistics (Experimental)"},
     {"name": "Extraction"},
+    {"name": "Extraction (Experimental)"},
     {"name": "Filter Validation"},
     {"name": "Metadata"},
 ]
@@ -74,6 +77,7 @@ app.include_router(ohsome_api.routers.filter.router)
 app.include_router(ohsome_api.routers.metadata.router)
 app.include_router(ohsome_api.routers.stats.features.router)
 app.include_router(ohsome_api.routers.stats.contributors.router)
+app.include_router(ohsome_api.routers.stats.contributions.router)
 app.include_router(ohsome_api.routers.stats.currentness.router)
 app.include_router(ohsome_api.routers.extraction.features.router)
 app.include_router(ohsome_api.routers.extraction.collections.router)
