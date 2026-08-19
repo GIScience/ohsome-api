@@ -115,6 +115,11 @@ def aoi_wkt_heigit(aoi_geojson_heigit: dict) -> str:
 
 
 @pytest.fixture
+def aoi_wkt_multipolygon() -> str:
+    return "MULTIPOLYGON (((8.673015 49.418177, 8.675053 49.418177, 8.675053 49.41914, 8.673015 49.41914, 8.673015 49.418177)), ((8.667394 49.415594, 8.67029 49.415594, 8.67029 49.416711, 8.667394 49.416711, 8.667394 49.415594)))"  # noqa: E501
+
+
+@pytest.fixture
 def aoi_wkt_audimax(aoi_geojson_audimax: dict) -> str:
     parsed = parse_geometry_obj(aoi_geojson_audimax)
     return parsed.wkt

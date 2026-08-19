@@ -50,6 +50,26 @@ def test_features_as_json_timestamp(client: TestClient, aoi_heigit: dict):
     }
 
 
+def test_features_as_json_multipolygon(client: TestClient, aoi_wkt_multipolygon: str):
+    response = client.post(
+        "/stats/features/count.json",
+        json={
+            "filter": "building=* and building!=no and type:way",
+            "time": "2024-01-01",
+            "aoi": aoi_wkt_multipolygon,
+        },
+    )
+    assert response.status_code == HTTP_200_OK
+    assert response.headers["content-type"] == "application/json"
+    result = response.json()["result"]
+    assert result == {
+        "timestamp": [
+            "2024-01-01T00:00:00Z",
+        ],
+        "value": [17],
+    }
+
+
 def test_features_group_by_as_json(client: TestClient, aoi_heigit: dict):
     response = client.post(
         "/stats/features/count.json",
