@@ -33,7 +33,8 @@ ENV VIRTUAL_ENV=/app/.venv \
 WORKDIR /app
 
 COPY --from=builder /app/.venv /app/.venv
+COPY log-config.toml .
 
 EXPOSE 8000
 
-ENTRYPOINT ["hypercorn", "--bind", "0.0.0.0", "--access-logfile", "-", "ohsome_api.api:app"]
+ENTRYPOINT ["hypercorn", "--bind", "0.0.0.0", "--access-logfile", "-", "--log-config", "log-config.toml", "ohsome_api.api:app"]

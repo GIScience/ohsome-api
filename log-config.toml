@@ -1,0 +1,22 @@
+# Configuration for Hypercorn
+
+version = 1
+disable_existing_loggers = false
+
+[formatters.hypercorn]
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+[handlers.hypercorn]
+class = "logging.StreamHandler"
+formatter = "hypercorn"
+stream = "ext://sys.stderr"
+
+[loggers."hypercorn.error"]
+handlers = [ "hypercorn" ]
+level = "INFO"
+propagate = false
+
+[loggers."hypercorn.access"]
+handlers = [ "hypercorn" ]
+level = "INFO"
+propagate = false
