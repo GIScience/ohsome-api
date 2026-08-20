@@ -50,7 +50,7 @@ async def post_contributors_count_as_json(
     return {
         "result": await service.get_contributions_count_columns(
             ohsome_filter=parameters.ohsome_filter,
-            start=cast(datetime, parameters.time.start),
+            start=cast(datetime, parameters.time.start),  # ty: ignore[redundant-cast]
             end=parameters.time.end,
             bin_size=parameters.time.bin_size,
             aoi_wkt=parameters.aoi_wkt,
@@ -82,7 +82,7 @@ async def post_contributors_count_as_csv(
     return {
         "result": await service.get_contributions_count_rows(
             ohsome_filter=parameters.ohsome_filter,
-            start=cast(datetime, parameters.time.start),
+            start=cast(datetime, parameters.time.start),  # ty: ignore[redundant-cast]
             end=parameters.time.end,
             bin_size=parameters.time.bin_size,
             aoi_wkt=parameters.aoi_wkt,
