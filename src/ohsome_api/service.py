@@ -126,7 +126,7 @@ async def get_contributors_count_columns(
 
 async def get_features_rows(
     ohsome_filter: OhsomeFilter,
-    start: datetime,
+    start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
     interval: str | None,
     aoi_wkt: str,

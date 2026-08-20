@@ -6,6 +6,7 @@ from pydantic import (
     ConfigDict,
     Field,
     TypeAdapter,
+    computed_field,
     field_validator,
     model_validator,
 )
@@ -60,6 +61,11 @@ def transform_time_timerange(value: str) -> TimeRangeRequestModel:
     raise ValueError("Invalid time range format.")
 
 
+def validate_timerange_string(value: str) -> str:
+    transform_time_timerange(value)
+    return value
+
+
 # TODO: Validate timestamps
 Timestamp = Annotated[
     datetime,
@@ -79,7 +85,6 @@ TimestampEarliest = Annotated[
         description="Earliest timestamp is 2007-10-08T00:00:00Z.",
         json_schema_extra={"example": "earliest"},
     ),
-    AfterValidator(transform_earliest_to_timestamp),
 ]
 
 TimestampLatest = Annotated[
@@ -102,22 +107,26 @@ TimeRangeStr = Annotated[
         ),
         json_schema_extra={"example": "2025-01-01T00:00:00Z/2026-01-01T00:00:00Z"},
     ),
-    AfterValidator(transform_time_timerange),
+    AfterValidator(validate_timerange_string),
 ]
 
 
 class TimeRangeRequestModel(RequestConfigModel):
-    start: Timestamp | TimestampEarliest = Field(
+    start_: Timestamp | TimestampEarliest = Field(
+        alias="start",
         json_schema_extra={"example": "2025-01-01T00:00:00Z"},
     )
     end: Timestamp | TimestampLatest = Field(
         json_schema_extra={"example": "2026-01-01T00:00:00Z"},
     )
 
+    @computed_field
+    @property
+    def start(self) -> datetime:
+        return transform_earliest_to_timestamp(self.start_)
+
     @model_validator(mode="after")
     def validate_end_greater_than_start(self) -> Self:
-        assert isinstance(self.start, datetime)  # noqa: S101
-
         if self.end == "latest":
             return self
 

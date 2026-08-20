@@ -65,7 +65,7 @@ class StatsFeaturesRequestModel(
     @property
     def start(self) -> datetime | Literal["latest"]:
         if isinstance(self.time, TimeRangeRequestModel):
-            return cast(datetime | Literal["latest"], self.time.start)
+            return self.time.start
         return self.time
 
     @computed_field
@@ -103,11 +103,11 @@ async def post_features_as_json(
     return {
         "result": await service.get_features_columns(
             ohsome_filter=parameters.ohsome_filter,
-            start=cast(datetime, parameters.start),
+            start=parameters.start,
             end=parameters.end,
             interval=parameters.interval,
             aoi_wkt=parameters.aoi_wkt,
-            measure=cast(MeasureEnum, measure),
+            measure=MeasureEnum(measure),
             group_by=parameters.group_by,
             clip=parameters.clip,
         )
@@ -139,7 +139,7 @@ async def post_features_as_csv(
     return {
         "result": await service.get_features_rows(
             ohsome_filter=parameters.ohsome_filter,
-            start=cast(datetime, parameters.start),
+            start=parameters.start,
             end=parameters.end,
             interval=parameters.interval,
             aoi_wkt=parameters.aoi_wkt,

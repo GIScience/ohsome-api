@@ -1,4 +1,3 @@
-from datetime import datetime
 from importlib.metadata import version
 from typing import cast
 
@@ -63,7 +62,7 @@ async def post_currentness_as_json(
     return {
         "result": await service.get_currentness_columns(
             ohsome_filter=parameters.ohsome_filter,
-            start=cast(datetime, parameters.time.start),
+            start=parameters.time.start,
             end=parameters.time.end,
             bin_size=parameters.time.bin_size,
             aoi_wkt=parameters.aoi_wkt,
@@ -98,7 +97,7 @@ async def post_currentness_as_csv(
     return {
         "result": await service.get_currentness_row(
             ohsome_filter=parameters.ohsome_filter,
-            start=cast(datetime, parameters.time.start),
+            start=parameters.time.start,
             end=parameters.time.end,
             bin_size=parameters.time.bin_size,
             aoi_wkt=parameters.aoi_wkt,

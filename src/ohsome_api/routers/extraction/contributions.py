@@ -1,6 +1,6 @@
 from datetime import datetime
 from importlib.metadata import version
-from typing import Annotated, Literal, cast
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
@@ -15,6 +15,7 @@ from ohsome_api.request_models.aoi import AoiQueryModel, AoiRequestModel
 from ohsome_api.request_models.time import (
     TimeRangeRequestModel,
     TimeRangeStr,
+    transform_time_timerange,
 )
 
 VERSION = version("ohsome-api")
@@ -38,7 +39,7 @@ class ContributionsExtractionRequestParametersModel(
     @computed_field
     @property
     def start(self) -> datetime:
-        return cast(datetime, self.time.start)
+        return self.time.start
 
     @computed_field
     @property
@@ -55,12 +56,12 @@ class ContributionsExtractionQueryParametersModel(
     @computed_field
     @property
     def start(self) -> datetime:
-        return cast(datetime, cast(TimeRangeRequestModel, self.time).start)
+        return transform_time_timerange(self.time).start
 
     @computed_field
     @property
     def end(self) -> datetime | Literal["latest"]:
-        return cast(TimeRangeRequestModel, self.time).end
+        return transform_time_timerange(self.time).end
 
 
 @router.post(
