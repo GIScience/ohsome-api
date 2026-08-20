@@ -608,7 +608,7 @@ async def extract_features_collection(
     """  # noqa: E501, S608
 
     # TODO: make batch size configurable (maybe as function arg)
-    async for batch in db.fetch_batch(sql, *filter_args, aoi_wkt, time, batch_size=10):
+    async for batch in db.fetch_batch(sql, *filter_args, aoi_wkt, time, batch_size=200):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
 
