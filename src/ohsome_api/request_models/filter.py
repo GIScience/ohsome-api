@@ -14,7 +14,7 @@ class FilterRequestModel(RequestConfigModel):
         description=(
             "Filter for OSM data. "
             "Please refer to the [ohsome filter language documentation]"
-            f"({CONFIG.external_docs_url}/reference.html#filter)."
+            f"({CONFIG.external_docs_url}/reference.html/filter.html)."
         ),
-        json_schema_extra={"example": "type:node and natural=tree"},
+        json_schema_extra={"example": "geometry:point and natural=tree"},
     )
