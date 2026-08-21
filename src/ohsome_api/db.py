@@ -137,11 +137,18 @@ async def get_contributors_count(
         SELECT
             count(distinct user_id) AS value,
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
-        FROM "{SCHEMA}".contributions c, aoi
-        WHERE ({filter_where_clause})
-        AND valid_from BETWEEN ${filter_args_count + 1}::timestamptz
-                           AND ${filter_args_count + 2}::timestamptz
-        AND ST_Intersects(c.geom, aoi.geom)
+        FROM "{SCHEMA}".contributions c
+        JOIN aoi on (ST_Intersects(c.geom, aoi.geom))
+        WHERE valid_from BETWEEN ${filter_args_count + 1}::timestamptz
+                             AND ${filter_args_count + 2}::timestamptz
+          AND (
+              ({filter_where_clause}) or
+              -- HACK: ohsome-filter-to-sql does not know about tags before.
+              -- Apply same tag filter to tags_before.
+              -- In this case all other filter parts are duplicated
+              -- and hopefully ignored by query planner.
+              ({filter_where_clause.replace("tags", "tags_before")})
+          )
         GROUP BY time_bin
         ORDER BY time_bin
     """  # noqa: S608, E501
@@ -185,7 +192,7 @@ async def get_contributions_count(
               -- In this case all other filter parts are duplicated
               -- and hopefully ignored by query planner.
               ({filter_where_clause.replace("tags", "tags_before")})
-         )
+          )
         GROUP BY time_bin
         ORDER BY time_bin
     """  # noqa: S608, E501
