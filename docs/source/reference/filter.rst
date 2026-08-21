@@ -5,9 +5,42 @@
 Filter
 ------
 
-The ``filter`` parameter combines the following: definition of the OSM type,
-the geometry (simple feature) type, as well as the OSM tag. The filter syntax is defined in textual form. 
-A filter expression can be composed out of several actual filters, which are combined with boolean operators and parentheses.
+The ``filter`` parameter allows to control the OSM data that is conidered in your request.
+
+You can create textual filter strings that combine several properties of an OSM element.
+These are described in more detail below in the Selectors section.
+
+* OSM tags
+* OSM type and OSM id
+* OSM changeset id
+* geometry type and length / area
+
+Simple filters usually combine OSM tags and geometry type.
+
+.. code-block:: json
+
+   "filter": "highway=bus_stop and geometry:point"
+
+
+.. code-block:: json
+
+   "filter": "landuse=forest and geometry:polygon"
+
+.. code-block:: json
+
+   "filter": "highway=primary and geometry:line"
+
+
+More complex filter expressions can be composed out of several actual filters,
+which are combined with boolean operators and parentheses.
+These are described in more detail below in the Operators section.
+
+.. code-block:: json
+
+   "filter": "(amenity=hospital or healthcare=hospital) and (geometry:polygon or geometry:point)"
+
+
+
 
 
 Selectors
@@ -110,28 +143,55 @@ Operators
 
 Operators follow the following order of precedence: parentheses before ``not``, before ``and``, before ``or``.
 
-|
 
 Special Characters & Whitespace
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| When writing filters, tags without special characters can be supplied directly, without needing 
-  to quote them. Example: ``amenity=drinking_water`` or ``name:it=*``. 
-| Allowed characters are: the letters ``a-z`` and ``A-Z``, digits, underscore, dashes and colons.
-  When filtering by tags with any other characters in their key or value, these strings need to be supplied as
-  double-quoted strings, e.g. ``name="Heidelberger BrÃ¼ckenaffe"`` or ``opening_hours="24/7"``. Escape sequences can be used to
-  represent a literal double-quote character ``\"``, while a literal backslash is written as ``\\``.
+When writing filters, tags without special characters can be supplied directly.
+There is no need to quote them.
+Allowed characters are: the letters ``a-z`` and ``A-Z``, digits, underscore, dashes and colons.
+
+.. code-block:: json
+
+   "filter": "amenity=drinking_water"
 
 
-Whitespace such as spaces, tabs or newlines can be put freely between operators or parts of selectors (``name = *`` is
-equivalent to ``name=*``) to make a filter more readable.
+.. code-block:: json
 
-|
+   "filter": "name:it=*"
+
+
+When filtering by tags with any other characters in their key or value,
+these strings need to be supplied as double-quoted strings.
+Escape sequences can be used to represent a literal double-quote character ``\"``,
+while a literal backslash is written as ``\\``.
+
+.. code-block:: json
+
+   "filter": "name=\"Heidelberger Brückenaffe\""
+
+.. code-block:: json
+
+   "filter": "opening_hours=\"24/7\""
+
+
+Whitespace such as spaces, tabs or newlines can be put freely between operators or parts of selectors
+to make a filter more readable.
+
+.. code-block:: json
+
+   "filter": "name = *"
+
+
+.. code-block:: json
+
+   "filter": "(amenity=hospital or healthcare=hospital)\nand\n(geometry:polygon or geometry:point)"
+
 
 Examples
 ^^^^^^^^^
 
-Here's some useful examples for querying some OSM features:
+Here are some useful examples for querying various OSM features:
 
 .. table::
     :widths: 24 34 34
@@ -196,6 +256,6 @@ Here's some useful examples for querying some OSM features:
 Further Information
 ^^^^^^^^^^^^^^^^^^^
 
-The filter is expressed as a ANTLR grammar and a Python based parser is used to interpret a given filer.
+The filter is expressed as a ANTLR grammar and a Python based parser is used to interpret a given filter.
 You can find further information in the `Readme of the ohsome-filter-to-sql library <https://github.com/GIScience/ohsome-filter-to-sql>`_.
 

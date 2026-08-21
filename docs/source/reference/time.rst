@@ -95,7 +95,7 @@ Time Series
    Timeseries: *----*-----*-----*
    Snapshots:  1    2     3     4
    Each * is a snapshot of OSM data at that point in the series
-   Number of points are restricted to a maximum of 10000.
+   Number of snapshots is restricted to a maximum of 1000.
 
 .. list-table::
    :header-rows: 1
@@ -139,7 +139,7 @@ Examples:
     "time": {
         "start": "2026-01-01T00:00:00Z",
         "end": "latest",
-        "interval": "P1M"
+        "interval": "P1D"
       }
 
 
@@ -151,7 +151,7 @@ Time Bins
    Timebins: [===][===][===][===]
    Bins:       1    2    3    4
    Each bin contains all OSM data for its temporal duration
-   Number of bins are restricted to a maximum of 10000.
+   Number of bins is restricted to a maximum of 1000.
 
 .. list-table::
    :header-rows: 1
@@ -194,5 +194,5 @@ Examples:
     "time": {
         "start": "2026-01-01T00:00:00Z",
         "end": "latest",
-        "binSize": "P1M"
+        "binSize": "P1D"
       }
