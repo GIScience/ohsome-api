@@ -103,11 +103,24 @@ Contributions
 -------------
 
 Contributions happen at a single point in time (``edit_timestamp``).
-They contain additional metadata such as changeset information and tags before the change.
-Contributions also contain information about deleted OSM elements (see the ``contributions_type`` attribute).
+
+Contributions describe changes to OSM nodes and ways that have at least one tag.
+Additionally, changes to OSM relations tagged as type=multipolygon or type=boundary are included.
+
+Contributions contain additional metadata such as changeset information and tags of the OSM element before the change.
+They also contain information about deleted OSM elements (see the ``contributions_type`` attribute).
 
 Contributions vs. Features
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Use Contributions if you are interested in mapping activity (i.e. all the road edits within a time range).
 Use Features if you are interested in all visible OSM elements at given points in time, regardless of their ``edit_timestamp``.
+
+
+Contributors
+------------
+
+Contributors are OSM users that have made an edit/ change / contribution to the OSM database.
+
+OSM Users that created an OSM account, but never made any edit are not included.
+
