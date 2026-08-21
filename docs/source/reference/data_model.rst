@@ -42,25 +42,25 @@ This is the schema you get from the following endpoints:
    * - ``valid_to_timestamp``
      - ``INT64 (TIMESTAMP(isAdjustedToUTC=true, unit=MICROS))``
      - Timestamp (UTC) when this version was superseded by a newer edit. Set to a far-future placeholder (2222-01-01) if the version is still current or was deleted.
-   * - ``osm_version``
+   * - ``version``
      - ``INT32``
      - Version number as reported by the OSM API; does not reflect every geometric change.
    * - ``minor_version``
      - ``INT32``
      - Minor version that increments with every geometric change; resets to 0 at each new major (OSM API) version.
-   * - ``osm_edits``
+   * - ``edits``
      - ``INT32``
      - Running total of all edits/minor versions made to this element.
-   * - ``osm_user_id``
+   * - ``user_id``
      - ``INT32``
      - Identifier of the OSM contributor that made the edit.
-   * - ``osm_user_name``
+   * - ``user_name``
      - ``BYTE_ARRAY (STRING)``
      - Username of the OSM contributor at the time of the data extract.
-   * - ``osm_changeset_id``
+   * - ``changeset_id``
      - ``INT64``
      - Identifier of the OSM changeset this edit belongs to.
-   * - ``osm_tags``
+   * - ``tags``
      - ``group (MAP), repeated group key_value {BYTE_ARRAY (STRING) key; BYTE_ARRAY (STRING) value;}``
      - Key/value tag pairs for this OSM element; empty map if none exist.
    * - ``bbox``
@@ -110,25 +110,25 @@ Members that are part of more than one OSM relation will be duplicated.
    * - ``valid_to_timestamp``
      - ``INT64 (TIMESTAMP(isAdjustedToUTC=true, unit=MICROS))``
      - Timestamp (UTC) when this version was superseded by a newer edit. Set to a far-future placeholder (2222-01-01) if the version is still current or was deleted.
-   * - ``osm_version``
+   * - ``version``
      - ``INT32``
      - Version number as reported by the OSM API; does not reflect every geometric change.
    * - ``minor_version``
      - ``INT32``
      - Minor version that increments with every geometric change; resets to 0 at each new major (OSM API) version.
-   * - ``osm_edits``
+   * - ``edits``
      - ``INT32``
      - Running total of all edits/minor versions made to this element.
-   * - ``osm_user_id``
+   * - ``user_id``
      - ``INT32``
      - Identifier of the OSM contributor that made the edit.
-   * - ``osm_user_name``
+   * - ``user_name``
      - ``BYTE_ARRAY (STRING)``
      - Username of the OSM contributor at the time of the data extract.
-   * - ``osm_changeset_id``
+   * - ``changeset_id``
      - ``INT64``
      - Identifier of the OSM changeset this edit belongs to.
-   * - ``osm_tags``
+   * - ``tags``
      - ``group (MAP), repeated group key_value {BYTE_ARRAY (STRING) key; BYTE_ARRAY (STRING) value;}``
      - Key/value tag pairs for this OSM element; empty map if none exist.
    * - ``collection_osm_id``
@@ -187,34 +187,34 @@ For contributions we never return clipped geometries.
    * - ``valid_to_timestamp``
      - ``INT64 (TIMESTAMP(isAdjustedToUTC=true, unit=MICROS))``
      - Timestamp (UTC) when this version was superseded by a newer edit. Set to a far-future placeholder (2222-01-01) if the version is still current or was deleted.
-   * - ``osm_version``
+   * - ``version``
      - ``INT32``
      - Version number as reported by the OSM API; does not reflect every geometric change.
    * - ``minor_version``
      - ``INT32``
      - Minor version that increments with every geometric change; resets to 0 at each new major (OSM API) version.
-   * - ``osm_edits``
+   * - ``edits``
      - ``INT32``
      - Running total of all edits/minor versions made to this element.
-   * - ``osm_user_id``
+   * - ``user_id``
      - ``INT32``
      - Identifier of the OSM contributor that made the edit.
-   * - ``osm_user_name``
+   * - ``user_name``
      - ``BYTE_ARRAY (STRING)``
      - Username of the OSM contributor at the time of the data extract.
-   * - ``osm_changeset_id``
+   * - ``changeset_id``
      - ``INT64``
      - Identifier of the OSM changeset this edit belongs to.
-   * - ``osm_changeset_tags``
+   * - ``changeset_tags``
      - ``group (MAP), repeated group key_value {BYTE_ARRAY (STRING) key; BYTE_ARRAY (STRING) value;}``
      - Key/value tag pairs on the OSM changeset this edit belongs to; empty map if none exist.
    * - ``contribution_type``
      - ``BYTE_ARRAY (STRING)``
      - Type of change represented by this contribution: ``CREATION``, ``DELETION``, ``TAG``, ``GEOMETRY``, or ``TAG_GEOMETRY``.
-   * - ``osm_tags``
+   * - ``tags``
      - ``group (MAP), repeated group key_value {BYTE_ARRAY (STRING) key; BYTE_ARRAY (STRING) value;}``
      - Key/value tag pairs for this OSM element; empty map if none exist.
-   * - ``osm_tags_before``
+   * - ``tags_before``
      - ``group (MAP), repeated group key_value {BYTE_ARRAY (STRING) key; BYTE_ARRAY (STRING) value;}``
      - Key/value tag pairs for this OSM element prior to this edit; empty map if none exist.
    * - ``bbox``

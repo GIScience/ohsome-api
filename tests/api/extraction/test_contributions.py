@@ -51,10 +51,10 @@ def validate_way_1136431018(table: Table):
 
     assert table["osm_id"][1].as_py() == 1136431018
     assert table["osm_type"][1].as_py() == "way"
-    assert table["osm_version"][1].as_py() == 2
-    assert table["osm_user_name"][1].as_py() == "Gigaszi"
-    assert table["osm_changeset_id"][1].as_py() == 139350886
-    assert set(table["osm_tags"][1].as_py()) == set(
+    assert table["version"][1].as_py() == 2
+    assert table["user_name"][1].as_py() == "Gigaszi"
+    assert table["changeset_id"][1].as_py() == 139350886
+    assert set(table["tags"][1].as_py()) == set(
         [
             ("name", "AudimaX"),
             ("area", "yes"),
@@ -65,7 +65,7 @@ def validate_way_1136431018(table: Table):
             ("addr:street", "Im Neuenheimer Feld"),
         ]
     )
-    assert set(table["osm_tags_before"][1].as_py()) == set(
+    assert set(table["tags_before"][1].as_py()) == set(
         [
             ("name", "AudimaX"),
             ("area", "yes"),
@@ -78,8 +78,8 @@ def validate_way_1136431018(table: Table):
 
     # Be careful: The order of contributions is not guaranteed to be by time.
     # Works because of strict ID filter.
-    assert table["osm_tags_before"][1].as_py() == table["osm_tags"][0].as_py()
-    assert table["osm_version"][1].as_py() - 1 == table["osm_version"][0].as_py()
+    assert table["tags_before"][1].as_py() == table["tags"][0].as_py()
+    assert table["version"][1].as_py() - 1 == table["version"][0].as_py()
 
     assert table["minor_version"][1].as_py() == 0
 
@@ -87,7 +87,7 @@ def validate_way_1136431018(table: Table):
     assert table["edit_timestamp"][1].as_py() == last_edit_expected
 
     assert table["contribution_type"][1].as_py() == "TAG"
-    assert set(table["osm_changeset_tags"][1].as_py()) == set(
+    assert set(table["changeset_tags"][1].as_py()) == set(
         [
             ("comment", "Determine whether building construction is now completed"),
             ("created_by", "StreetComplete 53.3"),

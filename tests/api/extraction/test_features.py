@@ -91,10 +91,10 @@ def test_post_extraction_history_timestamp(client: TestClient, aoi_audimax: dict
 
     assert table["osm_id"][0].as_py() == 1702635807
     assert table["osm_type"][0].as_py() == "node"
-    assert table["osm_version"][0].as_py() == 3
-    assert table["osm_user_name"][0].as_py() == "ezelo"
-    assert table["osm_changeset_id"][0].as_py() == 49417407
-    assert ("name", "Einstein trifft Dürer auf Reisen") in table["osm_tags"][0].as_py()
+    assert table["version"][0].as_py() == 3
+    assert table["user_name"][0].as_py() == "ezelo"
+    assert table["changeset_id"][0].as_py() == 49417407
+    assert ("name", "Einstein trifft Dürer auf Reisen") in table["tags"][0].as_py()
 
 
 def test_post_extraction_history_time_range(client: TestClient, aoi_audimax: dict):
@@ -118,17 +118,17 @@ def test_post_extraction_history_time_range(client: TestClient, aoi_audimax: dic
 
     assert table["osm_id"][0].as_py() == 1702635807
     assert table["osm_type"][0].as_py() == "node"
-    assert table["osm_version"][0].as_py() == 3
-    assert table["osm_user_name"][0].as_py() == "ezelo"
-    assert table["osm_changeset_id"][0].as_py() == 49417407
-    assert ("name", "Einstein trifft Dürer auf Reisen") in table["osm_tags"][0].as_py()
+    assert table["version"][0].as_py() == 3
+    assert table["user_name"][0].as_py() == "ezelo"
+    assert table["changeset_id"][0].as_py() == 49417407
+    assert ("name", "Einstein trifft Dürer auf Reisen") in table["tags"][0].as_py()
 
     assert table["osm_id"][1].as_py() == 1702635807
     assert table["osm_type"][1].as_py() == "node"
-    assert table["osm_version"][1].as_py() == 4
-    assert table["osm_user_name"][1].as_py() == "Tiamate"
-    assert table["osm_changeset_id"][1].as_py() == 53333618
-    assert ("name", "Dürer trifft Einstein auf Reisen") in table["osm_tags"][1].as_py()
+    assert table["version"][1].as_py() == 4
+    assert table["user_name"][1].as_py() == "Tiamate"
+    assert table["changeset_id"][1].as_py() == 53333618
+    assert ("name", "Dürer trifft Einstein auf Reisen") in table["tags"][1].as_py()
 
 
 def test_post_extraction_not_clipped(
@@ -239,9 +239,9 @@ def test_post_extraction_route_history(client: TestClient):
     for i in (0, 1):
         assert table["osm_id"][i].as_py() == 57255
         assert table["osm_type"][i].as_py() == "relation"
-        assert table["osm_version"][i].as_py() == 56
-        assert table["osm_user_name"][i].as_py() == "tyr_asd"
-        assert table["osm_changeset_id"][i].as_py() == 175922956
+        assert table["version"][i].as_py() == 56
+        assert table["user_name"][i].as_py() == "tyr_asd"
+        assert table["changeset_id"][i].as_py() == 175922956
         assert ("ref", "37") in table["osm_tags"][i].as_py()
 
     assert table["geom_type"][0].as_py() == "Point"
@@ -332,10 +332,10 @@ def validate_node_1702635807(table: Table):
 
     assert table["osm_id"][0].as_py() == 1702635807
     assert table["osm_type"][0].as_py() == "node"
-    assert table["osm_version"][0].as_py() == 6
-    assert table["osm_user_name"][0].as_py() == "ezelo"
-    assert table["osm_changeset_id"][0].as_py() == 74974721
-    assert table["osm_tags"][0].as_py() == [
+    assert table["version"][0].as_py() == 6
+    assert table["user_name"][0].as_py() == "ezelo"
+    assert table["changeset_id"][0].as_py() == 74974721
+    assert table["tags"][0].as_py() == [
         ("name", "Dürer trifft Einstein auf Reisen"),
         ("tourism", "artwork"),
         ("material", "bronze"),
