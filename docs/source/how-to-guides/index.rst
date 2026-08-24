@@ -8,5 +8,7 @@ How-To guides
 .. toctree::
    :maxdepth: 2
 
+   examples/notebook_statistics.ipynb
+   examples/notebook_extraction.ipynb
    extraction-geopandas
    extraction-duckdb

@@ -47,8 +47,13 @@ dev = [
     "ty>=0.0.56",
 ]
 docs = [
+    "folium>=0.20.0",
     "geopandas>=1.1.4",
     "httpx>=0.28.1",
+    "jupyter>=1.1.1",
+    "mapclassify>=2.11.0",
+    "matplotlib>=3.11.1",
+    "myst-nb>=1.4.0",
     "pyarrow>=24.0.0",
     "sphinx>=9.1.0",
     "sphinx-copybutton>=0.5.2",

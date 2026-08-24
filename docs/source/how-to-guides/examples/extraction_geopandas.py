@@ -52,8 +52,8 @@ def features_extraction(
     )
 
     # Extract OSM tags from dictionary into columns (explode)
-    tags = pandas.json_normalize(features["osm_tags"])
-    return features.join(tags).drop("osm_tags", axis="columns")
+    tags = pandas.json_normalize(features["tags"])
+    return features.join(tags).drop("tags", axis="columns")
 
 
 if __name__ == "__main__":
