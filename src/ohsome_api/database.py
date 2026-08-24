@@ -41,7 +41,6 @@ class Database:
             min_size=CONFIG.ohsomedb.pool_min_size_extraction,
             max_size=CONFIG.ohsomedb.pool_max_size_extraction,
             init=jsonb_codec,
-            # timeout works as expected for batch extraction (aborts after set timeout)
             command_timeout=CONFIG.ohsomedb.timeout_extraction,  # query timeout
         )
         logging.info("Database connection pool established.")
