@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator
 
 import asyncpg
@@ -11,6 +12,10 @@ from ohsome_api.config import CONFIG
 CONNECTION_STRING = CONFIG.ohsomedb.connection_string
 
 logger = logging.getLogger("ohsome-api")
+
+
+class PoolAcquireTimeoutError(TimeoutError):
+    pass
 
 
 async def jsonb_codec(connection: Connection) -> None:
@@ -50,11 +55,21 @@ class Database:
             await self.pool.close()
             logging.info("Database connection pool closed.")
 
-    async def fetch_row(self, sql: str, *args: Any) -> Record:  # noqa: ANN401
+    @asynccontextmanager
+    async def acquire_connection(self, timeout: int = 10) -> AsyncIterator[Connection]:
         if self.pool is None:
             raise ValueError("Database connection pool not initialized")
 
-        async with self.pool.acquire(timeout=10) as connection:
+        try:
+            async with self.pool.acquire(timeout=timeout) as connection:
+                yield connection
+        except TimeoutError as error:
+            raise PoolAcquireTimeoutError(
+                f"Could not acquire connection within {timeout}s"
+            ) from error
+
+    async def fetch_row(self, sql: str, *args: Any) -> Record:  # noqa: ANN401
+        async with self.acquire_connection(timeout=10) as connection:
             record: Record = await connection.fetchrow(sql, *args)
 
         if record is None:
@@ -63,10 +78,7 @@ class Database:
         return record
 
     async def fetch_rows(self, sql: str, *args: Any) -> list[Record]:  # noqa: ANN401
-        if self.pool is None:
-            raise ValueError("Database connection pool not initialized")
-
-        async with self.pool.acquire(timeout=10) as connection:
+        async with self.acquire_connection(timeout=10) as connection:
             records: list[Record] = await connection.fetch(sql, *args)
 
         return records
@@ -81,7 +93,7 @@ class Database:
             raise ValueError("Database connection pool for extraction not initialized")
 
         async with (
-            self.pool_extraction.acquire(timeout=10) as connection,
+            self.acquire_connection(timeout=10) as connection,
             asyncio.timeout(CONFIG.ohsomedb.timeout_extraction),
             connection.transaction(readonly=True),
         ):

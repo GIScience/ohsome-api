@@ -22,7 +22,7 @@ import ohsome_api.routers.stats.contributors
 import ohsome_api.routers.stats.currentness
 import ohsome_api.routers.stats.features
 from ohsome_api.config import CONFIG
-from ohsome_api.database import db
+from ohsome_api.database import PoolAcquireTimeoutError, db
 from ohsome_api.db import ResultTooLargeError, TimeSeriesTooLargeError
 
 VERSION = importlib.metadata.version("ohsome-api")
@@ -160,6 +160,24 @@ async def timeout_error(request: Request, error: TimeoutError) -> JSONResponse:
                         f"For extraction endpoints the timeout limit is "
                         f"{CONFIG.ohsomedb.timeout_extraction}."
                     ),
+                }
+            ]
+        },
+    )
+
+
+@app.exception_handler(PoolAcquireTimeoutError)
+async def pool_acquire_timeout_error(
+    _: Request,
+    error: PoolAcquireTimeoutError,
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": [
+                {
+                    "type": "pool_acquire_timeout_error",
+                    "msg": str(error),
                 }
             ]
         },
