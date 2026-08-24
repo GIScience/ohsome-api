@@ -18,6 +18,18 @@ class PoolAcquireTimeoutError(TimeoutError):
     pass
 
 
+class QueryTimeoutError(TimeoutError):
+    def __init__(self) -> None:
+        message = (
+            f"Query timeout limit has been exceeded. "
+            f"For statistics endpoints the timeout limit is "
+            f"{CONFIG.ohsomedb.timeout_stats}. "
+            f"For extraction endpoints the timeout limit is "
+            f"{CONFIG.ohsomedb.timeout_extraction}."
+        )
+        super().__init__(message)
+
+
 async def jsonb_codec(connection: Connection) -> None:
     await connection.set_type_codec(
         "jsonb",
@@ -60,17 +72,25 @@ class Database:
         if self.pool is None:
             raise ValueError("Database connection pool not initialized")
 
+        acquiring = True
         try:
             async with self.pool.acquire(timeout=timeout) as connection:
+                acquiring = False
                 yield connection
         except TimeoutError as error:
-            raise PoolAcquireTimeoutError(
-                f"Could not acquire connection within {timeout}s"
-            ) from error
+            # Only raise custom error TimeoutError is thrown during acquiring
+            if acquiring:
+                raise PoolAcquireTimeoutError(
+                    f"Could not acquire connection within {timeout}s"
+                ) from error
+            raise
 
     async def fetch_row(self, sql: str, *args: Any) -> Record:  # noqa: ANN401
-        async with self.acquire_connection(timeout=10) as connection:
-            record: Record = await connection.fetchrow(sql, *args)
+        async with self.acquire_connection() as connection:
+            try:
+                record: Record = await connection.fetchrow(sql, *args)
+            except TimeoutError as error:
+                raise QueryTimeoutError() from error
 
         if record is None:
             raise ValueError()
@@ -78,8 +98,11 @@ class Database:
         return record
 
     async def fetch_rows(self, sql: str, *args: Any) -> list[Record]:  # noqa: ANN401
-        async with self.acquire_connection(timeout=10) as connection:
-            records: list[Record] = await connection.fetch(sql, *args)
+        async with self.acquire_connection() as connection:
+            try:
+                records: list[Record] = await connection.fetch(sql, *args)
+            except TimeoutError as error:
+                raise QueryTimeoutError() from error
 
         return records
 
@@ -93,16 +116,19 @@ class Database:
             raise ValueError("Database connection pool for extraction not initialized")
 
         async with (
-            self.acquire_connection(timeout=10) as connection,
+            self.acquire_connection() as connection,
             asyncio.timeout(CONFIG.ohsomedb.timeout_extraction),
             connection.transaction(readonly=True),
         ):
             batch: list[Record] = []
-            async for record in connection.cursor(sql, *args, prefetch=batch_size):
-                batch.append(record)
-                if len(batch) >= batch_size:
-                    yield batch
-                    batch = []
+            try:
+                async for record in connection.cursor(sql, *args, prefetch=batch_size):
+                    batch.append(record)
+                    if len(batch) >= batch_size:
+                        yield batch
+                        batch = []
+            except TimeoutError as error:
+                raise QueryTimeoutError() from error
 
             yield batch
 

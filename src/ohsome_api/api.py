@@ -22,7 +22,7 @@ import ohsome_api.routers.stats.contributors
 import ohsome_api.routers.stats.currentness
 import ohsome_api.routers.stats.features
 from ohsome_api.config import CONFIG
-from ohsome_api.database import PoolAcquireTimeoutError, db
+from ohsome_api.database import db
 from ohsome_api.db import ResultTooLargeError, TimeSeriesTooLargeError
 
 VERSION = importlib.metadata.version("ohsome-api")
@@ -107,42 +107,13 @@ async def postgres_internal_server_error_handler(
     raise exception
 
 
-@app.exception_handler(TimeSeriesTooLargeError)
-async def time_series_too_large_error(
-    _: Request, exception: TimeSeriesTooLargeError
-) -> JSONResponse:
-    return JSONResponse(
-        status_code=422,
-        content={
-            "detail": [
-                {
-                    "type": "time_series_too_large_error",
-                    "msg": str(exception),
-                }
-            ]
-        },
-    )
-
-
 @app.exception_handler(ResultTooLargeError)
-async def result_too_large_error(
-    _: Request, exception: ResultTooLargeError
+@app.exception_handler(TimeSeriesTooLargeError)
+@app.exception_handler(TimeoutError)  # PoolAcquireTimeoutError, QueryTimeoutError
+async def timeout_error(
+    _: Request,
+    error: TimeoutError | ResultTooLargeError | TimeSeriesTooLargeError,
 ) -> JSONResponse:
-    return JSONResponse(
-        status_code=422,
-        content={
-            "detail": [
-                {
-                    "type": "result_too_large_error",
-                    "msg": str(exception),
-                }
-            ]
-        },
-    )
-
-
-@app.exception_handler(TimeoutError)
-async def timeout_error(request: Request, error: TimeoutError) -> JSONResponse:
     # Asyncpg raises timeouts via asyncio
 
     # Timeout raised during streaming (/extraction)
@@ -152,34 +123,10 @@ async def timeout_error(request: Request, error: TimeoutError) -> JSONResponse:
         content={
             "detail": [
                 {
-                    "type": "timeout_error",
-                    "msg": (
-                        f"Query timeout limit has been exceeded. "
-                        f"For statistics endpoints the timeout limit is "
-                        f"{CONFIG.ohsomedb.timeout_stats}. "
-                        f"For extraction endpoints the timeout limit is "
-                        f"{CONFIG.ohsomedb.timeout_extraction}."
-                    ),
-                }
-            ]
-        },
-    )
-
-
-@app.exception_handler(PoolAcquireTimeoutError)
-async def pool_acquire_timeout_error(
-    _: Request,
-    error: PoolAcquireTimeoutError,
-) -> JSONResponse:
-    return JSONResponse(
-        status_code=422,
-        content={
-            "detail": [
-                {
-                    "type": "pool_acquire_timeout_error",
+                    "type": type(error).__name__,
                     "msg": str(error),
                 }
-            ]
+            ],
         },
     )
 
