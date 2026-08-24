@@ -62,7 +62,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'heigit-api-prod-key', variable: 'API_KEY')]) {
 						sh 'schemathesis \
 							run \
-							--rate-limit "10/m" \
+							--rate-limit "9/m" \
 							--phases examples \
 							--exclude-checks ignored_auth,positive_data_acceptance \
 							--header "authorization: $API_KEY" \
