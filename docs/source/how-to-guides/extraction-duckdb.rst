@@ -2,8 +2,8 @@
    towards a result. How-to guides are goal-oriented.
    https://diataxis.fr/
 
-How to extract features with DuckDB?
-====================================
+How to extract data with DuckDB?
+================================
 
 
 .. literalinclude:: examples/extraction_duckdb.sql

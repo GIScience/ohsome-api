@@ -156,7 +156,7 @@ Members that are part of more than one OSM relation will be duplicated.
 
 
 Contributions Extraction Schema
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is the schema you get from the following endpoints:
 
