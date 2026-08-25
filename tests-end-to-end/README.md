@@ -18,5 +18,5 @@ uvx schemathesis run \
 	--rate-limit "9/m" \
     --phases examples \
     --tls-verify false \
-    https://api.heigit.org/ohsome-api/v2/openapi.json
+    https://api.heigit.org/ohsome-api/v2-rc/openapi.json
 ```

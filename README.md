@@ -18,8 +18,8 @@ This instance is publicly accessible under the following URL:
 - https://api.heigit.org/ohsome-api/v2-rc (release candidate for v2)
 
 If you need further information, visit these sites:
-- [Documentation](https://docs.ohsome.org/ohsome-api/v2)
-- [Swagger UI](https://api.heigit.org/ohsome-api/v2/docs)
+- [Documentation](https://docs.ohsome.org/ohsome-api/v2-rc)
+- [Swagger UI](https://api.heigit.org/ohsome-api/v2-rc/docs)
 
 ## Development Setup
 
