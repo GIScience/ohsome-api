@@ -29,5 +29,3 @@ if log_level is not None:
     logging.getLogger("ohsome-api").setLevel(log_level)
     logging.getLogger("uvicorn").setLevel(log_level)
     logging.getLogger("uvicorn.access").setLevel(log_level)
-    logging.getLogger("hypercorn.error").setLevel(log_level)
-    logging.getLogger("hypercorn.access").setLevel(log_level)
