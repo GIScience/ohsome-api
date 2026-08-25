@@ -149,7 +149,7 @@ The **CSV** results have not changed much:
 <tr>
 <td>
 
-```json
+```csv
 # Copyright URL: https://ohsome.org/copyrights
 # Copyright Text: © OpenStreetMap contributors
 # API Version: 1.10.4
