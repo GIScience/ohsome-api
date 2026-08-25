@@ -205,7 +205,7 @@ timestamp;value
 | `showMetadata` | N/A | |
 | `time` | `time`[^3] | <pre lang="json">"time": {&#13;    "start": "…",&#13;    "end": "…",&#13;    "interval": "…"&#13;}</pre> | |
 | `timeout` | N/A | |
-| `clipGeometry` | `clip`[^5] | <pre lang="json">"clip": true</pre> |
+| `clipGeometry` | `clip` | <pre lang="json">"clip": true</pre> |
 
 In addition to `POST` request with a JSON body for the request parameters, `GET` requests are also supported where all parameters are query paramters. In that case, the `aoi` can only be a bounding box.
 
@@ -247,7 +247,7 @@ The ohsome filter language remained largely the same between `v1` and `v2. Some 
 <table>
 <tr><td>tool/method</td><td><code>v1</code></td><td><code>v2</code></td></tr>
 <tr>
-<td>`curl`</td>
+<td>curl</td>
 <td>
 
 ```sh
@@ -278,19 +278,21 @@ curl -X 'POST' 'https://api.heigit.org/ohsome-api/v2/stats/features/count.csv' \
 
 </td>
 <tr>
-<td>`python`</td>
+<td>python</td>
 <td>
 
 ```python
 import https
-OHSOME_API_URL = 'https://api.ohsome.org/v1/elements/count/groupBy/tag'
-response = https.post(OHSOME_API_URL, data={
-    "bboxes": "8.625,49.3711,8.7334,49.4397",
-    "format": "csv",
-    "time": "2014-01-01/2026-01-01/P1Y",
-    "filter": "geometry:point and natural=tree",
-    "groupByKey": "species"
-})
+OHSOME_API_URL = 'https://api.ohsome.org/v1'
+response = https.post(
+    OHSOME_API_URL + /elements/count/groupBy/tag,
+    data={
+        "bboxes": "8.625,49.3711,8.7334,49.4397",
+        "format": "csv",
+        "time": "2014-01-01/2026-01-01/P1Y",
+        "filter": "geometry:point and natural=tree",
+        "groupByKey": "species"
+    })
 print(response.json())
 ```
 
@@ -323,7 +325,7 @@ print(response.json())
 
 </td>
 <tr>
-<td>`ohsome-py`</td>
+<td>ohsome-py</td>
 <td>
 
 ```python
@@ -339,4 +341,5 @@ Discontinued. Maybe replacement will be made available at a later point in time.
 
 </td>
 </tr>
+</table>
 
