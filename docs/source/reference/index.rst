@@ -8,6 +8,7 @@ Reference
 .. toctree::
    :maxdepth: 2
 
+   api
    aoi
    time
    filter

@@ -44,6 +44,7 @@ extensions = [
     "sphinx_tabs.tabs",
     "sphinx_copybutton",
     "myst_nb",
+    "sphinxcontrib.openapi",
 ]
 templates_path = ["_templates"]
 exclude_patterns = []
