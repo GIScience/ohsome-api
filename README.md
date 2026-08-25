@@ -9,6 +9,13 @@ The ohsome API is a generic web API for in-depth analysis of OpenStreetMap (OSM)
 It allows to get aggregated statistics about the evolution of OSM data itself and about the contributors behind the data.
 Furthermore, data extraction methods are provided to access the historic development of individual OSM features.
 
+## Migration from ohsome API v1
+
+> [!IMPORTANT]
+> This repository is for ohsome API version 2, a complete rewrite of the ohsome API, including a new database backend.
+>
+> See our [migration guide](MIGRATION_GUIDE.md) for the differences between the versions and how to upgrade to the new version.
+
 ## Using the ohsome API
 
 To make your life easier, we already have a running ohsome API instance on our servers, 
