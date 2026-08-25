@@ -37,4 +37,4 @@ COPY log-config.toml .
 
 EXPOSE 8000
 
-ENTRYPOINT ["hypercorn", "--bind", "0.0.0.0", "--access-logfile", "-", "--log-config", "log-config.toml", "ohsome_api.api:app"]
+ENTRYPOINT ["hypercorn", "--bind", "0.0.0.0", "--access-logfile", "-", "--log-config", "toml:log-config.toml", "ohsome_api.api:app"]
