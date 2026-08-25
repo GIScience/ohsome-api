@@ -43,13 +43,13 @@ You find these now consistently under the `/stats` directory:
 
 | `v1` | `v2` |
 | ---- | ---- |
-| `/v1/elements/count` | `/v2/stats/features/count`[^1] |
-| `/v1/elements/length` | `/v2/stats/features/length` |
-| `/v1/elements/area` | `/v2/stats/features/area` |
+| `/v1/elements/count` | `/v2-rc/stats/features/count`[^1] |
+| `/v1/elements/length` | `/v2-rc/stats/features/length` |
+| `/v1/elements/area` | `/v2-rc/stats/features/area` |
 | `/v1/elements/perimeter` | not available in `v2` |
-| `/v1/contributions/count` | `/v2/stats/contributions/count` |
-| `/v1/contributions/latest/count` | `/v2/stats/currentness/count` |
-| `/v1/users/count` | `/v2/stats/contributors/count` |
+| `/v1/contributions/count` | `/v2-rc/stats/contributions/count` |
+| `/v1/contributions/latest/count` | `/v2-rc/stats/currentness/count` |
+| `/v1/users/count` | `/v2-rc/stats/contributors/count` |
 | `/v1/…/density` | not available, can be calculated on client side |
 | `/v1/…/ratio` | not available, can be acchieved by performing two requests and calculating the ratio on client side |
 | `/v1/…/groupBy/tag` | see request parameter `groupBy` below |
@@ -66,15 +66,15 @@ All of the endpoints are now only available as `POST` requests, with a JSON body
 
 | `v1` | `v2` | example |
 | ---- | ---- | ------- |
-| `bboxes` | `aoi` | <pre lang="json">"aoi": [&#13;8.68812,&#13;    49.4039,&#13;    8.72362,&#13;    49.41582&#13;]</pre> |
+| `bboxes` | `aoi` | <pre lang="json">"aoi": [&#13;    8.68812,&#13;    49.4039,&#13;    8.72362,&#13;    49.41582&#13;]</pre> |
 | `bpolys` | `aoi`[^2] | <pre lang="json">"aoi": {&#13;    "type": "Polygon",&#13;    "coordinates": […]&#13;}</pre> |
 | `bcircles` | N/A | |
-| `filter` | `filter` | <pre lang="json">"filter": "natural=tree"</pre> |
+| `filter` | `filter` | <pre lang="json">"filter": "natural=tree and geometry:point"</pre> |
 | `format` | N/A, this is part of the path (see below) | |
 | `showMetadata` | N/A | |
-| `time` | `time`[^3] | <pre lang="json">"time": {&#13;    "start": "…",&#13;    "end": "…",&#13;    "interval": "…"&#13;}</pre> | |
+| `time` | `time`[^3] | <pre lang="json">"time": {&#13;    "start": "2014-01-01",&#13;    "end": "2026-01-01",&#13;    "interval": "P1Y"&#13;}</pre> | |
 | `timeout` | N/A | |
-| N/A | `groupBy` | <pre lang="json">"groupBy": {&#13;    "type": "byTag",&#13;    "key": "…"&#13;}</pre> |
+| N/A | `groupBy` | <pre lang="json">"groupBy": {&#13;    "type": "byTag",&#13;    "key": "species"&#13;}</pre> |
 | N/A | `clip`[^4] | <pre lang="json">"clip": true</pre> |
 
 [^2]: instead of a full FeatureCollection, `v2` accepts a single GeoJSON Geometry object of a `Polygon` or `MultiPolygon` only.
@@ -182,13 +182,13 @@ timestamp;value
 
 | `v1` | `v2` |
 | ---- | ---- |
-| `/v1/elements/geometry` | `/v2/extraction/features` |
-| `/v1/elementsFullHistory/geometry` | `/v2/extraction/features` |
-| `/v1/contributions/geometry` | `/v2/extraction/contributions`[^7] |
+| `/v1/elements/geometry` | `/v2-rc/extraction/features` |
+| `/v1/elementsFullHistory/geometry` | `/v2-rc/extraction/features` |
+| `/v1/contributions/geometry` | `/v2-rc/extraction/contributions`[^7] |
 | `/v1/…/bbox` | N/A (bbox is always included in result along side full geometry) |
 | `/v1/…/centroid` | not yet implemented, can be calculated on client side in post-processing |
-| N/A | `/v2/extraction/collections`[^6] |
-| N/A | `/v2/extraction/collections_members`[^6] |
+| N/A | `/v2-rc/extraction/collections`[^6] |
+| N/A | `/v2-rc/extraction/collections_members`[^6] |
 
 [^6]: OSM relations that are not a `type=multipolygon` or `type=boundary` (e.g. OSM route relations) were previously included in the `elements/geometry` output as _GeometryCollection_ features. In `v2` they are instead now accessible via separate endpoints which either return the respective relation as as a whole geometry collection (e.g. `MultiPoint`, `MultiLine` or `MultiPolygon` geometry), or in form of the set of all their individual members (using the members' respective geometry and including the members' tags).
 [^7]: In addition to tags and OSM metadata, the contributions extraction now also includes the tags of the respective _changesets_, which was not accessible in `v1`.
@@ -197,13 +197,13 @@ timestamp;value
 
 | `v1` | `v2` | example |
 | ---- | ---- | ------- |
-| `bboxes` | `aoi` | <pre lang="json">"aoi": [&#13;8.68812,&#13;    49.4039,&#13;    8.72362,&#13;    49.41582&#13;]</pre> |
+| `bboxes` | `aoi` | <pre lang="json">"aoi": [&#13;    8.68812,&#13;    49.4039,&#13;    8.72362,&#13;    49.41582&#13;]</pre> |
 | `bpolys` | `aoi`[^2] | <pre lang="json">"aoi": {&#13;    "type": "Polygon",&#13;    "coordinates": […]&#13;}</pre> |
 | `bcircles` | N/A | |
-| `filter` | `filter` | <pre lang="json">"filter": "natural=tree"</pre> |
+| `filter` | `filter` | <pre lang="json">"filter": "natural=tree and geometry:point"</pre> |
 | `properties` | N/A (all properties are always returned) | |
 | `showMetadata` | N/A | |
-| `time` | `time`[^3] | <pre lang="json">"time": {&#13;    "start": "…",&#13;    "end": "…",&#13;    "interval": "…"&#13;}</pre> | |
+| `time` | `time`[^3] | <pre lang="json">"time": {&#13;    "start": "2014-01-01",&#13;    "end": "2026-01-01"&#13;}</pre> | |
 | `timeout` | N/A | |
 | `clipGeometry` | `clip` | <pre lang="json">"clip": true</pre> |
 
@@ -213,19 +213,19 @@ In addition to `POST` request with a JSON body for the request parameters, `GET`
 
 The extraction endpoints now return geodata in [GeoParquet](https://geoparquet.org/) format, which is compact binary format to store and distibute geo data. This can be used directly with many tools, or converted to other formats like GeoJSON for further processing.
 
-In addition to tags and feature metadata, the 
+See the [API documentation](https://docs.ohsome.org/ohsome-api/v2-rc/reference/data_model.html) for details about the new extraction data format.
 
 ### Metadata Endpoints
 
 | `v1` | `v2` | comment |
 | ---- | ---- | ------- |
-| `/v1/metadata` | `/v2/metadata` | |
-| N/A | `/v2/filter/validate` | checks whether the given filter is valid or returns a 422 Validation Error if not |
-| N/A | `/v2/health` | returns wheter the API is up and running |
+| `/v1/metadata` | `/v2-rc/metadata` | |
+| N/A | `/v2-rc/filter/validate` | checks whether the given filter is valid or returns a 422 Validation Error if not |
+| N/A | `/v2-rc/health` | returns wheter the API is up and running |
 
 ## Filters
 
-The ohsome filter language remained largely the same between `v1` and `v2. Some minor differences are:
+The ohsome filter language remained largely the same between `v1` and `v2`. Some minor differences are:
 
 | `v1` | `v2` |
 | ---- | ---- |
@@ -262,8 +262,8 @@ curl -X POST 'https://api.ohsome.org/v1/elements/count' \
 <td>
 
 ```sh
-curl -X 'POST' 'https://api.heigit.org/ohsome-api/v2/stats/features/count.csv' \
-  -H 'authorization: <your-api-key>' \
+curl -X 'POST' 'https://api.heigit.org/ohsome-api/v2-rc/stats/features/count.csv' \
+  -H 'Authorization: <your-api-key>' \
   -H 'Content-Type: application/json' \
   -d '{
     "filter": "geometry:point and natural=tree",
@@ -318,7 +318,7 @@ response = httpx.post(
             "key": "species",
         }
     },
-    headers={"authorization": OHSOME_API_KEY},
+    headers={"Authorization": OHSOME_API_KEY},
 )
 print(response.json())
 ```
