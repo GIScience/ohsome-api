@@ -88,7 +88,7 @@ The result formats `.json` and `.csv` are supported as suffixes in the path, e.g
 **JSON** responses now use a columnar format:
 
 <table>
-<tr><td><pre>v1</pre></td><td><pre>v2</pre></td></tr>
+<tr><td><code>v1</code></td><td><code>v2</code></td></tr>
 <tr>
 <td>
 
@@ -145,7 +145,7 @@ The result formats `.json` and `.csv` are supported as suffixes in the path, e.g
 The **CSV** results have not changed much:
 
 <table>
-<tr><td><pre>v1</pre></td><td><pre>v2</pre></td></tr>
+<tr><td><code>v1</code></td><td><code>v2</code></td></tr>
 <tr>
 <td>
 
@@ -245,7 +245,7 @@ The ohsome filter language remained largely the same between `v1` and `v2. Some 
 ## Full Examples
 
 <table>
-<tr><td>tool/method</td><td><pre>v1</pre></td><td><pre>v2</pre></td></tr>
+<tr><td>tool/method</td><td><code>v1</code></td><td><code>v2</code></td></tr>
 <tr>
 <td>`curl`</td>
 <td>
