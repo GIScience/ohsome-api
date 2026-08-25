@@ -102,8 +102,8 @@ async def get_currentness(
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
         FROM "{SCHEMA}".contributions c, aoi
         WHERE ({filter_where_clause})
-        AND valid_from BETWEEN ${filter_args_count + 1}::timestamptz
-                           AND ${filter_args_count + 2}::timestamptz
+        AND valid_from >= ${filter_args_count + 1}::timestamptz and
+            valid_from <  ${filter_args_count + 2}::timestamptz
         AND ST_Intersects(c.geom, aoi.geom)
         AND (status_geom_type).status = 'latest'
         GROUP BY time_bin
@@ -139,8 +139,8 @@ async def get_contributors_count(
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
         FROM "{SCHEMA}".contributions c
         JOIN aoi on (ST_Intersects(c.geom, aoi.geom))
-        WHERE valid_from BETWEEN ${filter_args_count + 1}::timestamptz
-                             AND ${filter_args_count + 2}::timestamptz
+        WHERE valid_from >= ${filter_args_count + 1}::timestamptz and
+              valid_from <  ${filter_args_count + 2}::timestamptz
           AND (
               ({filter_where_clause}) or
               -- HACK: ohsome-filter-to-sql does not know about tags before.
@@ -183,8 +183,8 @@ async def get_contributions_count(
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
         FROM "{SCHEMA}".contributions c
         JOIN aoi on (ST_Intersects(c.geom, aoi.geom))
-        WHERE valid_from BETWEEN ${filter_args_count + 1}::timestamptz
-                             AND ${filter_args_count + 2}::timestamptz
+        WHERE valid_from >= ${filter_args_count + 1}::timestamptz and
+              valid_from <  ${filter_args_count + 2}::timestamptz
           AND (
               ({filter_where_clause}) or
               -- HACK: ohsome-filter-to-sql does not know about tags before.
@@ -842,8 +842,9 @@ async def extract_contributions(
         time_args = [start]
     else:
         filter_by_time_constraint = f"""
-            AND valid_from BETWEEN ${filter_args_count + 2}::timestamptz AND ${filter_args_count + 3}::timestamptz
-        """  # noqa: E501
+            AND valid_from >= ${filter_args_count + 2}::timestamptz
+            AND valid_from <  ${filter_args_count + 3}::timestamptz
+        """
         time_args = [start, end]
 
     filter_by_time = f"""
