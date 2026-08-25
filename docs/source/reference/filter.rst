@@ -69,6 +69,11 @@ Selectors
     |                                    | have any tag with the given key    | ``(residential,                   |
     |                                    | and one of the given values        | living_street)``                  |
     +------------------------------------+------------------------------------+-----------------------------------+
+    | ``key ~ prefix*`` /                | matches all entities which do      | ``name ~ *street``                |
+    | ``key ~ *suffix`` /                | have any tag with the given key    |                                   |
+    | ``key ~ *substring**``             | and a values matching the given    |                                   |
+    |                                    | prefix, suffix or substring        |                                   |
+    +------------------------------------+------------------------------------+-----------------------------------+
     | ``type:osm-type``                  | matches all entities of the        | ``type:node``                     |
     |                                    | given osm type                     |                                   |
     +------------------------------------+------------------------------------+-----------------------------------+
