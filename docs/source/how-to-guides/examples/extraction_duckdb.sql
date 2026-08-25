@@ -14,7 +14,7 @@ SET VARIABLE clip = 'true';
 SELECT * FROM read_parquet(
     getenv('OHSOME_API_URL') || '/extraction/features.parquet'
     || '?filter=' || getvariable('filter')
-    || '&time=' || getvariable('times')
+    || '&time=' || getvariable('time')
     || '&aoi=' || getvariable('aoi')
     || '&clip=' || getvariable('clip')
 );
