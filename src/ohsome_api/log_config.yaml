@@ -1,4 +1,4 @@
-# Configuration for ohsome-api and unvicorn
+# Configuration for ohsome-api and uvicorn
 
 version: 1
 disable_existing_loggers: false
