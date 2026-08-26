@@ -26,7 +26,7 @@ A single point in time (snapshot) of OSM data.
    * - ``time``
      - Single timestamp.
        Earliest allowed: ``2007-10-08``.
-       Shorthand: ``earliest`` or ``latest``.
+       Shorthand: ``latest``.
      - ISO-8601 (UTC)
 
 Examples:
