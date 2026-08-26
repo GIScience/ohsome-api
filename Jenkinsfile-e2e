@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'heigit-api-prod-key', variable: 'HURL_SECRET_API_KEY')]) {
-                        sh 'hurl --delay 6000 --test tests-end-to-end/*.hurl'
+                        sh 'hurl --delay 12000 --test tests-end-to-end/*.hurl'
                     }
                 }
             }
