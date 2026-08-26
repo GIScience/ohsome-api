@@ -30,10 +30,6 @@ class QueryTimeoutError(TimeoutError):
         super().__init__(message)
 
 
-class BatchTimeoutError(RuntimeError):
-    pass
-
-
 async def jsonb_codec(connection: Connection) -> None:
     await connection.set_type_codec(
         "jsonb",
@@ -132,7 +128,7 @@ class Database:
                         yield batch
                         batch = []
             except TimeoutError as error:
-                raise BatchTimeoutError() from error
+                raise QueryTimeoutError() from error
 
             yield batch
 
