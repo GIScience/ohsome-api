@@ -1,4 +1,4 @@
 API Endpoints
 =============
 
-.. openapi:: openapi.json
+.. openapi:: ../_static/openapi.json

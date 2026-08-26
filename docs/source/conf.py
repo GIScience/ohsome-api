@@ -2,12 +2,17 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
+import json
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import tomllib
 from datetime import datetime
 from pathlib import Path
+
+from sphinx.application import Sphinx
+
+from ohsome_api.api import app as ohsome_api_app
 
 
 def find_pyproject(path: Path | None = None) -> Path:
@@ -70,3 +75,16 @@ html_theme_options = {
         "Contact": metadata["urls"]["Contact"],
     },
 }
+
+
+# -- Custom functions --------------------------------------------------------
+
+
+def generate_openapi_json(app: Sphinx):
+    out_dir = Path(app.srcdir) / "_static"
+    with open(out_dir / "openapi.json", "w") as f:
+        json.dump(ohsome_api_app.openapi(), f, indent=2)
+
+
+def setup(app: Sphinx):
+    app.connect("builder-inited", generate_openapi_json)
