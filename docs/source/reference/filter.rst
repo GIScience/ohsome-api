@@ -71,7 +71,7 @@ Selectors
     +------------------------------------+------------------------------------+-----------------------------------+
     | ``key ~ prefix*`` /                | matches all entities which do      | ``name ~ *street``                |
     | ``key ~ *suffix`` /                | have any tag with the given key    |                                   |
-    | ``key ~ *substring**``             | and a values matching the given    |                                   |
+    | ``key ~ *substring*``              | and a values matching the given    |                                   |
     |                                    | prefix, suffix or substring        |                                   |
     +------------------------------------+------------------------------------+-----------------------------------+
     | ``type:osm-type``                  | matches all entities of the        | ``type:node``                     |
