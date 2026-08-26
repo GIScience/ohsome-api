@@ -44,7 +44,7 @@ class Config(BaseSettings):
     swagger_css_url: str = (
         "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css"
     )
-    external_docs_url: str = "https://docs.ohsome.org/ohsome-api/v2"
+    external_docs_url: str = "https://docs.ohsome.org/ohsome-api/v2-rc"
     time_series_size_limit: int = 1_000  # rows
     group_by_time_series_size_limit: int = 1_000_000  # rows
     model_config = SettingsConfigDict(
