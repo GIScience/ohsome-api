@@ -1,5 +1,7 @@
 [![Build Status](https://jenkins.heigit.org/buildStatus/icon?job=ohsome-api/main)](https://jenkins.heigit.org/job/ohsome-api/job/main/)
-[![End-to-End Tests](https://jenkins.heigit.org/buildStatus/icon?job=ohsome-api-end-to-end/main)](https://jenkins.heigit.org/job/ohsome-api-end-to-end/job/main/)
+[![LICENSE](https://img.shields.io/github/license/GIScience/ohsome-api)](LICENSE)
+[![API docs](https://img.shields.io/badge/API-docs-blue.svg)](https://docs.ohsome.org/ohsome-api/stable)
+[![status: active](https://github.com/GIScience/badges/raw/master/status/active.svg)](https://github.com/GIScience/badges#active)
 
 # ohsome API
 
