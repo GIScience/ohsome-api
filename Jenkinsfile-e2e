@@ -78,7 +78,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'heigit-api-prod-key', variable: 'OHSOME_API_KEY')]) {
-                        sh 'pytest --maxfail=1 docs/source/how-to-guides/examples/'
+                        sh 'pytest --maxfail=1 --no-cov docs/source/how-to-guides/examples/'
                     }
                 }
             }
