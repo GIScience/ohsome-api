@@ -1,0 +1,12 @@
+rate-limit = "9/m"
+
+[checks]
+ignored_auth.enabled = false
+positive_data_acceptance.enabled = false
+
+[phases]
+enabled = false
+examples.enabled = true
+
+[auth.openapi.APIKey]
+api_key = "${API_KEY}"

@@ -12,9 +12,6 @@ hurl --test *.hurl
 ## Schemathesis
 
 ```sh
-uvx schemathesis run \
-	--rate-limit "9/m" \
-    --phases examples \
-    --tls-verify false \
+API_KEY=… uv run schemathesis run \
     https://api.heigit.org/ohsome-api/v2-rc/openapi.json
 ```
