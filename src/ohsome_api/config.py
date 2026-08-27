@@ -38,12 +38,7 @@ class Config(BaseSettings):
     ohsomedb: DatabaseConfig = DatabaseConfig()
     log_config: FilePath = Path(Path(__file__).parent / "log_config.yaml").resolve()
     root_path: str = ""
-    swagger_js_url: str = (
-        "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"
-    )
-    swagger_css_url: str = (
-        "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css"
-    )
+    docs_path: str | None = None
     external_docs_url: str = "https://docs.ohsome.org/ohsome-api/v2-rc"
     time_series_size_limit: int = 1_000  # rows
     group_by_time_series_size_limit: int = 1_000_000  # rows

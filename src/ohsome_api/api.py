@@ -11,7 +11,6 @@ from pydantic import (
     TypeAdapter,
 )
 
-import ohsome_api.routers.docs
 import ohsome_api.routers.extraction.collections
 import ohsome_api.routers.extraction.contributions
 import ohsome_api.routers.extraction.features
@@ -52,7 +51,7 @@ app = FastAPI(
     lifespan=lifespan,
     openapi_url="/openapi.json",
     openapi_tags=METADATA_TAGS,
-    docs_url=None,  # configured in routers/docs.py
+    docs_url=CONFIG.docs_path,
     redoc_url=None,
     version=VERSION,
     title=METADATA_PROJECT["Name"],
@@ -72,7 +71,6 @@ app = FastAPI(
     },
 )
 
-app.include_router(ohsome_api.routers.docs.router)
 app.include_router(ohsome_api.routers.filter.router)
 app.include_router(ohsome_api.routers.metadata.router)
 app.include_router(ohsome_api.routers.stats.features.router)

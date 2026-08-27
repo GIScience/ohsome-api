@@ -34,8 +34,6 @@ pipeline {
         stage('End-to-End HURL Test') {
             environment {
                 HURL_VARIABLE_BASE_URL="https://api.heigit.org/ohsome-api-staging/v2"
-                HURL_VARIABLE_SWAGGER_UI_CSS_URL="https://ohsome.org/static/swagger-ui.css"
-                HURL_VARIABLE_SWAGGER_UI_JS_URL="https://ohsome.org/static/swagger-ui-bundle.js"
             }
             steps {
                 script {

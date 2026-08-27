@@ -6,12 +6,6 @@ HTTP *
 status == 200
 header "Content-Type" == "application/json"
 
-GET {{BASE_URL}}/docs
-HTTP *
-[Asserts]
-status == 200
-header "Content-Type" == "text/html; charset=utf-8"
-
 GET	{{BASE_URL}}/openapi.json
 HTTP *
 [Asserts]
