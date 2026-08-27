@@ -27,7 +27,7 @@ A single point in time (snapshot) of OSM data.
      - Single timestamp.
        Earliest allowed: ``2007-10-08``.
        Shorthand: ``latest``.
-     - ISO-8601 (UTC)
+     - `ISO-8601`_ (UTC)
 
 Examples:
 
@@ -57,10 +57,10 @@ Time Range
      - Format
    * - ``start``
      - Start timestamp. Earliest allowed: ``2007-10-08``. Shorthand: ``earliest``.
-     - ISO-8601 (UTC)
+     - `ISO-8601`_ (UTC)
    * - ``end``
      - End timestamp. Must be greater than start. Shorthand: ``latest``.
-     - ISO-8601 (UTC)
+     - `ISO-8601`_ (UTC)
 
 Examples:
 
@@ -106,13 +106,13 @@ Time Series
      - Format
    * - ``start``
      - Start timestamp. Earliest allowed: ``2007-10-08``. Shorthand: ``earliest``.
-     - ISO-8601 (UTC)
+     - `ISO-8601`_ (UTC)
    * - ``end``
      - End timestamp. Must be greater than start. Shorthand: ``latest``.
-     - ISO-8601 (UTC)
+     - `ISO-8601`_ (UTC)
    * - ``interval``
      - Temporal duration between each point in the series (snapshot).
-     - ISO-8601 duration
+     - `ISO-8601 duration`_
 
 
 Examples:
@@ -162,13 +162,13 @@ Time Bins
      - Format
    * - ``start``
      - Start timestamp. Earliest allowed: ``2007-10-08``. Shorthand: ``earliest``.
-     - ISO-8601 (UTC)
+     - `ISO-8601`_ (UTC)
    * - ``end``
      - End timestamp. Must be greater than start. Shorthand: ``latest``.
-     - ISO-8601 (UTC)
+     - `ISO-8601`_ (UTC)
    * - ``binSize``
      - Temporal duration of each bin:
-     - ISO-8601 duration
+     - `ISO-8601 duration`_
 
 Examples:
 
@@ -196,3 +196,6 @@ Examples:
         "end": "latest",
         "binSize": "P1D"
       }
+
+.. _ISO-8601: https://en.wikipedia.org/wiki/ISO_8601
+.. _`ISO-8601 duration`: https://en.wikipedia.org/wiki/ISO_8601#Durations

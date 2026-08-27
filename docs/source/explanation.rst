@@ -80,6 +80,8 @@ Contrasted with plain OSM elements, Features are the ohsome API's own abstractio
 they group nodes, ways and eligible relations by geometry rather than by raw OSM type.
 
 
+.. _Collections:
+
 Collections
 -----------
 
@@ -95,7 +97,7 @@ Collection Members
 
 Collection Members are OSM ways and nodes that are members of OSM relations not tagged as ``type=multipolygon`` or ``type=boundary`` (Collections).
 
-A single Collection contains only the geometries of its members as a GeometryCollection (see above), but not their attributes such as OSM tags.
+A single Collection contains only the geometries of its members as a GeometryCollection (see :ref:`Collections`), but not their attributes such as OSM tags.
 To get each individual member including geometry and all other attributes such as OSM tags, Collection Members must be requested instead.
 
 
@@ -105,7 +107,7 @@ Contributions
 Contributions happen at a single point in time (``edit_timestamp``).
 
 Contributions describe changes to OSM nodes and ways that have at least one tag.
-Additionally, changes to OSM relations tagged as type=multipolygon or type=boundary are included.
+Additionally, changes to OSM relations tagged as ``type=multipolygon`` or ``type=boundary`` are included.
 
 Contributions contain additional metadata such as changeset information and tags of the OSM element before the change.
 They also contain information about deleted OSM elements (see the ``contributions_type`` attribute).
@@ -120,7 +122,7 @@ Use Features if you are interested in all visible OSM elements at given points i
 Contributors
 ------------
 
-Contributors are OSM users that have made an edit/ change / contribution to the OSM database.
+Contributors are OSM users that have made an edit, change or contribution to the OSM database.
 
 OSM Users that created an OSM account, but never made any edit are not included.
 

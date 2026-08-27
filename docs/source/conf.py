@@ -68,8 +68,8 @@ html_css_files = [
 ]
 html_theme = "alabaster"
 html_theme_options = {
-    # "logo": "ohsome-logo.svg",
-    # "logo_name": True
+    "logo": "ohsome-logo.svg",
+    "logo_name": True,
     "description": f"Version: <code>{release}</code>",
     "extra_nav_links": {
         "Swagger UI": metadata["urls"]["Swagger"],

@@ -6,8 +6,9 @@
 Welcome to the documentation of the ohsome API!
 ===============================================
 
-.. image:: _static/ohsome-logo.svg
+.. image:: _static/heigit-logo.svg
     :alt: logo of ohsome
+    :class: index-logo
     :align: right
 
 HTTP API for OpenStreetMap history statistics and extractions.

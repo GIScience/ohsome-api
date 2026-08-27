@@ -10,15 +10,17 @@ The ``aoi`` parameter allows to control the spatial extent of the request.
 It can be defined in different formats: GeoJSON Geometry, Bounding Box (BBOX) or Well Known Text (WKT).
 
 All coordinates must be in WGS84 EPSG:4326 (longitude, latitude) format.
-For more details see: https://epsg.io/4326
+For more details see: `https://epsg.io/4326`_
+
+.. _https://epsg.io/4326: https://epsg.io/4326
 
 Bounding Box
 ^^^^^^^^^^^^
 
 An array of coordinates in this order:
 
-* xmin, ymin, xmax, ymax
-* lon_min, lat_min, lon_max, lat_max
+* ``xmin``, ``ymin``, ``xmax``, ``ymax``
+* ``lon_min``, ``lat_min``, ``lon_max``, ``lat_max``
 
 Example:
 

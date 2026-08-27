@@ -8,13 +8,28 @@
 	max-inline-size: var(--measure);
 }
 
-div.document,
-.document {
-	width: auto;
-	max-width: 1200px;
+img.logo {
+	padding-bottom: 1ch;
 }
 
-div.body,
-.body {
-	width: auto;
+img.index-logo {
+	max-width: 250px;
+}
+
+@media screen and (max-width: 940px) {
+	img.align-right {
+		float: initial;
+	}
+}
+
+	div.document,
+	.document {
+		width: auto;
+		max-width: 1200px;
+	}
+
+	div.body,
+	.body {
+		width: auto;
+	}
 }
