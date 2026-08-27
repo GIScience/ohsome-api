@@ -24,7 +24,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://heigit.org/big-spatial-data-analytics/"
 Contact = "https://heigit.org/contact"
-Repository = "https://gitlab.heigit.org/giscience/big-data/ohsome/ohsome-api"
+Repository = "https://github.com/GIScience/ohsome-api"
 Documentation = "https://docs.ohsome.org/ohsome-api/v2-rc"
 Swagger = "https://api.heigit.org/ohsome-api/v2-rc/docs"
 
