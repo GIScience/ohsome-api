@@ -46,7 +46,7 @@ pipeline {
             }
             post {
                failure {
-                  rocket_testfail()
+                  rocket_basicsend("End-to-End Tests on *${REPO_NAME}*-build nr. ${env.BUILD_NUMBER} on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>) were *unsuccessful*. Latest commit from  ${LATEST_AUTHOR}.")
                }
             }
         }
@@ -72,7 +72,7 @@ pipeline {
             }
             post {
                failure {
-                  rocket_testfail()
+                  rocket_basicsend("End-to-End Tests on *${REPO_NAME}*-build nr. ${env.BUILD_NUMBER} on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>) were *unsuccessful*. Latest commit from  ${LATEST_AUTHOR}.")
                }
             }
         }
@@ -92,7 +92,7 @@ pipeline {
             }
             post {
                failure {
-                  rocket_testfail()
+                  rocket_basicsend("End-to-End Tests on *${REPO_NAME}*-build nr. ${env.BUILD_NUMBER} on Branch - ${env.BRANCH_NAME}  (<${env.BUILD_URL}|Open Build in Jenkins>) were *unsuccessful*. Latest commit from  ${LATEST_AUTHOR}.")
                }
             }
         }
