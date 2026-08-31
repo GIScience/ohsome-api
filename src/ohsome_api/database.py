@@ -69,12 +69,15 @@ class Database:
                 "search_path": f"{SCHEMA},public",
             },
         )
-        logging.info("Database connection pool established.")
+        logging.info("Database connection pools established.")
 
     async def disconnect(self) -> None:
         if self.pool:
             await self.pool.close()
-            logging.info("Database connection pool closed.")
+
+        if self.pool_extraction:
+            await self.pool_extraction.close()
+        logging.info("Database connection pools closed.")
 
     @asynccontextmanager
     async def acquire_connection(self, timeout: int = 10) -> AsyncIterator[Connection]:
