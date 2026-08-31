@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 from typing import AsyncIterator, Literal, cast
 
 from asyncpg import Record
@@ -13,6 +14,8 @@ from ohsome_api.models import (
     SnapshotColumnsGrouped,
     TimeBinColumns,
 )
+
+QUERIES_DIR = Path(__file__).parent / "queries"
 
 
 class TimeSeriesTooLargeError(ValueError):
@@ -66,18 +69,7 @@ async def get_latest_timestamp() -> datetime:
 
 
 async def get_metadata() -> dict[str, datetime]:
-    sql = """
-        WITH
-            first AS (
-                SELECT value::timestamptz as first_timestamp
-                FROM ohsomedb_metadata
-                WHERE key = 'valid_from'
-            ), last AS (
-                SELECT last_timestamp
-                FROM contributions_state
-            )
-        SELECT first_timestamp as start, last_timestamp as end FROM first, last;
-"""
+    sql = Path(QUERIES_DIR / "get_metadata.sql").read_text()
     return dict(await db.fetch_row(sql))
 
 
