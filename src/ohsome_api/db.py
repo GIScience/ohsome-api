@@ -13,8 +13,6 @@ from ohsome_api.models import (
     TimeBinColumns,
 )
 
-SCHEMA = CONFIG.ohsomedb.schemaname
-
 
 class TimeSeriesTooLargeError(ValueError):
     pass
