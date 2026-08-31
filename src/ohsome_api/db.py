@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from typing import AsyncIterator, Literal, cast
 
@@ -229,7 +228,7 @@ def zerofill_records_to_time_bin_columns(
     return TimeBinColumns(start=start_timestamps, end=end_timestamps, value=values)
 
 
-def aggregation_clause(measure: MeasureEnum, clip: bool) -> str:  # noqa: C901
+def aggregation_clause(measure: MeasureEnum, clip: bool) -> str:
     match measure:
         case MeasureEnum.COUNT:
             return "COUNT(*) AS value"
@@ -613,16 +612,12 @@ async def extract_features_collection(
            AND ({filter_where_clause})
     """  # noqa: E501, S608
 
-    if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-        plan = await db.explain(sql, *filter_args, aoi_wkt, time, analyze=True)
-        logging.debug(plan)
-
     # TODO: make batch size configurable (maybe as function arg)
     async for batch in db.fetch_batch(sql, *filter_args, aoi_wkt, time, batch_size=200):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
 
-async def extract_features_collection_members_collections(  # noqa: C901, PLR0915
+async def extract_features_collection_members_collections(  # noqa: PLR0915
     collections: list[ExtractionRow],
     filter_where_clause: str,
     filter_args: tuple,

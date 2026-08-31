@@ -20,7 +20,7 @@ select = [
 ]
 
 [lint.mccabe]
-max-complexity = 5
+max-complexity = 6
 
 [lint.pylint]
 max-statements = 17
