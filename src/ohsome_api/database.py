@@ -10,6 +10,7 @@ from asyncpg import Connection, Record
 from ohsome_api.config import CONFIG
 
 CONNECTION_STRING = CONFIG.ohsomedb.connection_string
+SCHEMA = CONFIG.ohsomedb.schemaname
 
 logger = logging.getLogger("ohsome-api")
 
@@ -52,6 +53,10 @@ class Database:
             max_size=CONFIG.ohsomedb.pool_max_size_stats,
             init=jsonb_codec,
             command_timeout=CONFIG.ohsomedb.timeout_stats,  # query timeout
+            server_settings={
+                "application_name": "ohsome-api",
+                "search_path": f"{SCHEMA},public",
+            },
         )
         self.pool_extraction = await asyncpg.create_pool(
             dsn=CONNECTION_STRING,
@@ -59,6 +64,10 @@ class Database:
             max_size=CONFIG.ohsomedb.pool_max_size_extraction,
             init=jsonb_codec,
             command_timeout=CONFIG.ohsomedb.timeout_extraction,  # query timeout
+            server_settings={
+                "application_name": "ohsome-api",
+                "search_path": f"{SCHEMA},public",
+            },
         )
         logging.info("Database connection pool established.")
 

@@ -49,7 +49,7 @@ async def generate_timestamp_series(
 
     if len(records) > limit:
         raise TimeSeriesTooLargeError(
-            "The provided values for the time paramter (time bin or time series) "
+            "The provided values for the time parameter (time bin or time series) "
             f"lead to a time series larger than {limit} points/bins."
         )
 
@@ -62,23 +62,23 @@ async def generate_timestamp_series(
 
 
 async def get_latest_timestamp() -> datetime:
-    sql = f'SELECT last_timestamp FROM "{SCHEMA}".contributions_state'  # noqa: S608
+    sql = "SELECT last_timestamp FROM contributions_state"
     return (await db.fetch_row(sql))[0]
 
 
 async def get_metadata() -> dict[str, datetime]:
-    sql = f"""
+    sql = """
         WITH
             first AS (
                 SELECT value::timestamptz as first_timestamp
-                FROM "{SCHEMA}".ohsomedb_metadata
+                FROM ohsomedb_metadata
                 WHERE key = 'valid_from'
             ), last AS (
                 SELECT last_timestamp
-                FROM "{SCHEMA}".contributions_state
+                FROM contributions_state
             )
         SELECT first_timestamp as start, last_timestamp as end FROM first, last;
-"""  # noqa: S608
+"""
     return dict(await db.fetch_row(sql))
 
 
@@ -100,7 +100,7 @@ async def get_currentness(
         SELECT
             {aggregation_clause(measure, clip)},
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
-        FROM "{SCHEMA}".contributions c, aoi
+        FROM contributions c, aoi
         WHERE ({filter_where_clause})
         AND valid_from >= ${filter_args_count + 1}::timestamptz and
             valid_from <  ${filter_args_count + 2}::timestamptz
@@ -137,7 +137,7 @@ async def get_contributors_count(
         SELECT
             count(distinct user_id) AS value,
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
-        FROM "{SCHEMA}".contributions c
+        FROM contributions c
         JOIN aoi on (ST_Intersects(c.geom, aoi.geom))
         WHERE valid_from >= ${filter_args_count + 1}::timestamptz and
               valid_from <  ${filter_args_count + 2}::timestamptz
@@ -181,7 +181,7 @@ async def get_contributions_count(
         SELECT
             count(*) AS value,
             width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
-        FROM "{SCHEMA}".contributions c
+        FROM contributions c
         JOIN aoi on (ST_Intersects(c.geom, aoi.geom))
         WHERE valid_from >= ${filter_args_count + 1}::timestamptz and
               valid_from <  ${filter_args_count + 2}::timestamptz
@@ -306,7 +306,7 @@ async def get_features(
         SELECT
             {aggregation_clause(measure, clip)},
             series.ts AS ts
-        FROM "{SCHEMA}".contributions c, aoi, series
+        FROM contributions c, aoi, series
         WHERE 1=1
             AND ({filter_where_clause})
             -- Global time filter has been part of this query from the beginning on,
@@ -362,7 +362,7 @@ async def get_features_grouped_by_tag(
             {aggregation_clause(measure, clip)},
             series.ts AS ts,
             tags->>${filter_args_count + 3} as tag_value
-        FROM "{SCHEMA}".contributions c, aoi, series
+        FROM contributions c, aoi, series
         WHERE 1=1
             AND ({filter_where_clause})
             -- Global time filter has been part of this query from the beginning on,
@@ -433,11 +433,11 @@ def _filter_by_time(
     if start == "latest":
         time_args = []
         return (
-            f"""status_geom_type = ANY(array[
-           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+            """status_geom_type = ANY(array[
+           ('latest','Point')::status_geom_type_type,
+           ('latest','LineString')::status_geom_type_type,
+           ('latest','Polygon')::status_geom_type_type,
+           ('latest','MultiPolygon')::status_geom_type_type
            ])
         """,
             time_args,
@@ -468,14 +468,14 @@ def _filter_by_time(
 
     return (
         f"""status_geom_type = ANY(array[
-       ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-       ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-       ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-       ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
-       ('history','Point')::"{SCHEMA}".status_geom_type_type,
-       ('history','LineString')::"{SCHEMA}".status_geom_type_type,
-       ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
-       ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+       ('latest','Point')::status_geom_type_type,
+       ('latest','LineString')::status_geom_type_type,
+       ('latest','Polygon')::status_geom_type_type,
+       ('latest','MultiPolygon')::status_geom_type_type,
+       ('history','Point')::status_geom_type_type,
+       ('history','LineString')::status_geom_type_type,
+       ('history','Polygon')::status_geom_type_type,
+       ('history','MultiPolygon')::status_geom_type_type
        ])
        {filter_by_time_contributions}
     """,
@@ -545,7 +545,7 @@ def extract_features(
                (status_geom_type).geom_type as geom_type,
                ST_AsBinary(proc.geom) as geom,
                proc.clipped
-        FROM "{SCHEMA}".contributions as c
+        FROM contributions as c
         JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
         {clipped_geom_sql}
         WHERE {filter_by_time}
@@ -573,14 +573,14 @@ async def extract_features_collection(
 
     if time == "latest":
         filter_by_time = f"""status_geom_type = ANY(array[
-           ('latest','GeometryCollection')::"{SCHEMA}".status_geom_type_type
+           ('latest','GeometryCollection')::status_geom_type_type
            ])
            AND 'latest' = ${filter_args_count + 2}  -- always true
         """
     else:
         filter_by_time = f"""status_geom_type = ANY(array[
-           ('latest','GeometryCollection')::"{SCHEMA}".status_geom_type_type,
-           ('history','GeometryCollection')::"{SCHEMA}".status_geom_type_type
+           ('latest','GeometryCollection')::status_geom_type_type,
+           ('history','GeometryCollection')::status_geom_type_type
            ])
            AND valid_from <= ${filter_args_count + 2}::timestamptz
            AND valid_to > ${filter_args_count + 2}::timestamptz
@@ -608,7 +608,7 @@ async def extract_features_collection(
                ST_YMin(c.geom) as ymin,
                ST_XMax(c.geom) as xmax,
                ST_YMax(c.geom) as ymax
-        FROM "{SCHEMA}".contributions as c
+        FROM contributions as c
         JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
         WHERE {filter_by_time}
            AND ({filter_where_clause})
@@ -637,23 +637,23 @@ async def extract_features_collection_members_collections(  # noqa: C901, PLR091
         collections_by_id[collection["osm_id"]] = collection
     if time == "latest":
         filter_by_time = f"""status_geom_type = ANY(array[
-           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ('latest','Point')::status_geom_type_type,
+           ('latest','LineString')::status_geom_type_type,
+           ('latest','Polygon')::status_geom_type_type,
+           ('latest','MultiPolygon')::status_geom_type_type
            ])
            AND 'latest' = ${filter_args_count + 2}  -- always true
         """
     else:
         filter_by_time = f"""status_geom_type = ANY(array[
-           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
-           ('history','Point')::"{SCHEMA}".status_geom_type_type,
-           ('history','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ('latest','Point')::status_geom_type_type,
+           ('latest','LineString')::status_geom_type_type,
+           ('latest','Polygon')::status_geom_type_type,
+           ('latest','MultiPolygon')::status_geom_type_type,
+           ('history','Point')::status_geom_type_type,
+           ('history','LineString')::status_geom_type_type,
+           ('history','Polygon')::status_geom_type_type,
+           ('history','MultiPolygon')::status_geom_type_type
            ])
            AND valid_from <= ${filter_args_count + 2}::timestamptz
            AND valid_to > ${filter_args_count + 2}::timestamptz
@@ -692,8 +692,8 @@ async def extract_features_collection_members_collections(  # noqa: C901, PLR091
             SELECT collection.id AS relation_id,
                 (status_geom_type).geom_type as geom_type,
                 {select_geom_sql}
-            FROM "{SCHEMA}".contributions AS c
-            JOIN "{SCHEMA}".contributions_members m ON (
+            FROM contributions AS c
+            JOIN contributions_members m ON (
                 m.member_osm_type = c.osm_type
                 AND m.member_osm_id = c.osm_id)
             JOIN unnest(${filter_args_count + 3}::int[], ${filter_args_count + 4}::int[]) AS collection(id, version) ON (
@@ -736,23 +736,23 @@ async def extract_features_collection_members_features(
 
     if time == "latest":
         filter_by_time = f"""status_geom_type = ANY(array[
-           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ('latest','Point')::status_geom_type_type,
+           ('latest','LineString')::status_geom_type_type,
+           ('latest','Polygon')::status_geom_type_type,
+           ('latest','MultiPolygon')::status_geom_type_type
            ])
            AND 'latest' =  ${filter_args_count + 2}  -- always true
         """
     else:
         filter_by_time = f"""status_geom_type = ANY(array[
-           ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-           ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
-           ('history','Point')::"{SCHEMA}".status_geom_type_type,
-           ('history','LineString')::"{SCHEMA}".status_geom_type_type,
-           ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
-           ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+           ('latest','Point')::status_geom_type_type,
+           ('latest','LineString')::status_geom_type_type,
+           ('latest','Polygon')::status_geom_type_type,
+           ('latest','MultiPolygon')::status_geom_type_type,
+           ('history','Point')::status_geom_type_type,
+           ('history','LineString')::status_geom_type_type,
+           ('history','Polygon')::status_geom_type_type,
+           ('history','MultiPolygon')::status_geom_type_type
            ])
            AND valid_from <= ${filter_args_count + 2}::timestamptz
            AND valid_to > ${filter_args_count + 2}::timestamptz
@@ -809,10 +809,10 @@ async def extract_features_collection_members_features(
                m.member_role as part_of_role,
                m.member_pos_list[array_position(m.relation_osm_version_list , col.version)] as part_of_pos
         FROM unnest(${filter_args_count + 3}::int[], ${filter_args_count + 4}::int[]) AS col(id, version)
-        JOIN "{SCHEMA}".contributions_members m ON (
+        JOIN contributions_members m ON (
             col.id = m.relation_osm_id
             AND col.version = ANY(m.relation_osm_version_list))
-        JOIN "{SCHEMA}".contributions AS c ON (
+        JOIN contributions AS c ON (
             m.member_osm_type = c.osm_type
             AND m.member_osm_id = c.osm_id)
         {clipped_geom_sql}
@@ -849,18 +849,18 @@ async def extract_contributions(
 
     filter_by_time = f"""
         status_geom_type = ANY(array[
-          ('latest','Point')::"{SCHEMA}".status_geom_type_type,
-          ('latest','LineString')::"{SCHEMA}".status_geom_type_type,
-          ('latest','Polygon')::"{SCHEMA}".status_geom_type_type,
-          ('latest','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
-          ('history','Point')::"{SCHEMA}".status_geom_type_type,
-          ('history','LineString')::"{SCHEMA}".status_geom_type_type,
-          ('history','Polygon')::"{SCHEMA}".status_geom_type_type,
-          ('history','MultiPolygon')::"{SCHEMA}".status_geom_type_type,
-          ('deleted','Point')::"{SCHEMA}".status_geom_type_type,
-          ('deleted','LineString')::"{SCHEMA}".status_geom_type_type,
-          ('deleted','Polygon')::"{SCHEMA}".status_geom_type_type,
-          ('deleted','MultiPolygon')::"{SCHEMA}".status_geom_type_type
+          ('latest','Point')::status_geom_type_type,
+          ('latest','LineString')::status_geom_type_type,
+          ('latest','Polygon')::status_geom_type_type,
+          ('latest','MultiPolygon')::status_geom_type_type,
+          ('history','Point')::status_geom_type_type,
+          ('history','LineString')::status_geom_type_type,
+          ('history','Polygon')::status_geom_type_type,
+          ('history','MultiPolygon')::status_geom_type_type,
+          ('deleted','Point')::status_geom_type_type,
+          ('deleted','LineString')::status_geom_type_type,
+          ('deleted','Polygon')::status_geom_type_type,
+          ('deleted','MultiPolygon')::status_geom_type_type
        ])
        {filter_by_time_constraint}
     """
@@ -888,7 +888,7 @@ async def extract_contributions(
               ST_YMin(c.geom) as ymin,
               ST_XMax(c.geom) as xmax,
               ST_YMax(c.geom) as ymax
-       FROM "{SCHEMA}".contributions c
+       FROM contributions c
        JOIN aoi ON (ST_INTERSECTS(aoi.geom, c.geom))
        WHERE {filter_by_time}
          AND (
@@ -911,11 +911,11 @@ async def join_changesets_to_extraction_rows(
 ) -> list[ExtractionRow]:
     changeset_id: set[int] = {row["changeset_id"] for row in rows}
     records = await db.fetch_rows(
-        f"""
+        """
         SELECT id as changeset_id, tags
-        FROM "{SCHEMA}".changesets
+        FROM changesets
         WHERE id = ANY($1::int[])
-        """,  # noqa: S608
+        """,
         changeset_id,
     )
     changeset_lookup = {row["changeset_id"]: row["tags"] for row in records}

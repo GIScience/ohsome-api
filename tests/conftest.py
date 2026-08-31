@@ -41,7 +41,7 @@ def ohsomedb_testcontainer(ohsomedb_image: DockerImage):
 @pytest.fixture(scope="session", autouse=True)
 def ohsomedb_schema():
     with MonkeyPatch.context() as mp:
-        mp.setattr("ohsome_api.db.SCHEMA", "current")
+        mp.setattr("ohsome_api.database.SCHEMA", "current")
         yield
 
 
