@@ -1,5 +1,4 @@
 import pytest
-from ohsome_filter_to_sql import ohsome_filter_to_sql
 
 from ohsome_api.db import extract_features, get_metadata
 
@@ -14,10 +13,8 @@ async def test_get_metadata():
 
 async def test_extract_features(aoi_wkt_audimax: str):
     ohsome_filter = "id:node/1702635807"
-    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
     producer = extract_features(
-        query_where_clause,
-        query_args,
+        ohsome_filter,
         aoi_wkt_audimax,
         clip=True,
         start="latest",

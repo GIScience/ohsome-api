@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import AsyncIterator, Literal, Optional, cast
 
-from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
+from ohsome_filter_to_sql import OhsomeFilter
 
 from ohsome_api import db
 from ohsome_api.db import generate_timestamp_series, get_latest_timestamp
@@ -61,15 +61,12 @@ async def get_currentness_columns(
     measure: MeasureEnum,
     clip: bool,
 ) -> TimeBinColumns:
-    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
-
     if end == "latest":
         end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, bin_size)
 
     return await db.get_currentness(
-        query_where_clause,
-        query_args,
+        ohsome_filter,
         start,
         end,
         series,
@@ -108,15 +105,12 @@ async def get_contributors_count_columns(
     bin_size: str | None,
     aoi_wkt: str,
 ) -> TimeBinColumns:
-    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
-
     if end == "latest":
         end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, bin_size)
 
     return await db.get_contributors_count(
-        query_where_clause,
-        query_args,
+        ohsome_filter,
         start,
         end,
         series,
@@ -172,7 +166,6 @@ async def get_features_columns(
     group_by: Optional[GroupByTagModel],
     clip: bool,
 ) -> SnapshotColumns:
-    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
     if start == "latest":
         start = await get_latest_timestamp()
@@ -184,8 +177,7 @@ async def get_features_columns(
 
     if group_by is None:
         return await db.get_features(
-            query_where_clause,
-            query_args,
+            ohsome_filter,
             series,
             aoi_wkt,
             measure,
@@ -193,8 +185,7 @@ async def get_features_columns(
         )
     else:
         return await db.get_features_grouped_by_tag(
-            query_where_clause,
-            query_args,
+            ohsome_filter,
             series,
             aoi_wkt,
             measure,
@@ -213,10 +204,9 @@ async def extract_features(
     sink_type: type[Sink],
 ) -> AsyncIterator[bytes]:
     """Extract features from database batch wise."""
-    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
     producer = db.extract_features(
-        query_where_clause, query_args, aoi_wkt, clip, start, end, contributions
+        ohsome_filter, aoi_wkt, clip, start, end, contributions
     )
 
     # try to fetch first batch to check if we could get connection from database pool
@@ -270,24 +260,19 @@ async def extract_features_collections(
     sink_type: type[Sink],
 ) -> AsyncIterator[bytes]:
     """Extract features from database batch wise."""
-    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
-    collections_producer = db.extract_features_collection(
-        query_where_clause, query_args, aoi_wkt, time
-    )
+    collections_producer = db.extract_features_collection(ohsome_filter, aoi_wkt, time)
 
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(collections_producer)
 
     async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
-        member_where_clause, member_args = ohsome_filter_to_sql(member_filter)
 
         with sink_type() as sink:
             yield sink.write_batch(
                 await db.extract_features_collection_members_collections(
                     first,
-                    member_where_clause,
-                    member_args,
+                    member_filter,
                     aoi_wkt,
                     clip,
                     time,
@@ -298,8 +283,7 @@ async def extract_features_collections(
                 yield sink.write_batch(
                     await db.extract_features_collection_members_collections(
                         batch,
-                        member_where_clause,
-                        member_args,
+                        member_filter,
                         aoi_wkt,
                         clip,
                         time,
@@ -345,23 +329,18 @@ async def extract_features_collections_members(
     sink_type: type[Sink],
 ) -> AsyncIterator[bytes]:
     """Extract features from database batch wise."""
-    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
-    collections_producer = db.extract_features_collection(
-        query_where_clause, query_args, aoi_wkt, time
-    )
+    collections_producer = db.extract_features_collection(ohsome_filter, aoi_wkt, time)
 
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(collections_producer)
 
     async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
-        member_where_clause, member_query_args = ohsome_filter_to_sql(member_filter)
 
         with sink_type() as sink:
             async for members in db.extract_features_collection_members_features(
                 first,
-                member_where_clause,
-                member_query_args,
+                member_filter,
                 aoi_wkt,
                 clip,
                 time,
@@ -371,8 +350,7 @@ async def extract_features_collections_members(
             async for batch in collections_producer:
                 async for member in db.extract_features_collection_members_features(
                     batch,
-                    member_where_clause,
-                    member_query_args,
+                    member_filter,
                     aoi_wkt,
                     clip,
                     time,
@@ -416,15 +394,8 @@ async def extract_contributions(
     end: datetime | Literal["latest"],
     sink_type: type[Sink],
 ) -> AsyncIterator[bytes]:
-    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
-    producer = db.extract_contributions(
-        query_where_clause,
-        query_args,
-        aoi_wkt,
-        start,
-        end,
-    )
+    producer = db.extract_contributions(ohsome_filter, aoi_wkt, start, end)
 
     first_batch = await anext(producer)
 
@@ -465,15 +436,13 @@ async def get_contributions_count_columns(
     bin_size: str | None,
     aoi_wkt: str,
 ) -> TimeBinColumns:
-    query_where_clause, query_args = ohsome_filter_to_sql(ohsome_filter)
 
     if end == "latest":
         end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, bin_size)
 
     return await db.get_contributions_count(
-        query_where_clause,
-        query_args,
+        ohsome_filter,
         start,
         end,
         series,

@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import AsyncIterator, Literal, cast
 
 from asyncpg import Record
+from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
 from ohsome_api.config import CONFIG
 from ohsome_api.database import db
@@ -81,8 +82,7 @@ async def get_metadata() -> dict[str, datetime]:
 
 
 async def get_currentness(
-    filter_where_clause: str,
-    filter_args: tuple,
+    ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime,
     series: list[datetime],
@@ -90,55 +90,54 @@ async def get_currentness(
     measure: MeasureEnum,
     clip: bool,
 ) -> TimeBinColumns:
-    filter_args_count = len(filter_args)
+    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
     sql = f"""
         WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 4}, 4326))).geom as geom
+            SELECT (ST_Dump(ST_GeomFromText($4, 4326))).geom as geom
         )
         SELECT
             {aggregation_clause(measure, clip)},
-            width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
+            width_bucket(valid_from, $3::timestamptz[]) AS time_bin
         FROM contributions c, aoi
         WHERE ({filter_where_clause})
-        AND valid_from >= ${filter_args_count + 1}::timestamptz and
-            valid_from <  ${filter_args_count + 2}::timestamptz
+        AND valid_from >= $1::timestamptz and
+            valid_from <  $2::timestamptz
         AND ST_Intersects(c.geom, aoi.geom)
         AND (status_geom_type).status = 'latest'
         GROUP BY time_bin
         ORDER BY time_bin
-    """  # noqa: S608, E501
+    """  # noqa: S608
     records = await db.fetch_rows(
         sql,
-        *filter_args,
         start,
         end,
         series,
         aoi_wkt,
+        *filter_args,
     )  # order matters!
 
     return zerofill_records_to_time_bin_columns(records, series)
 
 
 async def get_contributors_count(
-    filter_where_clause: str,
-    filter_args: tuple,
+    ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime,
     series: list[datetime],
     aoi_wkt: str,
 ) -> TimeBinColumns:
-    filter_args_count = len(filter_args)
+    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
     sql = f"""
         WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 4}, 4326))).geom as geom
+            SELECT (ST_Dump(ST_GeomFromText($4, 4326))).geom as geom
         )
         SELECT
             count(distinct user_id) AS value,
-            width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
+            width_bucket(valid_from, $3::timestamptz[]) AS time_bin
         FROM contributions c
         JOIN aoi on (ST_Intersects(c.geom, aoi.geom))
-        WHERE valid_from >= ${filter_args_count + 1}::timestamptz and
-              valid_from <  ${filter_args_count + 2}::timestamptz
+        WHERE valid_from >= $1::timestamptz and
+              valid_from <  $2::timestamptz
           AND (
               ({filter_where_clause}) or
               -- HACK: ohsome-filter-to-sql does not know about tags before.
@@ -149,40 +148,39 @@ async def get_contributors_count(
           )
         GROUP BY time_bin
         ORDER BY time_bin
-    """  # noqa: S608, E501
+    """  # noqa: S608
 
     records = await db.fetch_rows(
         sql,
-        *filter_args,
         start,
         end,
         series,
         aoi_wkt,
+        *filter_args,
     )  # order matters!
 
     return zerofill_records_to_time_bin_columns(records, series)
 
 
 async def get_contributions_count(
-    filter_where_clause: str,
-    filter_args: tuple,
+    ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime,
     series: list[datetime],
     aoi_wkt: str,
 ) -> TimeBinColumns:
-    filter_args_count = len(filter_args)
+    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
     sql = f"""
         WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 4}, 4326))).geom as geom
+            SELECT (ST_Dump(ST_GeomFromText($4, 4326))).geom as geom
         )
         SELECT
             count(*) AS value,
-            width_bucket(valid_from, ${filter_args_count + 3}::timestamptz[]) AS time_bin
+            width_bucket(valid_from, $3::timestamptz[]) AS time_bin
         FROM contributions c
         JOIN aoi on (ST_Intersects(c.geom, aoi.geom))
-        WHERE valid_from >= ${filter_args_count + 1}::timestamptz and
-              valid_from <  ${filter_args_count + 2}::timestamptz
+        WHERE valid_from >= $1::timestamptz and
+              valid_from <  $2::timestamptz
           AND (
               ({filter_where_clause}) or
               -- HACK: ohsome-filter-to-sql does not know about tags before.
@@ -193,15 +191,15 @@ async def get_contributions_count(
           )
         GROUP BY time_bin
         ORDER BY time_bin
-    """  # noqa: S608, E501
+    """  # noqa: S608
 
     records = await db.fetch_rows(
         sql,
-        *filter_args,
         start,
         end,
         series,
         aoi_wkt,
+        *filter_args,
     )  # order matters!
 
     return zerofill_records_to_time_bin_columns(records, series)
@@ -286,20 +284,19 @@ def aggregation_clause(measure: MeasureEnum, clip: bool) -> str:
 
 
 async def get_features(
-    filter_where_clause: str,
-    filter_args: tuple,
+    ohsome_filter: OhsomeFilter,
     series: list[datetime],
     aoi_wkt: str,
     measure: MeasureEnum,
     clip: bool,
 ) -> SnapshotColumns:
-    filter_args_count = len(filter_args)
+    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=2)
     sql = f"""
         WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 2}, 4326))).geom as geom
+            SELECT (ST_Dump(ST_GeomFromText($2, 4326))).geom as geom
         ),
         series AS (
-            SELECT unnest(${filter_args_count + 1}::timestamptz[]) AS ts
+            SELECT unnest($1::timestamptz[]) AS ts
         )
         SELECT
             {aggregation_clause(measure, clip)},
@@ -319,12 +316,12 @@ async def get_features(
             AND valid_to > series.ts
         GROUP BY series.ts
         ORDER BY series.ts
-    """  # noqa: E501, S608
+    """  # noqa: S608
     records = await db.fetch_rows(
         sql,
-        *filter_args,
         series,
         aoi_wkt,
+        *filter_args,
     )  # order matters!
 
     # TODO: extract post-processing to function
@@ -339,27 +336,26 @@ async def get_features(
 
 
 async def get_features_grouped_by_tag(
-    filter_where_clause: str,
-    filter_args: tuple,
+    ohsome_filter: OhsomeFilter,
     series: list[datetime],
     aoi_wkt: str,
     measure: MeasureEnum,
     group_by_tag: str,
     clip: bool,
 ) -> SnapshotColumnsGrouped:
-    filter_args_count = len(filter_args)
+    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=3)
     limit = CONFIG.group_by_time_series_size_limit
     sql = f"""
         WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 2}, 4326))).geom as geom
+            SELECT (ST_Dump(ST_GeomFromText($2, 4326))).geom as geom
         ),
         series AS (
-            SELECT unnest(${filter_args_count + 1}::timestamptz[]) AS ts
+            SELECT unnest($1::timestamptz[]) AS ts
         )
         SELECT
             {aggregation_clause(measure, clip)},
             series.ts AS ts,
-            tags->>${filter_args_count + 3} as tag_value
+            tags->>$3 as tag_value
         FROM contributions c, aoi, series
         WHERE 1=1
             AND ({filter_where_clause})
@@ -376,13 +372,13 @@ async def get_features_grouped_by_tag(
         GROUP BY series.ts, tag_value
         ORDER BY series.ts, tag_value
         LIMIT {limit + 1}
-    """  # noqa: E501, S608
+    """  # noqa: S608
     records = await db.fetch_rows(
         sql,
-        *filter_args,
         series,
         aoi_wkt,
         group_by_tag,
+        *filter_args,
     )  # order matters!
 
     # TODO: extract post-processing to function
@@ -425,7 +421,6 @@ async def get_features_grouped_by_tag(
 def _filter_by_time(
     start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
-    filter_args_count: int,
     contributions: bool,
 ) -> tuple[str, list[datetime]]:
     if start == "latest":
@@ -444,24 +439,24 @@ def _filter_by_time(
     if end == "latest":
         time_args = [start]
         if contributions:
-            filter_by_time_contributions = f"""
-                AND valid_from >= ${filter_args_count + 2}::timestamptz
+            filter_by_time_contributions = """
+                AND valid_from >= $2::timestamptz
             """
         else:
-            filter_by_time_contributions = f"""
-                AND valid_to    > ${filter_args_count + 2}::timestamptz
+            filter_by_time_contributions = """
+                AND valid_to    > $2::timestamptz
             """
     else:
         time_args = [start, end]
         if contributions:
-            filter_by_time_contributions = f"""
-                AND valid_from >= ${filter_args_count + 2}::timestamptz
-                AND valid_from  < ${filter_args_count + 3}::timestamptz
+            filter_by_time_contributions = """
+                AND valid_from >= $2::timestamptz
+                AND valid_from  < $3::timestamptz
             """
         else:
-            filter_by_time_contributions = f"""
-                AND valid_to    > ${filter_args_count + 2}::timestamptz
-                AND valid_from <= ${filter_args_count + 3}::timestamptz
+            filter_by_time_contributions = """
+                AND valid_to    > $2::timestamptz
+                AND valid_from <= $3::timestamptz
             """
 
     return (
@@ -482,8 +477,7 @@ def _filter_by_time(
 
 
 def extract_features(
-    filter_where_clause: str,
-    filter_args: tuple,
+    ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
     start: datetime | Literal["latest"],
@@ -491,7 +485,6 @@ def extract_features(
     contributions: bool,
 ) -> AsyncIterator[list[ExtractionRow]]:
     """Extract all features"""
-    filter_args_count = len(filter_args)
     if clip:
         clipped_geom_sql = """
         -- is clipped
@@ -517,13 +510,16 @@ def extract_features(
         ) proc
         """
 
-    filter_by_time, time_args = _filter_by_time(
-        start, end, filter_args_count, contributions
+    filter_by_time, time_args = _filter_by_time(start, end, contributions)
+
+    filter_where_clause, filter_args = ohsome_filter_to_sql(
+        ohsome_filter,
+        args_shift=len(time_args) + 1,
     )
 
     sql = f"""
         WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 1}, 4326))).geom as geom
+            SELECT (ST_Dump(ST_GeomFromText($1, 4326))).geom as geom
         )
         SELECT osm_type,
                osm_id,
@@ -548,7 +544,7 @@ def extract_features(
         {clipped_geom_sql}
         WHERE {filter_by_time}
            AND ({filter_where_clause})
-    """  # noqa: E501, S608
+    """  # noqa: S608
 
     # cast generic asyncpg Record to ExtractionRow
     # TODO: make batch size configurable (maybe as function arg)
@@ -556,37 +552,36 @@ def extract_features(
         AsyncIterator[list[ExtractionRow]],
         # PERF: batch_size should be different depending on expected row size
         #   (e.g. GeometryType)
-        db.fetch_batch(sql, *filter_args, aoi_wkt, *time_args, batch_size=10000),
+        db.fetch_batch(sql, aoi_wkt, *time_args, *filter_args, batch_size=10000),
     )
 
 
 async def extract_features_collection(
-    filter_where_clause: str,
-    filter_args: tuple,
+    ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
     """Extract all features"""
-    filter_args_count = len(filter_args)
+    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=2)
 
     if time == "latest":
-        filter_by_time = f"""status_geom_type = ANY(array[
+        filter_by_time = """status_geom_type = ANY(array[
            ('latest','GeometryCollection')::status_geom_type_type
            ])
-           AND 'latest' = ${filter_args_count + 2}  -- always true
+           AND 'latest' = $2  -- always true
         """
     else:
-        filter_by_time = f"""status_geom_type = ANY(array[
+        filter_by_time = """status_geom_type = ANY(array[
            ('latest','GeometryCollection')::status_geom_type_type,
            ('history','GeometryCollection')::status_geom_type_type
            ])
-           AND valid_from <= ${filter_args_count + 2}::timestamptz
-           AND valid_to > ${filter_args_count + 2}::timestamptz
+           AND valid_from <= $2::timestamptz
+           AND valid_to > $2::timestamptz
         """
 
     sql = f"""
         WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 1}, 4326))).geom as geom
+            SELECT (ST_Dump(ST_GeomFromText($1, 4326))).geom as geom
         )
         SELECT osm_type,
                osm_id,
@@ -610,17 +605,16 @@ async def extract_features_collection(
         JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
         WHERE {filter_by_time}
            AND ({filter_where_clause})
-    """  # noqa: E501, S608
+    """  # noqa: S608
 
     # TODO: make batch size configurable (maybe as function arg)
-    async for batch in db.fetch_batch(sql, *filter_args, aoi_wkt, time, batch_size=200):
+    async for batch in db.fetch_batch(sql, aoi_wkt, time, *filter_args, batch_size=200):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
 
 async def extract_features_collection_members_collections(  # noqa: PLR0915
     collections: list[ExtractionRow],
-    filter_where_clause: str,
-    filter_args: tuple,
+    ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
     time: datetime | Literal["latest"],
@@ -628,22 +622,22 @@ async def extract_features_collection_members_collections(  # noqa: PLR0915
     ids = [item["osm_id"] for item in collections]
     versions = [item["osm_version"] for item in collections]
 
-    filter_args_count = len(filter_args)
+    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
 
     collections_by_id = {}
     for collection in collections:
         collections_by_id[collection["osm_id"]] = collection
     if time == "latest":
-        filter_by_time = f"""status_geom_type = ANY(array[
+        filter_by_time = """status_geom_type = ANY(array[
            ('latest','Point')::status_geom_type_type,
            ('latest','LineString')::status_geom_type_type,
            ('latest','Polygon')::status_geom_type_type,
            ('latest','MultiPolygon')::status_geom_type_type
            ])
-           AND 'latest' = ${filter_args_count + 2}  -- always true
+           AND 'latest' = $2  -- always true
         """
     else:
-        filter_by_time = f"""status_geom_type = ANY(array[
+        filter_by_time = """status_geom_type = ANY(array[
            ('latest','Point')::status_geom_type_type,
            ('latest','LineString')::status_geom_type_type,
            ('latest','Polygon')::status_geom_type_type,
@@ -653,8 +647,8 @@ async def extract_features_collection_members_collections(  # noqa: PLR0915
            ('history','Polygon')::status_geom_type_type,
            ('history','MultiPolygon')::status_geom_type_type
            ])
-           AND valid_from <= ${filter_args_count + 2}::timestamptz
-           AND valid_to > ${filter_args_count + 2}::timestamptz
+           AND valid_from <= $2::timestamptz
+           AND valid_to > $2::timestamptz
         """
     # TODO: ST_Union only for polygon case, otherwise ST_Collect should suffice
     if clip:
@@ -674,7 +668,7 @@ async def extract_features_collection_members_collections(  # noqa: PLR0915
 
     sql = f"""
         WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 1}, 4326))).geom AS geom
+            SELECT (ST_Dump(ST_GeomFromText($1, 4326))).geom AS geom
         )
         SELECT
             relation_id,
@@ -694,15 +688,22 @@ async def extract_features_collection_members_collections(  # noqa: PLR0915
             JOIN contributions_members m ON (
                 m.member_osm_type = c.osm_type
                 AND m.member_osm_id = c.osm_id)
-            JOIN unnest(${filter_args_count + 3}::int[], ${filter_args_count + 4}::int[]) AS collection(id, version) ON (
+            JOIN unnest($3::int[], $4::int[]) AS collection(id, version) ON (
                 collection.id = m.relation_osm_id
                 AND collection.version = ANY(m.relation_osm_version_list))
             {join_geom_sql}
             WHERE {filter_by_time} and ({filter_where_clause})
             GROUP BY collection.id, (status_geom_type).geom_type
         )
-    """  # noqa: E501, S608
-    members = await db.fetch_rows(sql, *filter_args, aoi_wkt, time, ids, versions)
+    """  # noqa: S608
+    members = await db.fetch_rows(
+        sql,
+        aoi_wkt,
+        time,
+        ids,
+        versions,
+        *filter_args,
+    )
     result: list[ExtractionRow] = []
     for member in members:
         if not clip and not member["intersects"]:
@@ -721,28 +722,27 @@ async def extract_features_collection_members_collections(  # noqa: PLR0915
 
 async def extract_features_collection_members_features(
     collections: list[ExtractionRow],
-    filter_where_clause: str,
-    filter_args: tuple,
+    ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
+    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
+
     ids = [item["osm_id"] for item in collections]
     versions = [item["osm_version"] for item in collections]
 
-    filter_args_count = len(filter_args)
-
     if time == "latest":
-        filter_by_time = f"""status_geom_type = ANY(array[
+        filter_by_time = """status_geom_type = ANY(array[
            ('latest','Point')::status_geom_type_type,
            ('latest','LineString')::status_geom_type_type,
            ('latest','Polygon')::status_geom_type_type,
            ('latest','MultiPolygon')::status_geom_type_type
            ])
-           AND 'latest' =  ${filter_args_count + 2}  -- always true
+           AND 'latest' =  $2  -- always true
         """
     else:
-        filter_by_time = f"""status_geom_type = ANY(array[
+        filter_by_time = """status_geom_type = ANY(array[
            ('latest','Point')::status_geom_type_type,
            ('latest','LineString')::status_geom_type_type,
            ('latest','Polygon')::status_geom_type_type,
@@ -752,8 +752,8 @@ async def extract_features_collection_members_features(
            ('history','Polygon')::status_geom_type_type,
            ('history','MultiPolygon')::status_geom_type_type
            ])
-           AND valid_from <= ${filter_args_count + 2}::timestamptz
-           AND valid_to > ${filter_args_count + 2}::timestamptz
+           AND valid_from <= $2::timestamptz
+           AND valid_to > $2::timestamptz
         """
     if clip:
         clipped_geom_sql = """
@@ -783,7 +783,7 @@ async def extract_features_collection_members_features(
 
     sql = f"""
         WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 1}, 4326))).geom AS geom
+            SELECT (ST_Dump(ST_GeomFromText($1, 4326))).geom AS geom
         )
         SELECT osm_type,
                osm_id,
@@ -806,7 +806,7 @@ async def extract_features_collection_members_features(
                m.relation_osm_id as part_of,
                m.member_role as part_of_role,
                m.member_pos_list[array_position(m.relation_osm_version_list , col.version)] as part_of_pos
-        FROM unnest(${filter_args_count + 3}::int[], ${filter_args_count + 4}::int[]) AS col(id, version)
+        FROM unnest($3::int[], $4::int[]) AS col(id, version)
         JOIN contributions_members m ON (
             col.id = m.relation_osm_id
             AND col.version = ANY(m.relation_osm_version_list))
@@ -819,31 +819,34 @@ async def extract_features_collection_members_features(
     """  # noqa: E501, S608
 
     async for batch in db.fetch_batch(
-        sql, *filter_args, aoi_wkt, time, ids, versions, batch_size=10000
+        sql, aoi_wkt, time, ids, versions, *filter_args, batch_size=10000
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
 
 async def extract_contributions(
-    filter_where_clause: str,
-    filter_args: tuple,
+    ohsome_filter: OhsomeFilter,
     aoi_wkt: str,
     start: datetime,
     end: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
-    filter_args_count = len(filter_args)
 
     if end == "latest":
-        filter_by_time_constraint = f"""
-            AND valid_from >= ${filter_args_count + 2}::timestamptz
+        filter_by_time_constraint = """
+            AND valid_from >= $2::timestamptz
         """
         time_args = [start]
     else:
-        filter_by_time_constraint = f"""
-            AND valid_from >= ${filter_args_count + 2}::timestamptz
-            AND valid_from <  ${filter_args_count + 3}::timestamptz
+        filter_by_time_constraint = """
+            AND valid_from >= $2::timestamptz
+            AND valid_from <  $3::timestamptz
         """
         time_args = [start, end]
+
+    filter_where_clause, filter_args = ohsome_filter_to_sql(
+        ohsome_filter,
+        args_shift=len(time_args) + 1,
+    )
 
     filter_by_time = f"""
         status_geom_type = ANY(array[
@@ -865,7 +868,7 @@ async def extract_contributions(
 
     sql = f"""
        WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText(${filter_args_count + 1}, 4326))).geom as geom
+            SELECT (ST_Dump(ST_GeomFromText($1, 4326))).geom as geom
        )
        SELECT osm_type,
               osm_id,
@@ -899,7 +902,7 @@ async def extract_contributions(
         )
     """  # noqa: E501, S608
     async for batch in db.fetch_batch(
-        sql, *filter_args, aoi_wkt, *time_args, batch_size=10000
+        sql, aoi_wkt, *time_args, *filter_args, batch_size=10000
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
