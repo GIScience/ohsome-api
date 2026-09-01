@@ -1,5 +1,10 @@
+from datetime import datetime
+
+from asyncpg import Record
+
 from ohsome_api.models import (
     MeasureEnum,
+    TimeBinColumns,
 )
 
 
@@ -9,6 +14,28 @@ class TimeSeriesTooLargeError(ValueError):
 
 class ResultTooLargeError(ValueError):
     pass
+
+
+def zerofill_records_to_time_bin_columns(
+    records: list[Record],
+    series: list[datetime],
+) -> TimeBinColumns:
+    zerofilled_series = {i: 0 for i in range(len(series) - 1)}
+
+    for record in records:
+        zerofilled_series[record["time_bin"] - 1] = record["value"]
+
+    start_timestamps: list[datetime] = [
+        series[time_bin] for time_bin in zerofilled_series
+    ]
+
+    end_timestamps: list[datetime] = [
+        series[time_bin + 1] for time_bin in zerofilled_series
+    ]
+
+    values: list[int] = list(zerofilled_series.values())
+
+    return TimeBinColumns(start=start_timestamps, end=end_timestamps, value=values)
 
 
 def get_aggregation_clause(measure: MeasureEnum, clip: bool) -> str:
