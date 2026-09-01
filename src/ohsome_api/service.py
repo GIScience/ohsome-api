@@ -16,6 +16,7 @@ from ohsome_api.models import (
     TimeBinColumns,
     TimeBinRow,
 )
+from ohsome_api.ohsomedb.stats.currentness import get_currentness
 from ohsome_api.parquet import (
     ArrowSink,
     ContributionParquetSink,
@@ -65,7 +66,7 @@ async def get_currentness_columns(
         end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, bin_size)
 
-    return await db.get_currentness(
+    return await get_currentness(
         ohsome_filter,
         start,
         end,

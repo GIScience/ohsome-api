@@ -73,44 +73,6 @@ async def get_metadata() -> dict[str, datetime]:
     return dict(await db.fetch_row(sql))
 
 
-async def get_currentness(
-    ohsome_filter: OhsomeFilter,
-    start: datetime,
-    end: datetime,
-    series: list[datetime],
-    aoi_wkt: str,
-    measure: MeasureEnum,
-    clip: bool,
-) -> TimeBinColumns:
-    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
-    sql = f"""
-        WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText($4, 4326))).geom as geom
-        )
-        SELECT
-            {aggregation_clause(measure, clip)},
-            width_bucket(valid_from, $3::timestamptz[]) AS time_bin
-        FROM contributions c, aoi
-        WHERE ({filter_where_clause})
-        AND valid_from >= $1::timestamptz and
-            valid_from <  $2::timestamptz
-        AND ST_Intersects(c.geom, aoi.geom)
-        AND (status_geom_type).status = 'latest'
-        GROUP BY time_bin
-        ORDER BY time_bin
-    """  # noqa: S608
-    records = await db.fetch_rows(
-        sql,
-        start,
-        end,
-        series,
-        aoi_wkt,
-        *filter_args,
-    )  # order matters!
-
-    return zerofill_records_to_time_bin_columns(records, series)
-
-
 async def get_contributors_count(
     ohsome_filter: OhsomeFilter,
     start: datetime,
