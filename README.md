@@ -35,7 +35,7 @@ If you need further information, visit these sites:
 Requirements:
 * [`uv`](https://docs.astral.sh/uv/getting-started/installation/)
 
-We use: 
+We use:
 * `pytest` for unit tests
 * `ruff` for static code analysis
 * `ty` for static type checks
@@ -66,6 +66,15 @@ The log level can be set independently of the log config by setting the environm
 
 ```sh
 export OHSOME_API_LOG_LEVEL=DEBUG
+```
+
+#### Debugging
+
+To log the SQL query, arguments and the execution plan turn on debug logging (see above) and set the environment variable `OHSOME_API_OHSOMEDB_DEBUG` to `True`:
+
+```sh
+export OHSOME_API_LOG_LEVEL=DEBUG
+export OHSOME_API_OHSOMEDB_DEBUG=True
 ```
 
 
