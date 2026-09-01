@@ -10,7 +10,6 @@ from ohsome_api.database import db
 from ohsome_api.models import (
     ExtractionRow,
     MeasureEnum,
-    SnapshotColumns,
     SnapshotColumnsGrouped,
     TimeBinColumns,
 )
@@ -235,58 +234,6 @@ def aggregation_clause(measure: MeasureEnum, clip: bool) -> str:
                 )
             ) AS value
             """
-
-
-async def get_features(
-    ohsome_filter: OhsomeFilter,
-    series: list[datetime],
-    aoi_wkt: str,
-    measure: MeasureEnum,
-    clip: bool,
-) -> SnapshotColumns:
-    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=2)
-    sql = f"""
-        WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText($2, 4326))).geom as geom
-        ),
-        series AS (
-            SELECT unnest($1::timestamptz[]) AS ts
-        )
-        SELECT
-            {aggregation_clause(measure, clip)},
-            series.ts AS ts
-        FROM contributions c, aoi, series
-        WHERE 1=1
-            AND ({filter_where_clause})
-            -- Global time filter has been part of this query from the beginning on,
-            -- but is now disabled because we believe its not necessary.
-            -- AND valid_from <= $end::timestamptz
-            -- AND valid_to > $start::timestamptz
-            AND ST_Intersects(c.geom, aoi.geom)
-            -- exclude deleted and invalid states
-            AND (status_geom_type).status in ('history', 'latest')
-            -- join by timestamp
-            AND valid_from <= series.ts
-            AND valid_to > series.ts
-        GROUP BY series.ts
-        ORDER BY series.ts
-    """  # noqa: S608
-    records = await db.fetch_rows(
-        sql,
-        series,
-        aoi_wkt,
-        *filter_args,
-    )  # order matters!
-
-    # TODO: extract post-processing to function
-    zerofilled_series = {ts: 0 for ts in series}
-
-    for record in records:
-        zerofilled_series[record["ts"]] = record["value"]
-
-    timestamps: list[datetime] = list(zerofilled_series.keys())
-    values: list[int] = list(zerofilled_series.values())
-    return SnapshotColumns(timestamp=timestamps, value=values)
 
 
 async def get_features_grouped_by_tag(
