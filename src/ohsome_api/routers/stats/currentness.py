@@ -3,7 +3,7 @@ from typing import cast
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from pydantic import AliasChoices, Field
+from pydantic import Field
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
@@ -35,9 +35,7 @@ class TimeBinsRequestParametersModel(
     AoiRequestModel,
     FilterRequestModel,
 ):
-    time: TimeBinsRequestModel = Field(
-        validation_alias=AliasChoices("time", "timeBins")
-    )
+    time: TimeBinsRequestModel
     clip: bool = Field(
         default=False,
         description=(

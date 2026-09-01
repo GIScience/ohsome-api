@@ -5,7 +5,6 @@ from typing import Literal, cast
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import (
-    AliasChoices,
     Field,
     TypeAdapter,
     computed_field,
@@ -49,9 +48,7 @@ class StatsFeaturesRequestModel(
     FilterRequestModel,
     GroupByRequestModel,
 ):
-    time: TimeSeriesRequestModel | Timestamp | TimestampLatest = Field(
-        validation_alias=AliasChoices("time", "timeSeries"),
-    )
+    time: TimeSeriesRequestModel | Timestamp | TimestampLatest
     clip: bool = Field(
         default=False,
         description=(
