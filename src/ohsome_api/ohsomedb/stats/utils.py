@@ -3,6 +3,14 @@ from ohsome_api.models import (
 )
 
 
+class TimeSeriesTooLargeError(ValueError):
+    pass
+
+
+class ResultTooLargeError(ValueError):
+    pass
+
+
 def get_aggregation_clause(measure: MeasureEnum, clip: bool) -> str:
     match measure:
         case MeasureEnum.COUNT:

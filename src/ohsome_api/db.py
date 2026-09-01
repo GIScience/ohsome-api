@@ -10,7 +10,6 @@ from ohsome_api.database import db
 from ohsome_api.models import (
     ExtractionRow,
     MeasureEnum,
-    SnapshotColumnsGrouped,
     TimeBinColumns,
 )
 
@@ -234,89 +233,6 @@ def aggregation_clause(measure: MeasureEnum, clip: bool) -> str:
                 )
             ) AS value
             """
-
-
-async def get_features_grouped_by_tag(
-    ohsome_filter: OhsomeFilter,
-    series: list[datetime],
-    aoi_wkt: str,
-    measure: MeasureEnum,
-    group_by_tag: str,
-    clip: bool,
-) -> SnapshotColumnsGrouped:
-    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=3)
-    limit = CONFIG.group_by_time_series_size_limit
-    sql = f"""
-        WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText($2, 4326))).geom as geom
-        ),
-        series AS (
-            SELECT unnest($1::timestamptz[]) AS ts
-        )
-        SELECT
-            {aggregation_clause(measure, clip)},
-            series.ts AS ts,
-            tags->>$3 as tag_value
-        FROM contributions c, aoi, series
-        WHERE 1=1
-            AND ({filter_where_clause})
-            -- Global time filter has been part of this query from the beginning on,
-            -- but is now disabled because we believe its not necessary.
-            -- AND valid_from <= $end::timestamptz
-            -- AND valid_to > $start::timestamptz
-            AND ST_Intersects(c.geom, aoi.geom)
-            -- exclude deleted and invalid states
-            AND (status_geom_type).status in ('history', 'latest')
-            -- join by timestamp
-            AND valid_from <= series.ts
-            AND valid_to > series.ts
-        GROUP BY series.ts, tag_value
-        ORDER BY series.ts, tag_value
-        LIMIT {limit + 1}
-    """  # noqa: S608
-    records = await db.fetch_rows(
-        sql,
-        series,
-        aoi_wkt,
-        group_by_tag,
-        *filter_args,
-    )  # order matters!
-
-    # TODO: extract post-processing to function
-    zerofilled_totals = {ts: 0 for ts in series}
-    all_tags: set[str] = set()
-
-    for record in records:
-        zerofilled_totals[record["ts"]] = (
-            zerofilled_totals[record["ts"]] + record["value"]
-        )
-        all_tags.add(record["tag_value"])
-
-    if len(all_tags) * len(series) > limit:
-        raise ResultTooLargeError(
-            "The provided query produced too many results. The given "
-            "time series parameters in combination with the "
-            f"group by tags parameter lead to a result larger than {limit} rows."
-        )
-
-    zerofilled_results: dict[str, dict[datetime, int]] = dict()
-    for tag_value in all_tags:
-        zerofilled_results[tag_value] = {ts: 0 for ts in series}
-    for record in records:
-        zerofilled_results[record["tag_value"]][record["ts"]] = record["value"]
-
-    timestamps: list[datetime] = list(zerofilled_totals.keys())
-    total_values: list[int] = list(zerofilled_totals.values())
-    group_by_values: dict[str, list[int]] = {
-        value: list(x.values())
-        for (value, x) in zerofilled_results.items()
-        if value is not None
-    }
-    return SnapshotColumnsGrouped(
-        timestamp=timestamps,
-        value=total_values,
-        values=group_by_values,
-    )
 
 
 def _filter_by_time(

@@ -17,7 +17,7 @@ from ohsome_api.models import (
     TimeBinRow,
 )
 from ohsome_api.ohsomedb.stats.currentness import get_currentness
-from ohsome_api.ohsomedb.stats.features import get_features
+from ohsome_api.ohsomedb.stats.features import get_features, get_features_grouped_by_tag
 from ohsome_api.parquet import (
     ArrowSink,
     ContributionParquetSink,
@@ -186,7 +186,7 @@ async def get_features_columns(
             clip,
         )
     else:
-        return await db.get_features_grouped_by_tag(
+        return await get_features_grouped_by_tag(
             ohsome_filter,
             series,
             aoi_wkt,
