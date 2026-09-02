@@ -1,5 +1,6 @@
 # TODO: Factor out SQLs to files
 from datetime import datetime
+from pathlib import Path
 from typing import AsyncIterator, Literal, cast
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
@@ -9,6 +10,8 @@ from ohsome_api.models import (
     ExtractionRow,
 )
 
+SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "features_collection.sql").read_text()
+
 
 async def extract_features_collection(
     ohsome_filter: OhsomeFilter,
@@ -16,50 +19,30 @@ async def extract_features_collection(
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
     """Extract all features"""
-    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=2)
 
     if time == "latest":
-        filter_by_time = """status_geom_type = ANY(array[
-           ('latest','GeometryCollection')::status_geom_type_type
-           ])
-           AND 'latest' = $2  -- always true
+        time_clause = """
+            status_geom_type = ANY(array[
+                ('latest','GeometryCollection')::status_geom_type_type
+            ])
+            AND 'latest' = $2  -- always true
         """
     else:
-        filter_by_time = """status_geom_type = ANY(array[
-           ('latest','GeometryCollection')::status_geom_type_type,
-           ('history','GeometryCollection')::status_geom_type_type
-           ])
-           AND valid_from <= $2::timestamptz
-           AND valid_to > $2::timestamptz
+        time_clause = """
+            status_geom_type = ANY(array[
+               ('latest','GeometryCollection')::status_geom_type_type,
+               ('history','GeometryCollection')::status_geom_type_type
+               ])
+            AND valid_from <= $2::timestamptz
+            AND valid_to > $2::timestamptz
         """
 
-    sql = f"""
-        WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText($1, 4326))).geom as geom
-        )
-        SELECT osm_type,
-               osm_id,
-               valid_from,
-               valid_to,
-               osm_version,
-               osm_minor_version,
-               osm_edits,
-               user_id,
-               user_name,
-               changeset_id,
-               tags,
-               (status_geom_type).geom_type as geom_type,
-               ST_AsBinary(c.geom) as geom,
-               false as clipped,
-               ST_XMin(c.geom) as xmin,
-               ST_YMin(c.geom) as ymin,
-               ST_XMax(c.geom) as xmax,
-               ST_YMax(c.geom) as ymax
-        FROM contributions as c
-        JOIN aoi ON ST_Intersects(c.geom, aoi.geom)
-        WHERE {filter_by_time}
-           AND ({filter_where_clause})
-    """  # noqa: S608
+    filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=2)
+
+    sql = SQL_QUERY_TEMPLATE % {
+        "time_clause": time_clause,
+        "filter_clause": filter_clause,
+    }
 
     # TODO: make batch size configurable (maybe as function arg)
     async for batch in db.fetch_batch(sql, aoi_wkt, time, *filter_args, batch_size=200):

@@ -24,7 +24,6 @@ SELECT
     false AS clipped
 FROM contributions c
 JOIN aoi ON ST_INTERSECTS(c.geom, aoi.geom)
--- TODO: Is it right that the cross join is not needed here?
 WHERE
     1 = 1
     AND (%(time_clause)s)
