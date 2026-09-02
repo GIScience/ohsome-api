@@ -4,14 +4,14 @@ from pathlib import Path
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
 from ohsome_api.config import CONFIG
-from ohsome_api.database import db
+from ohsome_api.db.db import db
+from ohsome_api.db.errors import ResultTooLargeError
+from ohsome_api.db.stats.utils import get_aggregation_clause
 from ohsome_api.models import (
     MeasureEnum,
     SnapshotColumns,
     SnapshotColumnsGrouped,
 )
-from ohsome_api.ohsomedb.errors import ResultTooLargeError
-from ohsome_api.ohsomedb.stats.utils import get_aggregation_clause
 
 SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "features.sql").read_text()
 SQL_QUERY_TEMPLATE_GROUP_BY = Path(

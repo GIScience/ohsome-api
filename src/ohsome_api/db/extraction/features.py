@@ -4,9 +4,9 @@ from typing import AsyncIterator, Literal, cast
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
-from ohsome_api.database import db
+from ohsome_api.db.clauses import _filter_by_time
+from ohsome_api.db.db import db
 from ohsome_api.models import ExtractionRow
-from ohsome_api.ohsomedb.clauses import _filter_by_time
 
 SQL_QUERY_TEMPLATE_CLIP = Path(Path(__file__).parent / "features_clip.sql").read_text()
 SQL_QUERY_TEMPLATE_NO_CLIP = Path(

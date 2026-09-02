@@ -4,7 +4,7 @@ from typing import AsyncIterator, Literal, cast
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
-from ohsome_api.database import db
+from ohsome_api.db.db import db
 from ohsome_api.models import (
     ExtractionRow,
 )

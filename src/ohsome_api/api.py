@@ -21,8 +21,8 @@ import ohsome_api.routers.stats.contributors
 import ohsome_api.routers.stats.currentness
 import ohsome_api.routers.stats.features
 from ohsome_api.config import CONFIG
-from ohsome_api.database import db
-from ohsome_api.ohsomedb.errors import ResultTooLargeError, TimeSeriesTooLargeError
+from ohsome_api.db.db import db
+from ohsome_api.db.errors import ResultTooLargeError, TimeSeriesTooLargeError
 
 VERSION = importlib.metadata.version("ohsome-api")
 METADATA_PROJECT = importlib.metadata.metadata("ohsome-api")

@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from ohsome_api.config import CONFIG
-from ohsome_api.database import db
+from ohsome_api.db.db import db
 
 QUERIES_DIR = Path(__file__).parent / "queries"
 

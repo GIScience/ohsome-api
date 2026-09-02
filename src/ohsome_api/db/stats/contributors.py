@@ -3,14 +3,14 @@ from pathlib import Path
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
-from ohsome_api.database import db
+from ohsome_api.db.db import db
+from ohsome_api.db.stats.utils import zerofill_records_to_time_bin_columns
 from ohsome_api.models import TimeBinColumns
-from ohsome_api.ohsomedb.stats.utils import zerofill_records_to_time_bin_columns
 
-SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "contributions.sql").read_text()
+SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "contributors.sql").read_text()
 
 
-async def get_contributions_count(
+async def get_contributors_count(
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime,
@@ -19,7 +19,6 @@ async def get_contributions_count(
 ) -> TimeBinColumns:
     filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
     filter_clause_tags_before = filter_clause.replace("tags", "tags_before")
-
     sql = SQL_QUERY_TEMPLATE % {
         "filter_clause": filter_clause,
         "filter_clause_tags_before": filter_clause_tags_before,

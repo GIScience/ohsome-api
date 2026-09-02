@@ -3,34 +3,28 @@ from pathlib import Path
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
-from ohsome_api.database import db
-from ohsome_api.models import (
-    MeasureEnum,
-    TimeBinColumns,
-)
-from ohsome_api.ohsomedb.stats.utils import (
-    get_aggregation_clause,
-    zerofill_records_to_time_bin_columns,
-)
+from ohsome_api.db.db import db
+from ohsome_api.db.stats.utils import zerofill_records_to_time_bin_columns
+from ohsome_api.models import TimeBinColumns
 
-SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "currentness.sql").read_text()
+SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "contributions.sql").read_text()
 
 
-async def get_currentness(
+async def get_contributions_count(
     ohsome_filter: OhsomeFilter,
     start: datetime,
     end: datetime,
     series: list[datetime],
     aoi_wkt: str,
-    measure: MeasureEnum,
-    clip: bool,
 ) -> TimeBinColumns:
     filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
-    aggregation_clause = get_aggregation_clause(measure, clip)
+    filter_clause_tags_before = filter_clause.replace("tags", "tags_before")
+
     sql = SQL_QUERY_TEMPLATE % {
-        "aggregation_clause": aggregation_clause,
         "filter_clause": filter_clause,
+        "filter_clause_tags_before": filter_clause_tags_before,
     }
+
     records = await db.fetch_rows(
         sql,
         start,

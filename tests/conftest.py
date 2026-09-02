@@ -9,7 +9,7 @@ from geojson_pydantic.geometries import parse_geometry_obj
 from testcontainers.core.image import DockerImage
 from testcontainers.postgres import PostgresContainer
 
-from ohsome_api.database import db
+from ohsome_api.db.db import db
 from ohsome_api.request_models.aoi import BBox
 
 
@@ -32,7 +32,7 @@ def ohsomedb_testcontainer(ohsomedb_image: DockerImage):
         MonkeyPatch.context() as mp,
     ):
         mp.setattr(
-            "ohsome_api.database.CONNECTION_STRING",
+            "ohsome_api.db.db.CONNECTION_STRING",
             postgres.get_connection_url(),
         )
         yield
@@ -41,7 +41,7 @@ def ohsomedb_testcontainer(ohsomedb_image: DockerImage):
 @pytest.fixture(scope="session", autouse=True)
 def ohsomedb_schema():
     with MonkeyPatch.context() as mp:
-        mp.setattr("ohsome_api.database.SCHEMA", "current")
+        mp.setattr("ohsome_api.db.db.SCHEMA", "current")
         yield
 
 

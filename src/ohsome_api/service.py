@@ -3,6 +3,28 @@ from typing import AsyncIterator, Literal, Optional, cast
 
 from ohsome_filter_to_sql import OhsomeFilter
 
+from ohsome_api.db.extraction.contributions import (
+    extract_contributions as extract_contributions_,
+)
+from ohsome_api.db.extraction.contributions import (
+    join_changesets_to_extraction_rows,
+)
+from ohsome_api.db.extraction.features import (
+    extract_features as extract_features_,
+)
+from ohsome_api.db.extraction.features_collection import (
+    extract_features_collection as extract_features_collection_,
+)
+from ohsome_api.db.extraction.features_collection import (
+    extract_features_collection_members_collections,
+    extract_features_collection_members_features,
+)
+from ohsome_api.db.metadata.metadata import get_metadata
+from ohsome_api.db.stats.contributions import get_contributions_count
+from ohsome_api.db.stats.contributors import get_contributors_count
+from ohsome_api.db.stats.currentness import get_currentness
+from ohsome_api.db.stats.features import get_features, get_features_grouped_by_tag
+from ohsome_api.db.time import generate_timestamp_series, get_latest_timestamp
 from ohsome_api.models import (
     ExtractionRow,
     MeasureEnum,
@@ -14,28 +36,6 @@ from ohsome_api.models import (
     TimeBinColumns,
     TimeBinRow,
 )
-from ohsome_api.ohsomedb.extraction.contributions import (
-    extract_contributions as extract_contributions_,
-)
-from ohsome_api.ohsomedb.extraction.contributions import (
-    join_changesets_to_extraction_rows,
-)
-from ohsome_api.ohsomedb.extraction.features import (
-    extract_features as extract_features_,
-)
-from ohsome_api.ohsomedb.extraction.features_collection import (
-    extract_features_collection as extract_features_collection_,
-)
-from ohsome_api.ohsomedb.extraction.features_collection import (
-    extract_features_collection_members_collections,
-    extract_features_collection_members_features,
-)
-from ohsome_api.ohsomedb.metadata.metadata import get_metadata
-from ohsome_api.ohsomedb.stats.contributions import get_contributions_count
-from ohsome_api.ohsomedb.stats.contributors import get_contributors_count
-from ohsome_api.ohsomedb.stats.currentness import get_currentness
-from ohsome_api.ohsomedb.stats.features import get_features, get_features_grouped_by_tag
-from ohsome_api.ohsomedb.time import generate_timestamp_series, get_latest_timestamp
 from ohsome_api.parquet import (
     ArrowSink,
     ContributionParquetSink,

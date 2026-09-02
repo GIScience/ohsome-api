@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from ohsome_api.database import db
+from ohsome_api.db.db import db
 
 SQL = Path(Path(__file__).parent / "metadata.sql").read_text()
 
