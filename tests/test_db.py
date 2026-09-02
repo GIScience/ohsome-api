@@ -1,6 +1,7 @@
 import pytest
 
-from ohsome_api.db import extract_features, get_metadata
+from ohsome_api.db import get_metadata
+from ohsome_api.ohsomedb.extraction.features import extract_features
 
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
 

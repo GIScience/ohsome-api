@@ -16,6 +16,9 @@ from ohsome_api.models import (
     TimeBinColumns,
     TimeBinRow,
 )
+from ohsome_api.ohsomedb.extraction.features import (
+    extract_features as extract_features_,
+)
 from ohsome_api.ohsomedb.stats.contributions import get_contributions_count
 from ohsome_api.ohsomedb.stats.contributors import get_contributors_count
 from ohsome_api.ohsomedb.stats.currentness import get_currentness
@@ -209,7 +212,7 @@ async def extract_features(
 ) -> AsyncIterator[bytes]:
     """Extract features from database batch wise."""
 
-    producer = db.extract_features(
+    producer = extract_features_(
         ohsome_filter, aoi_wkt, clip, start, end, contributions
     )
 
