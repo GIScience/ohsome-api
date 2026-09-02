@@ -19,6 +19,13 @@ from ohsome_api.models import (
 from ohsome_api.ohsomedb.extraction.features import (
     extract_features as extract_features_,
 )
+from ohsome_api.ohsomedb.extraction.features_collection import (
+    extract_features_collection as extract_features_collection_,
+)
+from ohsome_api.ohsomedb.extraction.features_collection import (
+    extract_features_collection_members_collections,
+    extract_features_collection_members_features,
+)
 from ohsome_api.ohsomedb.stats.contributions import get_contributions_count
 from ohsome_api.ohsomedb.stats.contributors import get_contributors_count
 from ohsome_api.ohsomedb.stats.currentness import get_currentness
@@ -258,7 +265,7 @@ async def extract_features_as_arrow(
     )
 
 
-async def extract_features_collections(
+async def extract_features_collection(
     ohsome_filter: OhsomeFilter,
     member_filter: OhsomeFilter,
     aoi_wkt: str,
@@ -268,7 +275,7 @@ async def extract_features_collections(
 ) -> AsyncIterator[bytes]:
     """Extract features from database batch wise."""
 
-    collections_producer = db.extract_features_collection(ohsome_filter, aoi_wkt, time)
+    collections_producer = extract_features_collection_(ohsome_filter, aoi_wkt, time)
 
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(collections_producer)
@@ -277,7 +284,7 @@ async def extract_features_collections(
 
         with sink_type() as sink:
             yield sink.write_batch(
-                await db.extract_features_collection_members_collections(
+                await extract_features_collection_members_collections(
                     first,
                     member_filter,
                     aoi_wkt,
@@ -288,7 +295,7 @@ async def extract_features_collections(
 
             async for batch in collections_producer:
                 yield sink.write_batch(
-                    await db.extract_features_collection_members_collections(
+                    await extract_features_collection_members_collections(
                         batch,
                         member_filter,
                         aoi_wkt,
@@ -310,7 +317,7 @@ async def extract_features_collections_as_parquet(
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[bytes]:
-    return await extract_features_collections(
+    return await extract_features_collection(
         ohsome_filter, member_filter, aoi_wkt, clip, time, ParquetSink
     )
 
@@ -322,7 +329,7 @@ async def extract_features_collections_as_arrow(
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[bytes]:
-    return await extract_features_collections(
+    return await extract_features_collection(
         ohsome_filter, member_filter, aoi_wkt, clip, time, ArrowSink
     )
 
@@ -337,7 +344,7 @@ async def extract_features_collections_members(
 ) -> AsyncIterator[bytes]:
     """Extract features from database batch wise."""
 
-    collections_producer = db.extract_features_collection(ohsome_filter, aoi_wkt, time)
+    collections_producer = extract_features_collection_(ohsome_filter, aoi_wkt, time)
 
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(collections_producer)
@@ -345,7 +352,7 @@ async def extract_features_collections_members(
     async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
 
         with sink_type() as sink:
-            async for members in db.extract_features_collection_members_features(
+            async for members in extract_features_collection_members_features(
                 first,
                 member_filter,
                 aoi_wkt,
@@ -355,7 +362,7 @@ async def extract_features_collections_members(
                 yield sink.write_batch(members)
 
             async for batch in collections_producer:
-                async for member in db.extract_features_collection_members_features(
+                async for member in extract_features_collection_members_features(
                     batch,
                     member_filter,
                     aoi_wkt,
