@@ -55,8 +55,3 @@ async def generate_timestamp_series(
 async def get_latest_timestamp() -> datetime:
     sql = "SELECT last_timestamp FROM contributions_state"
     return (await db.fetch_row(sql))[0]
-
-
-async def get_metadata() -> dict[str, datetime]:
-    sql = Path(QUERIES_DIR / "get_metadata.sql").read_text()
-    return dict(await db.fetch_row(sql))

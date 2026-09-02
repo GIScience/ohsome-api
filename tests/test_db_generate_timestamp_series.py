@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from ohsome_api.db import generate_timestamp_series
+from ohsome_api.ohsomedb.time import generate_timestamp_series
 
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
 
