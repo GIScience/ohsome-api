@@ -1,11 +1,11 @@
--- $1: series
--- $2: aoi
+-- $1: aoi
+-- $2: series
 WITH aoi AS (
-    SELECT (ST_DUMP(ST_GEOMFROMTEXT($2, 4326))).geom as geom
+    SELECT (ST_DUMP(ST_GEOMFROMTEXT($1, 4326))).geom as geom
 ),
 
 series AS (
-    SELECT UNNEST($1::timestamptz []) AS ts
+    SELECT UNNEST($2::timestamptz []) AS ts
 )
 
 SELECT
@@ -21,9 +21,9 @@ WHERE
     -- AND valid_to > $start::timestamptz
     AND ST_INTERSECTS(c.geom, aoi.geom)
     -- exclude deleted and invalid states
-    AND (status_geom_type).status in ('history', 'latest')  -- noqa
--- join by timestamp
-AND valid_from <= series.ts
-AND valid_to > series.ts
+    AND (status_geom_type).status in ('history', 'latest')
+		-- join by timestamp
+		AND valid_from <= series.ts
+		AND valid_to > series.ts
 GROUP BY series.ts
 ORDER BY series.ts

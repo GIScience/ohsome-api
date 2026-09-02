@@ -34,8 +34,8 @@ async def get_features(
     }
     records = await db.fetch_rows(
         sql,
-        series,
         aoi_wkt,
+        series,
         *filter_args,
     )  # order matters!
 
@@ -68,8 +68,8 @@ async def get_features_grouped_by_tag(
     }
     records = await db.fetch_rows(
         sql,
-        series,
         aoi_wkt,
+        series,
         group_by_tag,
         *filter_args,
     )  # order matters!
