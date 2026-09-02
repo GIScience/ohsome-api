@@ -10,7 +10,8 @@ from ohsome_api.models import (
     SnapshotColumns,
     SnapshotColumnsGrouped,
 )
-from ohsome_api.ohsomedb.stats.utils import ResultTooLargeError, get_aggregation_clause
+from ohsome_api.ohsomedb.errors import ResultTooLargeError
+from ohsome_api.ohsomedb.stats.utils import get_aggregation_clause
 
 SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "features.sql").read_text()
 SQL_QUERY_TEMPLATE_GROUP_BY = Path(
