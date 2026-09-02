@@ -16,6 +16,7 @@ from ohsome_api.models import (
     TimeBinColumns,
     TimeBinRow,
 )
+from ohsome_api.ohsomedb.stats.contributions import get_contributions_count
 from ohsome_api.ohsomedb.stats.contributors import get_contributors_count
 from ohsome_api.ohsomedb.stats.currentness import get_currentness
 from ohsome_api.ohsomedb.stats.features import get_features, get_features_grouped_by_tag
@@ -444,7 +445,7 @@ async def get_contributions_count_columns(
         end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, bin_size)
 
-    return await db.get_contributions_count(
+    return await get_contributions_count(
         ohsome_filter,
         start,
         end,

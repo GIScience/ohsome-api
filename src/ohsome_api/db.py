@@ -71,49 +71,6 @@ async def get_metadata() -> dict[str, datetime]:
     return dict(await db.fetch_row(sql))
 
 
-async def get_contributions_count(
-    ohsome_filter: OhsomeFilter,
-    start: datetime,
-    end: datetime,
-    series: list[datetime],
-    aoi_wkt: str,
-) -> TimeBinColumns:
-    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
-    sql = f"""
-        WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText($4, 4326))).geom as geom
-        )
-        SELECT
-            count(*) AS value,
-            width_bucket(valid_from, $3::timestamptz[]) AS time_bin
-        FROM contributions c
-        JOIN aoi on (ST_Intersects(c.geom, aoi.geom))
-        WHERE valid_from >= $1::timestamptz and
-              valid_from <  $2::timestamptz
-          AND (
-              ({filter_where_clause}) or
-              -- HACK: ohsome-filter-to-sql does not know about tags before.
-              -- Apply same tag filter to tags_before.
-              -- In this case all other filter parts are duplicated
-              -- and hopefully ignored by query planner.
-              ({filter_where_clause.replace("tags", "tags_before")})
-          )
-        GROUP BY time_bin
-        ORDER BY time_bin
-    """  # noqa: S608
-
-    records = await db.fetch_rows(
-        sql,
-        start,
-        end,
-        series,
-        aoi_wkt,
-        *filter_args,
-    )  # order matters!
-
-    return zerofill_records_to_time_bin_columns(records, series)
-
-
 def zerofill_records_to_time_bin_columns(
     records: list[Record], series: list[datetime]
 ) -> TimeBinColumns:
