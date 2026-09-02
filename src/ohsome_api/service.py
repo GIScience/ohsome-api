@@ -16,6 +16,12 @@ from ohsome_api.models import (
     TimeBinColumns,
     TimeBinRow,
 )
+from ohsome_api.ohsomedb.extraction.contributions import (
+    extract_contributions as extract_contributions_,
+)
+from ohsome_api.ohsomedb.extraction.contributions import (
+    join_changesets_to_extraction_rows,
+)
 from ohsome_api.ohsomedb.extraction.features import (
     extract_features as extract_features_,
 )
@@ -409,18 +415,16 @@ async def extract_contributions(
     sink_type: type[Sink],
 ) -> AsyncIterator[bytes]:
 
-    producer = db.extract_contributions(ohsome_filter, aoi_wkt, start, end)
+    producer = extract_contributions_(ohsome_filter, aoi_wkt, start, end)
 
     first_batch = await anext(producer)
 
     async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
         with sink_type() as sink:
-            yield sink.write_batch(await db.join_changesets_to_extraction_rows(first))
+            yield sink.write_batch(await join_changesets_to_extraction_rows(first))
 
             async for batch in producer:
-                yield sink.write_batch(
-                    await db.join_changesets_to_extraction_rows(batch)
-                )
+                yield sink.write_batch(await join_changesets_to_extraction_rows(batch))
 
         # after sink is closed metadata and footer is written
         yield sink.read_bytes()
