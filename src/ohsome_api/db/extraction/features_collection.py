@@ -14,6 +14,9 @@ SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "features_collection.sql").rea
 SQL_QUERY_TEMPLATE_MEMBERS_COLLECTIONS = Path(
     Path(__file__).parent / "features_collection_members_collections.sql"
 ).read_text()
+SQL_QUERY_TEMPLATE_MEMBERS_FEATURES = Path(
+    Path(__file__).parent / "features_collection_members_features.sql"
+).read_text()
 
 
 async def extract_features_collection(
@@ -157,22 +160,21 @@ async def extract_features_collection_members_features(
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
-    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
 
     ids = [item["osm_id"] for item in collections]
     versions = [item["osm_version"] for item in collections]
 
     if time == "latest":
-        filter_by_time = """status_geom_type = ANY(array[
+        time_clause = """status_geom_type = ANY(array[
            ('latest','Point')::status_geom_type_type,
            ('latest','LineString')::status_geom_type_type,
            ('latest','Polygon')::status_geom_type_type,
            ('latest','MultiPolygon')::status_geom_type_type
            ])
-           AND 'latest' =  $2  -- always true
         """
+        time_args = []
     else:
-        filter_by_time = """status_geom_type = ANY(array[
+        time_clause = """status_geom_type = ANY(array[
            ('latest','Point')::status_geom_type_type,
            ('latest','LineString')::status_geom_type_type,
            ('latest','Polygon')::status_geom_type_type,
@@ -182,9 +184,16 @@ async def extract_features_collection_members_features(
            ('history','Polygon')::status_geom_type_type,
            ('history','MultiPolygon')::status_geom_type_type
            ])
-           AND valid_from <= $2::timestamptz
-           AND valid_to > $2::timestamptz
+           AND valid_from <= $4::timestamptz
+           AND valid_to > $4::timestamptz
         """
+        time_args = [time]
+
+    filter_clause, filter_args = ohsome_filter_to_sql(
+        ohsome_filter,
+        args_shift=len(time_args) + 3,
+    )
+
     if clip:
         clipped_geom_sql = """
         -- is clipped
@@ -211,44 +220,12 @@ async def extract_features_collection_members_features(
         ) proc
         """
 
-    sql = f"""
-        WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText($1, 4326))).geom AS geom
-        )
-        SELECT osm_type,
-               osm_id,
-               valid_from,
-               valid_to,
-               osm_version,
-               osm_minor_version,
-               osm_edits,
-               user_id,
-               user_name,
-               changeset_id,
-               tags,
-               ST_XMin(proc.geom) as xmin,
-               ST_YMin(proc.geom) as ymin,
-               ST_XMax(proc.geom) as xmax,
-               ST_YMax(proc.geom) as ymax,
-               (status_geom_type).geom_type as geom_type,
-               ST_AsBinary(proc.geom) as geom,
-               proc.clipped,
-               m.relation_osm_id as part_of,
-               m.member_role as part_of_role,
-               m.member_pos_list[array_position(m.relation_osm_version_list , col.version)] as part_of_pos
-        FROM unnest($3::int[], $4::int[]) AS col(id, version)
-        JOIN contributions_members m ON (
-            col.id = m.relation_osm_id
-            AND col.version = ANY(m.relation_osm_version_list))
-        JOIN contributions AS c ON (
-            m.member_osm_type = c.osm_type
-            AND m.member_osm_id = c.osm_id)
-        {clipped_geom_sql}
-        WHERE {filter_by_time}
-          AND ({filter_where_clause})
-    """  # noqa: E501, S608
-
+    sql = SQL_QUERY_TEMPLATE_MEMBERS_FEATURES % {
+        "clipped_geom_sql": clipped_geom_sql,
+        "time_clause": time_clause,
+        "filter_clause": filter_clause,
+    }
     async for batch in db.fetch_batch(
-        sql, aoi_wkt, time, ids, versions, *filter_args, batch_size=10000
+        sql, aoi_wkt, ids, versions, *time_args, *filter_args, batch_size=10000
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
