@@ -11,6 +11,9 @@ from ohsome_api.models import (
 )
 
 SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "features_collection.sql").read_text()
+SQL_QUERY_TEMPLATE_MEMBERS_COLLECTIONS = Path(
+    Path(__file__).parent / "features_collection_members_collections.sql"
+).read_text()
 
 
 async def extract_features_collection(
@@ -25,19 +28,23 @@ async def extract_features_collection(
             status_geom_type = ANY(array[
                 ('latest','GeometryCollection')::status_geom_type_type
             ])
-            AND 'latest' = $2  -- always true
         """
+        time_args = []
     else:
         time_clause = """
             status_geom_type = ANY(array[
                ('latest','GeometryCollection')::status_geom_type_type,
                ('history','GeometryCollection')::status_geom_type_type
-               ])
+            ])
             AND valid_from <= $2::timestamptz
             AND valid_to > $2::timestamptz
         """
+        time_args = [time]
 
-    filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=2)
+    filter_clause, filter_args = ohsome_filter_to_sql(
+        ohsome_filter,
+        args_shift=len(time_args) + 1,
+    )
 
     sql = SQL_QUERY_TEMPLATE % {
         "time_clause": time_clause,
@@ -45,7 +52,9 @@ async def extract_features_collection(
     }
 
     # TODO: make batch size configurable (maybe as function arg)
-    async for batch in db.fetch_batch(sql, aoi_wkt, time, *filter_args, batch_size=200):
+    async for batch in db.fetch_batch(
+        sql, aoi_wkt, *time_args, *filter_args, batch_size=200
+    ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
 
@@ -59,34 +68,42 @@ async def extract_features_collection_members_collections(  # noqa: PLR0915
     ids = [item["osm_id"] for item in collections]
     versions = [item["osm_version"] for item in collections]
 
-    filter_where_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
-
     collections_by_id = {}
     for collection in collections:
         collections_by_id[collection["osm_id"]] = collection
+
     if time == "latest":
-        filter_by_time = """status_geom_type = ANY(array[
-           ('latest','Point')::status_geom_type_type,
-           ('latest','LineString')::status_geom_type_type,
-           ('latest','Polygon')::status_geom_type_type,
-           ('latest','MultiPolygon')::status_geom_type_type
-           ])
-           AND 'latest' = $2  -- always true
+        time_clause = """
+            status_geom_type = ANY(array[
+               ('latest','Point')::status_geom_type_type,
+               ('latest','LineString')::status_geom_type_type,
+               ('latest','Polygon')::status_geom_type_type,
+               ('latest','MultiPolygon')::status_geom_type_type
+            ])
         """
+        time_args = []
     else:
-        filter_by_time = """status_geom_type = ANY(array[
-           ('latest','Point')::status_geom_type_type,
-           ('latest','LineString')::status_geom_type_type,
-           ('latest','Polygon')::status_geom_type_type,
-           ('latest','MultiPolygon')::status_geom_type_type,
-           ('history','Point')::status_geom_type_type,
-           ('history','LineString')::status_geom_type_type,
-           ('history','Polygon')::status_geom_type_type,
-           ('history','MultiPolygon')::status_geom_type_type
-           ])
-           AND valid_from <= $2::timestamptz
-           AND valid_to > $2::timestamptz
+        time_clause = """
+            status_geom_type = ANY(array[
+               ('latest','Point')::status_geom_type_type,
+               ('latest','LineString')::status_geom_type_type,
+               ('latest','Polygon')::status_geom_type_type,
+               ('latest','MultiPolygon')::status_geom_type_type,
+               ('history','Point')::status_geom_type_type,
+               ('history','LineString')::status_geom_type_type,
+               ('history','Polygon')::status_geom_type_type,
+               ('history','MultiPolygon')::status_geom_type_type
+            ])
+            AND valid_from <= $4::timestamptz
+            AND valid_to > $4::timestamptz
         """
+        time_args = [time]
+
+    filter_clause, filter_args = ohsome_filter_to_sql(
+        ohsome_filter,
+        args_shift=len(time_args) + 3,
+    )
+
     # TODO: ST_Union only for polygon case, otherwise ST_Collect should suffice
     if clip:
         select_geom_sql = (
@@ -103,42 +120,18 @@ async def extract_features_collection_members_collections(  # noqa: PLR0915
         )
         join_geom_sql = "LEFT JOIN aoi ON ST_Intersects(c.geom, aoi.geom)"
 
-    sql = f"""
-        WITH aoi AS (
-            SELECT (ST_Dump(ST_GeomFromText($1, 4326))).geom AS geom
-        )
-        SELECT
-            relation_id,
-            geom_type,
-            ST_AsBinary(geom) AS geom,
-            clipped_count > 0 as clipped,
-            intersects_count > 0 as intersects,
-            ST_XMin(geom) as xmin,
-            ST_YMin(geom) as ymin,
-            ST_XMax(geom) as xmax,
-            ST_YMax(geom) as ymax
-        FROM (
-            SELECT collection.id AS relation_id,
-                (status_geom_type).geom_type as geom_type,
-                {select_geom_sql}
-            FROM contributions AS c
-            JOIN contributions_members m ON (
-                m.member_osm_type = c.osm_type
-                AND m.member_osm_id = c.osm_id)
-            JOIN unnest($3::int[], $4::int[]) AS collection(id, version) ON (
-                collection.id = m.relation_osm_id
-                AND collection.version = ANY(m.relation_osm_version_list))
-            {join_geom_sql}
-            WHERE {filter_by_time} and ({filter_where_clause})
-            GROUP BY collection.id, (status_geom_type).geom_type
-        )
-    """  # noqa: S608
+    sql = SQL_QUERY_TEMPLATE_MEMBERS_COLLECTIONS % {
+        "select_geom_sql": select_geom_sql,
+        "join_geom_sql": join_geom_sql,
+        "time_clause": time_clause,
+        "filter_clause": filter_clause,
+    }
     members = await db.fetch_rows(
         sql,
         aoi_wkt,
-        time,
         ids,
         versions,
+        *time_args,
         *filter_args,
     )
     result: list[ExtractionRow] = []
