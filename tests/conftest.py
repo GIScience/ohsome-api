@@ -6,8 +6,8 @@ import pytest
 import pytest_asyncio
 from _pytest.monkeypatch import MonkeyPatch
 from geojson_pydantic.geometries import parse_geometry_obj
+from testcontainers.community.postgres import PostgresContainer
 from testcontainers.core.image import DockerImage
-from testcontainers.postgres import PostgresContainer
 
 from ohsome_api.db.db import db
 from ohsome_api.request_models.aoi import BBox
