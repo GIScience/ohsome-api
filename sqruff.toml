@@ -1,0 +1,6 @@
+[tool.sqlfluff.core]
+dialect = "sqlite"
+templater = "placeholder"
+
+[tool.sqlfluff.templater.placeholder]
+param_style = "pyformat"

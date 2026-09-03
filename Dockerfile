@@ -1,5 +1,5 @@
 FROM python:3.14-slim AS builder
-COPY --from=ghcr.io/astral-sh/uv:0.10.9 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.12.9 /uv /uvx /bin/
 
 # TODO: remove after fetching ohsomedb-schema from pypi
 RUN apt update \
