@@ -1,3 +1,5 @@
+# ruff: noqa: ANN401
+
 import asyncio
 import json
 import logging
@@ -6,7 +8,7 @@ from datetime import datetime
 from typing import Any, AsyncIterator
 
 import asyncpg
-from asyncpg import Connection, Record
+from asyncpg import Connection, Pool, Record
 
 from ohsome_api.config import CONFIG
 
@@ -32,7 +34,7 @@ class QueryTimeoutError(TimeoutError):
         super().__init__(message)
 
 
-def convert_datetime_to_timestamp(input_: Any) -> Any:  # noqa ANN401
+def convert_datetime_to_timestamp(input_: Any) -> Any:
     if isinstance(input_, list | tuple):
         return [convert_datetime_to_timestamp(i) for i in input_]
     if isinstance(input_, datetime):
@@ -82,21 +84,25 @@ class Database:
         logging.info("Database connection pools established.")
 
     async def disconnect(self) -> None:
-        if self.pool:
+        if self.pool is not None:
             await self.pool.close()
 
-        if self.pool_extraction:
+        if self.pool_extraction is not None:
             await self.pool_extraction.close()
         logging.info("Database connection pools closed.")
 
     @asynccontextmanager
-    async def acquire_connection(self, timeout: int = 10) -> AsyncIterator[Connection]:
-        if self.pool is None:
-            raise ValueError("Database connection pool not initialized")
+    async def acquire_connection(
+        self,
+        pool: Pool | None,
+        timeout: int = 10,
+    ) -> AsyncIterator[Connection]:
+        if pool is None:
+            raise ConnectionError("Database connection pool not initialized.")
 
         acquiring = True
         try:
-            async with self.pool.acquire(timeout=timeout) as connection:
+            async with pool.acquire(timeout=timeout) as connection:
                 acquiring = False
                 yield connection
         except TimeoutError as error:
@@ -107,11 +113,11 @@ class Database:
                 ) from error
             raise
 
-    async def fetch_row(self, sql: str, *args: Any) -> Record:  # noqa: ANN401
-        async with self.acquire_connection() as connection:
+    async def fetch_row(self, sql: str, *args: Any) -> Record:
+        async with self.acquire_connection(self.pool) as connection:
             try:
                 if CONFIG.ohsomedb.debug:
-                    await self.debug_query(sql, *args)
+                    await self.debug_query(self.pool, sql, *args)
                 record: Record = await connection.fetchrow(sql, *args)
             except TimeoutError as error:
                 raise QueryTimeoutError() from error
@@ -121,11 +127,11 @@ class Database:
 
         return record
 
-    async def fetch_rows(self, sql: str, *args: Any) -> list[Record]:  # noqa: ANN401
-        async with self.acquire_connection() as connection:
+    async def fetch_rows(self, sql: str, *args: Any) -> list[Record]:
+        async with self.acquire_connection(self.pool) as connection:
             try:
                 if CONFIG.ohsomedb.debug:
-                    await self.debug_query(sql, *args)
+                    await self.debug_query(self.pool, sql, *args)
                 records: list[Record] = await connection.fetch(sql, *args)
             except TimeoutError as error:
                 raise QueryTimeoutError() from error
@@ -135,21 +141,18 @@ class Database:
     async def fetch_batch(
         self,
         sql: str,
-        *args: Any,  # noqa: ANN401
+        *args: Any,
         batch_size: int = 10000,
     ) -> AsyncIterator[list[Record]]:
-        if self.pool_extraction is None:
-            raise ValueError("Database connection pool for extraction not initialized")
-
         async with (
-            self.acquire_connection() as connection,
+            self.acquire_connection(self.pool_extraction) as connection,
             asyncio.timeout(CONFIG.ohsomedb.timeout_extraction),
             connection.transaction(readonly=True),
         ):
             batch: list[Record] = []
             try:
                 if CONFIG.ohsomedb.debug:
-                    await self.debug_query(sql, *args)
+                    await self.debug_query(self.pool_extraction, sql, *args)
                 async for record in connection.cursor(sql, *args, prefetch=batch_size):
                     batch.append(record)
                     if len(batch) >= batch_size:
@@ -160,21 +163,24 @@ class Database:
 
             yield batch
 
-    async def explain(self, sql: str, *args: Any, analyze: bool = False) -> str:  # noqa ANN401
-        if self.pool is None:
-            raise ValueError("Database connection pool not initialized")
-
+    async def explain(
+        self,
+        pool: Pool | None,
+        sql: str,
+        *args: Any,
+        analyze: bool = False,
+    ) -> str:
         explain_sql = "EXPLAIN "
         if analyze:
             explain_sql += "ANALYZE "
         explain_sql += sql
 
-        async with self.pool.acquire() as connection:
+        async with self.acquire_connection(pool) as connection:
             result = await connection.fetch(explain_sql, *args)
             return "\n".join(r["QUERY PLAN"] for r in result)
 
-    async def debug_query(self, sql: str, *args: Any) -> None:  # noqa ANN401
-        plan = await self.explain(sql, *args, analyze=True)
+    async def debug_query(self, pool: Pool | None, sql: str, *args: Any) -> None:
+        plan = await self.explain(pool, sql, *args, analyze=True)
         logger.debug(plan)
 
         logger.debug("SQL Query: \n" + sql)
