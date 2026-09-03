@@ -1,26 +1,21 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
 	"extends": ["config:recommended"],
+  "dependencyDashboard": true,
+	"dependencyDashboardApproval": true,
 	"commitMessagePrefix": "ci(renovate):",
 	"minimumReleaseAge": "7 days",
 	"lockFileMaintenance": {
 		"enabled": true,
 		"automerge": true
 	},
-	"packageRules": [
-		{
-			"description": "Automerge dev dependencies",
-			"matchDepTypes": ["devDependencies"],
-			"automerge": true
-		},
-		{
-			"matchUpdateTypes": ["minor", "patch"],
-			"matchCurrentVersion": "!/^0/",
-			"automerge": true
-		}
-	],
 	"pre-commit": {
-		"enabled": true,
-		"automerge": true
-	}
+		"enabled": true
+	},
+  "dockerfile": {
+    "enabled": true
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true
+  }
 }
