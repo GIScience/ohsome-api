@@ -1,5 +1,3 @@
-import asyncio
-
 from fastapi import APIRouter
 
 from ohsome_api import service
@@ -20,18 +18,5 @@ class MetadataResponseModel(BaseResponseModel):
     response_model=MetadataResponseModel,
 )
 async def get_metadata() -> dict[str, Metadata]:
-    metadata = await service.get_ohsomedb_metadata()
-    return {"temporal_extent": metadata}
-
-
-@router.get(
-    "/debug_timeout",
-    summary="Waits 180 seconds and returns metadata",
-    tags=["Debug"],
-    response_model=MetadataResponseModel,
-    include_in_schema=False,
-)
-async def debug_timeout() -> dict[str, Metadata]:
-    await asyncio.sleep(180)
     metadata = await service.get_ohsomedb_metadata()
     return {"temporal_extent": metadata}
