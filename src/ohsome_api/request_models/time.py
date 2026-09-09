@@ -66,7 +66,6 @@ def validate_timerange_string(value: str) -> str:
     return value
 
 
-# TODO: Validate timestamps
 Timestamp = Annotated[
     datetime,
     Field(
