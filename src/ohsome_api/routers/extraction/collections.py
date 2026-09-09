@@ -59,7 +59,7 @@ class CollectionsFilter(RequestConfigModel):
     )
 
 
-class CollectionsExtractionRequestParametersModel(
+class ExtractionCollectionsRequest(
     AoiRequestModel,
     CollectionsFilter,
 ):
@@ -84,7 +84,7 @@ class CollectionsExtractionRequestParametersModel(
         return self.member_filter_
 
 
-class CollectionsExtractionQueryParametersModel(
+class ExtractionCollectionsGETRequest(
     AoiQueryModel,
     CollectionsFilter,
 ):
@@ -117,7 +117,7 @@ class CollectionsExtractionQueryParametersModel(
     tags=["Extraction"],
 )
 async def post_features_collections_extract(
-    parameters: CollectionsExtractionRequestParametersModel,
+    parameters: ExtractionCollectionsRequest,
 ) -> StreamingResponse:
     return await features_collections_extract(parameters)
 
@@ -131,7 +131,7 @@ async def post_features_collections_extract(
 )
 async def get_features_collections_extract(
     parameters: Annotated[
-        CollectionsExtractionQueryParametersModel,
+        ExtractionCollectionsGETRequest,
         Query(),
     ],
 ) -> StreamingResponse:
@@ -139,8 +139,7 @@ async def get_features_collections_extract(
 
 
 async def features_collections_extract(
-    parameters: CollectionsExtractionRequestParametersModel
-    | CollectionsExtractionQueryParametersModel,
+    parameters: ExtractionCollectionsRequest | ExtractionCollectionsGETRequest,
 ) -> StreamingResponse:
     stream = await service.extract_features_collections_as_parquet(
         parameters.ohsome_filter,
@@ -164,7 +163,7 @@ async def features_collections_extract(
     tags=["Extraction"],
 )
 async def post_features_collections_members_extract(
-    parameters: CollectionsExtractionRequestParametersModel,
+    parameters: ExtractionCollectionsRequest,
 ) -> StreamingResponse:
     return await features_collections_members_extract(parameters)
 
@@ -178,7 +177,7 @@ async def post_features_collections_members_extract(
 )
 async def get_features_collections_members_extract(
     parameters: Annotated[
-        CollectionsExtractionQueryParametersModel,
+        ExtractionCollectionsGETRequest,
         Query(),
     ],
 ) -> StreamingResponse:
@@ -186,8 +185,7 @@ async def get_features_collections_members_extract(
 
 
 async def features_collections_members_extract(
-    parameters: CollectionsExtractionRequestParametersModel
-    | CollectionsExtractionQueryParametersModel,
+    parameters: ExtractionCollectionsRequest | ExtractionCollectionsGETRequest,
 ) -> StreamingResponse:
     stream = await service.extract_features_collections_members_as_parquet(
         parameters.ohsome_filter,

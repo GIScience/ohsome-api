@@ -3,10 +3,10 @@ from fastapi.responses import JSONResponse
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.models import TimeBinColumns, TimeBinRow
+from ohsome_api.models import TimeBinsResult
 from ohsome_api.request_models import FilterRequestModel
 from ohsome_api.request_models.aoi import AoiRequestModel
-from ohsome_api.request_models.time import TimeBinsRequestModel
+from ohsome_api.request_models.time import TimeBins
 from ohsome_api.response_models import BaseResponseModel
 from ohsome_api.response_renderers import CSVTimeBinsResponse
 
@@ -19,11 +19,11 @@ class StatsContributorsRequest(
     AoiRequestModel,
     FilterRequestModel,
 ):
-    time: TimeBinsRequestModel
+    time: TimeBins
 
 
 class StatsContributorsResponse(BaseResponseModel):
-    result: TimeBinColumns
+    result: TimeBinsResult
 
 
 @router.post(
@@ -35,7 +35,7 @@ class StatsContributorsResponse(BaseResponseModel):
 )
 async def post_contributors_count_as_json(
     parameters: StatsContributorsRequest,
-) -> dict[str, TimeBinColumns]:
+) -> dict[str, TimeBinsResult]:
     return {
         "result": await service.get_contributors_count_columns(
             ohsome_filter=parameters.ohsome_filter,
@@ -66,7 +66,7 @@ async def post_contributors_count_as_json(
 )
 async def post_contributors_count_as_csv(
     parameters: StatsContributorsRequest,
-) -> dict[str, list[TimeBinRow]]:
+) -> dict[str, list]:
     return {
         "result": await service.get_contributors_count_rows(
             ohsome_filter=parameters.ohsome_filter,

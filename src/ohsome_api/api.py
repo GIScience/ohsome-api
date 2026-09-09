@@ -129,7 +129,7 @@ async def timeout_error(
     )
 
 
-class HealthCheck(BaseModel):
+class HealthResponse(BaseModel):
     status: str = "Ok"
 
 
@@ -139,5 +139,5 @@ def head_health() -> None:
 
 
 @app.get("/health", summary="Check health.", tags=["Health"])
-def get_health() -> HealthCheck:
-    return HealthCheck()
+def get_health() -> HealthResponse:
+    return HealthResponse()

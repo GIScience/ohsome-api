@@ -5,7 +5,7 @@ from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
 from ohsome_api.db.db import db
 from ohsome_api.db.stats.utils import zerofill_records_to_time_bin_columns
-from ohsome_api.models import TimeBinColumns
+from ohsome_api.models import TimeBinsResult
 
 SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "contributions.sql").read_text()
 
@@ -16,7 +16,7 @@ async def get_contributions_count(
     end: datetime,
     series: list[datetime],
     aoi_wkt: str,
-) -> TimeBinColumns:
+) -> TimeBinsResult:
     filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
     filter_clause_tags_before = filter_clause.replace("tags", "tags_before")
 

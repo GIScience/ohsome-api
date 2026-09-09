@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from ohsome_api.models import TimeBinRow
+from ohsome_api.models import TimeBinsRowResult
 from ohsome_api.service import get_currentness_row
 
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
@@ -21,7 +21,7 @@ async def test_get_currentness_count(aoi_wkt_heigit: str):
         clip=True,
     )
     assert result == [
-        TimeBinRow(
+        TimeBinsRowResult(
             start=start,
             end=end,
             value=2,
@@ -42,7 +42,7 @@ async def test_get_currentness_count_latest(aoi_wkt_heigit: str):
         clip=True,
     )
     assert result == [
-        TimeBinRow(
+        TimeBinsRowResult(
             start=start,
             end=datetime(2026, 5, 8, 20, 20, 44, tzinfo=timezone.utc),
             value=4,
@@ -64,17 +64,17 @@ async def test_get_currentness_count_with_bin_size(aoi_wkt_heigit: str):
     )
 
     assert result == [
-        TimeBinRow(
+        TimeBinsRowResult(
             start=datetime(year=2025, month=7, day=1, tzinfo=timezone.utc),
             end=datetime(year=2025, month=8, day=1, tzinfo=timezone.utc),
             value=1,
         ),
-        TimeBinRow(
+        TimeBinsRowResult(
             start=datetime(year=2025, month=8, day=1, tzinfo=timezone.utc),
             end=datetime(year=2025, month=9, day=1, tzinfo=timezone.utc),
             value=0,  # NOTE: zero filled value
         ),
-        TimeBinRow(
+        TimeBinsRowResult(
             start=datetime(year=2025, month=9, day=1, tzinfo=timezone.utc),
             end=datetime(year=2025, month=10, day=1, tzinfo=timezone.utc),
             value=0,  # NOTE: zero filled value
@@ -120,12 +120,12 @@ async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
         clip=True,
     )
     assert bins == [
-        TimeBinRow(
+        TimeBinsRowResult(
             start=start,
             end=datetime(year=2023, month=1, day=1, tzinfo=timezone.utc),
             value=bin_2022[0].value,
         ),
-        TimeBinRow(
+        TimeBinsRowResult(
             start=datetime(year=2023, month=1, day=1, tzinfo=timezone.utc),
             end=end,
             value=bin_2023[0].value,

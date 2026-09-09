@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import AsyncIterator, Literal, Optional, cast
+from typing import AsyncIterator, Literal, cast
 
 from ohsome_filter_to_sql import OhsomeFilter
 
@@ -29,12 +29,12 @@ from ohsome_api.models import (
     ExtractionRow,
     Measure,
     Metadata,
-    SnapshotColumns,
-    SnapshotColumnsGrouped,
-    SnapshotRow,
-    SnapshotRowGroupedByTag,
-    TimeBinColumns,
-    TimeBinRow,
+    TimeBinsResult,
+    TimeBinsRowResult,
+    TimeSeriesGroupedByResult,
+    TimeSeriesResult,
+    TimeSeriesRowGroupedByResult,
+    TimeSeriesRowResult,
 )
 from ohsome_api.parquet import (
     ArrowSink,
@@ -44,7 +44,7 @@ from ohsome_api.parquet import (
     ParquetSink,
     Sink,
 )
-from ohsome_api.request_models import GroupByTagModel
+from ohsome_api.request_models import GroupByTag
 
 
 async def get_ohsomedb_metadata() -> Metadata:
@@ -60,12 +60,12 @@ async def get_currentness_row(
     aoi_wkt: str,
     measure: Measure,
     clip: bool,
-) -> list[TimeBinRow]:
+) -> list[TimeBinsRowResult]:
     columns = await get_currentness_columns(
         ohsome_filter, start, end, bin_size, aoi_wkt, measure, clip
     )
     return [
-        TimeBinRow(start=start, end=end, value=val)
+        TimeBinsRowResult(start=start, end=end, value=val)
         for start, end, val in zip(
             columns.start, columns.end, columns.value, strict=True
         )
@@ -80,7 +80,7 @@ async def get_currentness_columns(
     aoi_wkt: str,
     measure: Measure,
     clip: bool,
-) -> TimeBinColumns:
+) -> TimeBinsResult:
     if end == "latest":
         end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, bin_size)
@@ -102,7 +102,7 @@ async def get_contributors_count_rows(
     end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
-) -> list[TimeBinRow]:
+) -> list[TimeBinsRowResult]:
     columns = await get_contributors_count_columns(
         ohsome_filter,
         start,
@@ -111,7 +111,7 @@ async def get_contributors_count_rows(
         aoi_wkt,
     )
     return [
-        TimeBinRow(start=start, end=end, value=val)
+        TimeBinsRowResult(start=start, end=end, value=val)
         for start, end, val in zip(
             columns.start, columns.end, columns.value, strict=True
         )
@@ -124,7 +124,7 @@ async def get_contributors_count_columns(
     end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
-) -> TimeBinColumns:
+) -> TimeBinsResult:
     if end == "latest":
         end = await get_latest_timestamp()
     series = await generate_timestamp_series(start, end, bin_size)
@@ -145,33 +145,37 @@ async def get_features_rows(
     interval: str | None,
     aoi_wkt: str,
     measure: Measure,
-    group_by: Optional[GroupByTagModel],
+    group_by: GroupByTag | None,
     clip: bool,
-) -> list[SnapshotRow] | list[SnapshotRowGroupedByTag]:
+) -> list[TimeSeriesRowResult] | list[TimeSeriesRowGroupedByResult]:
     columns = await get_features_columns(
         ohsome_filter, start, end, interval, aoi_wkt, measure, group_by, clip
     )
 
     if group_by is not None:
-        columns_grouped: SnapshotColumnsGrouped = cast(SnapshotColumnsGrouped, columns)
+        columns_grouped: TimeSeriesGroupedByResult = cast(
+            TimeSeriesGroupedByResult, columns
+        )
         timestamps = columns.timestamp
-        result: list[SnapshotRowGroupedByTag] = []
+        result: list[TimeSeriesRowGroupedByResult] = []
         if columns_grouped.values is not None:
             for tagvalue in columns_grouped.values:
                 result = result + [
-                    SnapshotRowGroupedByTag(timestamp=ts, value=val, tagvalue=tagvalue)
+                    TimeSeriesRowGroupedByResult(
+                        timestamp=ts, value=val, tagvalue=tagvalue
+                    )
                     for (ts, val) in zip(
                         timestamps, columns_grouped.values[tagvalue], strict=True
                     )
                 ]
         result = result + [
-            SnapshotRowGroupedByTag(timestamp=ts, value=val, tagvalue="")
+            TimeSeriesRowGroupedByResult(timestamp=ts, value=val, tagvalue="")
             for (ts, val) in zip(timestamps, columns.value, strict=True)
         ]
         return result
     else:
         return [
-            SnapshotRow(timestamp=ts, value=val)
+            TimeSeriesRowResult(timestamp=ts, value=val)
             for (ts, val) in zip(columns.timestamp, columns.value, strict=True)
         ]
 
@@ -183,9 +187,9 @@ async def get_features_columns(
     interval: str | None,
     aoi_wkt: str,
     measure: Measure,
-    group_by: Optional[GroupByTagModel],
+    group_by: GroupByTag | None,
     clip: bool,
-) -> SnapshotColumns:
+) -> TimeSeriesResult:
 
     if start == "latest":
         start = await get_latest_timestamp()
@@ -453,7 +457,7 @@ async def get_contributions_count_columns(
     end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
-) -> TimeBinColumns:
+) -> TimeBinsResult:
 
     if end == "latest":
         end = await get_latest_timestamp()
@@ -474,7 +478,7 @@ async def get_contributions_count_rows(
     end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
-) -> list[TimeBinRow]:
+) -> list[TimeBinsRowResult]:
     columns = await get_contributions_count_columns(
         ohsome_filter,
         start,
@@ -483,7 +487,7 @@ async def get_contributions_count_rows(
         aoi_wkt,
     )
     return [
-        TimeBinRow(start=start, end=end, value=val)
+        TimeBinsRowResult(start=start, end=end, value=val)
         for start, end, val in zip(
             columns.start, columns.end, columns.value, strict=True
         )

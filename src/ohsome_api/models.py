@@ -19,33 +19,33 @@ class Metadata(BaseModel):
 Measure = Literal["count", "length", "area"]
 
 
-class TimeBinRow(BaseModel):
+class TimeBinsRowResult(BaseModel):
     value: int
     start: datetime
     end: datetime
 
 
-class TimeBinColumns(BaseModel):
+class TimeBinsResult(BaseModel):
     start: list[datetime]
     end: list[datetime]
     value: list[int]
 
 
-class SnapshotRow(BaseModel):
+class TimeSeriesRowResult(BaseModel):
     value: int
     timestamp: datetime
 
 
-class SnapshotRowGroupedByTag(SnapshotRow):
+class TimeSeriesRowGroupedByResult(TimeSeriesRowResult):
     tagvalue: str
 
 
-class SnapshotColumns(BaseModel):
+class TimeSeriesResult(BaseModel):
     timestamp: list[datetime]
     value: list[int]
 
 
-class SnapshotColumnsGrouped(SnapshotColumns):
+class TimeSeriesGroupedByResult(TimeSeriesResult):
     values: dict[str, list[int]]
 
 

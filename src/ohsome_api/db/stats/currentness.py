@@ -10,7 +10,7 @@ from ohsome_api.db.stats.utils import (
 )
 from ohsome_api.models import (
     Measure,
-    TimeBinColumns,
+    TimeBinsResult,
 )
 
 SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "currentness.sql").read_text()
@@ -24,7 +24,7 @@ async def get_currentness(
     aoi_wkt: str,
     measure: Measure,
     clip: bool,
-) -> TimeBinColumns:
+) -> TimeBinsResult:
     filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
     aggregation_clause = get_aggregation_clause(measure, clip)
     sql = SQL_QUERY_TEMPLATE % {

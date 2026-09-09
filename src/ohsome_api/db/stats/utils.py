@@ -4,7 +4,7 @@ from asyncpg import Record
 
 from ohsome_api.models import (
     Measure,
-    TimeBinColumns,
+    TimeBinsResult,
 )
 
 
@@ -19,7 +19,7 @@ class ResultTooLargeError(ValueError):
 def zerofill_records_to_time_bin_columns(
     records: list[Record],
     series: list[datetime],
-) -> TimeBinColumns:
+) -> TimeBinsResult:
     zerofilled_series = {i: 0 for i in range(len(series) - 1)}
 
     for record in records:
@@ -35,7 +35,7 @@ def zerofill_records_to_time_bin_columns(
 
     values: list[int] = list(zerofilled_series.values())
 
-    return TimeBinColumns(start=start_timestamps, end=end_timestamps, value=values)
+    return TimeBinsResult(start=start_timestamps, end=end_timestamps, value=values)
 
 
 def get_aggregation_clause(measure: Measure, clip: bool) -> str:

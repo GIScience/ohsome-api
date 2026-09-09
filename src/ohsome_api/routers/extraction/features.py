@@ -14,7 +14,7 @@ from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import FilterRequestModel
 from ohsome_api.request_models.aoi import AoiQueryModel, AoiRequestModel
 from ohsome_api.request_models.time import (
-    TimeRangeRequestModel,
+    TimeRange,
     TimeRangeStr,
     Timestamp,
     TimestampLatest,
@@ -34,11 +34,11 @@ FEATURES_EXTRACT_DESCRIPTION = (
 )
 
 
-class ExtractionRequestParametersModel(
+class ExtractionFeaturesRequest(
     AoiRequestModel,
     FilterRequestModel,
 ):
-    time: Timestamp | TimestampLatest | TimeRangeRequestModel
+    time: Timestamp | TimestampLatest | TimeRange
     clip: bool = Field(
         default=True,
         description="Whether to clip extracted features with AOI or not.",
@@ -47,19 +47,19 @@ class ExtractionRequestParametersModel(
     @computed_field
     @property
     def start(self) -> datetime | Literal["latest"]:
-        if isinstance(self.time, TimeRangeRequestModel):
+        if isinstance(self.time, TimeRange):
             return self.time.start
         return self.time
 
     @computed_field
     @property
     def end(self) -> datetime | Literal["latest"]:
-        if isinstance(self.time, TimeRangeRequestModel):
+        if isinstance(self.time, TimeRange):
             return self.time.end
         return self.time
 
 
-class ExtractionQueryParametersModel(
+class ExtractionFeaturesGETRequest(
     AoiQueryModel,
     FilterRequestModel,
 ):
@@ -102,7 +102,7 @@ class ExtractionQueryParametersModel(
     tags=["Extraction"],
 )
 async def post_features_extract(
-    parameters: ExtractionRequestParametersModel,
+    parameters: ExtractionFeaturesRequest,
 ) -> StreamingResponse:
     return await features_extract(parameters)
 
@@ -116,7 +116,7 @@ async def post_features_extract(
 )
 async def get_features_extract(
     parameters: Annotated[
-        ExtractionQueryParametersModel,
+        ExtractionFeaturesGETRequest,
         Query(),
     ],
 ) -> StreamingResponse:
@@ -124,7 +124,7 @@ async def get_features_extract(
 
 
 async def features_extract(
-    parameters: ExtractionRequestParametersModel | ExtractionQueryParametersModel,
+    parameters: ExtractionFeaturesRequest | ExtractionFeaturesGETRequest,
 ) -> StreamingResponse:
     stream = await service.extract_features_as_parquet(
         parameters.ohsome_filter,
@@ -150,7 +150,7 @@ async def features_extract(
     include_in_schema=False,
 )
 async def post_features_extract_arrow(
-    parameters: ExtractionRequestParametersModel,
+    parameters: ExtractionFeaturesRequest,
 ) -> StreamingResponse:
     return await features_extract_as_arrow(parameters)
 
@@ -165,7 +165,7 @@ async def post_features_extract_arrow(
 )
 async def get_features_extract_arrow(
     parameters: Annotated[
-        ExtractionQueryParametersModel,
+        ExtractionFeaturesGETRequest,
         Query(),
     ],
 ) -> StreamingResponse:
@@ -173,7 +173,7 @@ async def get_features_extract_arrow(
 
 
 async def features_extract_as_arrow(
-    parameters: ExtractionRequestParametersModel | ExtractionQueryParametersModel,
+    parameters: ExtractionFeaturesRequest | ExtractionFeaturesGETRequest,
 ) -> StreamingResponse:
 
     stream = await service.extract_features_as_arrow(

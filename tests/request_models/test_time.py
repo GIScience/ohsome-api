@@ -5,9 +5,9 @@ import pytest
 from pydantic import TypeAdapter, ValidationError
 
 from ohsome_api.request_models.time import (
-    TimeBinsRequestModel,
-    TimeRangeRequestModel,
-    TimeSeriesRequestModel,
+    TimeBins,
+    TimeRange,
+    TimeSeries,
     Timestamp,
 )
 
@@ -83,7 +83,7 @@ def test_timestamp_future():
 
 
 def test_time_timerange_valid(start: datetime | str, end: datetime | str):
-    time_range = TimeRangeRequestModel(start=start, end=end)
+    time_range = TimeRange(start=start, end=end)
     assert time_range.start == datetime(2007, 10, 8, tzinfo=timezone.utc)  # property
     assert time_range.end in (datetime(2024, 3, 1, tzinfo=timezone.utc), "latest")
 
@@ -100,7 +100,7 @@ def test_time_timerange_start_greater_or_equal_than_end(start: datetime | str):
         ValidationError,
         match="End timestamp needs to be greater than start timestamp",
     ):
-        TimeRangeRequestModel(
+        TimeRange(
             start=start,
             end=datetime(2024, 1, 1),
         )
@@ -111,7 +111,7 @@ def test_time_bin_valid(
     end: datetime | str,
     duration: str | None,
 ):
-    time_bins = TimeBinsRequestModel(start=start, end=end, bin_size=duration)
+    time_bins = TimeBins(start=start, end=end, bin_size=duration)
     assert time_bins.start == datetime(2007, 10, 8, tzinfo=timezone.utc)  # property
     assert time_bins.end in (
         datetime(2024, 3, 1, tzinfo=timezone.utc),
@@ -121,7 +121,7 @@ def test_time_bin_valid(
 
 
 async def test_time_bin_from_json():
-    TimeBinsRequestModel.model_validate_json(
+    TimeBins.model_validate_json(
         json.dumps(
             {
                 "start": "2025-01-01",
@@ -133,7 +133,7 @@ async def test_time_bin_from_json():
 
 async def test_bin_size_invalid_iso_interval():
     with pytest.raises(ValidationError):
-        TimeBinsRequestModel(
+        TimeBins(
             start=datetime(2024, 1, 1),
             end=datetime(2024, 3, 1),
             bin_size="P1",
@@ -145,7 +145,7 @@ def test_time_series_valid(
     end: datetime | str,
     duration: str | None,
 ):
-    time_interval = TimeSeriesRequestModel(start=start, end=end, interval=duration)
+    time_interval = TimeSeries(start=start, end=end, interval=duration)
     assert time_interval.start == datetime(2007, 10, 8, tzinfo=timezone.utc)  # property
     assert time_interval.end in (
         datetime(2024, 3, 1, tzinfo=timezone.utc),

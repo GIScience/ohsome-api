@@ -8,13 +8,13 @@ from pydantic import (
 from ohsome_api.request_models.config import RequestConfigModel
 
 
-class GroupByTagModel(BaseModel):
+class GroupByTag(BaseModel):
     type: Literal["byTag"]
     key: str
 
 
 class GroupByRequestModel(RequestConfigModel):
-    group_by: GroupByTagModel | None = Field(
+    group_by: GroupByTag | None = Field(
         default=None,
         description=(
             "`(experimental, optional)`; If given indicates that the "

@@ -13,7 +13,7 @@ from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import FilterRequestModel
 from ohsome_api.request_models.aoi import AoiQueryModel, AoiRequestModel
 from ohsome_api.request_models.time import (
-    TimeRangeRequestModel,
+    TimeRange,
     TimeRangeStr,
     transform_time_timerange,
 )
@@ -30,11 +30,11 @@ CONTRIBUTIONS_EXTRACT_DESCRIPTION = (
 )
 
 
-class ContributionsExtractionRequestParametersModel(
+class ExtractionContributionsRequest(
     AoiRequestModel,
     FilterRequestModel,
 ):
-    time: TimeRangeRequestModel
+    time: TimeRange
 
     @computed_field
     @property
@@ -47,7 +47,7 @@ class ContributionsExtractionRequestParametersModel(
         return self.time.end
 
 
-class ContributionsExtractionQueryParametersModel(
+class ExtractionContributionsGETRequest(
     AoiQueryModel,
     FilterRequestModel,
 ):
@@ -72,7 +72,7 @@ class ContributionsExtractionQueryParametersModel(
     tags=["Extraction (Experimental)"],
 )
 async def post_contributions_extract(
-    parameters: ContributionsExtractionRequestParametersModel,
+    parameters: ExtractionContributionsRequest,
 ) -> StreamingResponse:
     return await contributions_extract(parameters)
 
@@ -86,7 +86,7 @@ async def post_contributions_extract(
 )
 async def get_contributions_extract(
     parameters: Annotated[
-        ContributionsExtractionQueryParametersModel,
+        ExtractionContributionsGETRequest,
         Query(),
     ],
 ) -> StreamingResponse:
@@ -94,8 +94,7 @@ async def get_contributions_extract(
 
 
 async def contributions_extract(
-    parameters: ContributionsExtractionRequestParametersModel
-    | ContributionsExtractionQueryParametersModel,
+    parameters: ExtractionContributionsRequest | ExtractionContributionsGETRequest,
 ) -> StreamingResponse:
     stream = await service.extract_contributions_as_parquet(
         parameters.ohsome_filter,

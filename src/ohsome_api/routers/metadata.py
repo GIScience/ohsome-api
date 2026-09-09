@@ -7,7 +7,7 @@ from ohsome_api.response_models import BaseResponseModel
 router = APIRouter()
 
 
-class MetadataResponseModel(BaseResponseModel):
+class MetadataResponse(BaseResponseModel):
     temporal_extent: Metadata
 
 
@@ -15,7 +15,7 @@ class MetadataResponseModel(BaseResponseModel):
     "/metadata",
     summary="Metadata of the underlying database.",
     tags=["Metadata"],
-    response_model=MetadataResponseModel,
+    response_model=MetadataResponse,
 )
 async def get_metadata() -> dict[str, Metadata]:
     metadata = await service.get_ohsomedb_metadata()

@@ -54,10 +54,10 @@ def transform_earliest_to_timestamp(
     return value
 
 
-def transform_time_timerange(value: str) -> TimeRangeRequestModel:
+def transform_time_timerange(value: str) -> TimeRange:
     parts = value.split("/")
     if len(parts) == 2 and all(parts):
-        return TimeRangeRequestModel(start=parts[0], end=parts[1])
+        return TimeRange(start=parts[0], end=parts[1])
     raise ValueError("Invalid time range format.")
 
 
@@ -110,7 +110,7 @@ TimeRangeStr = Annotated[
 ]
 
 
-class TimeRangeRequestModel(RequestConfigModel):
+class TimeRange(RequestConfigModel):
     start_: Timestamp | TimestampEarliest = Field(
         alias="start",
         json_schema_extra={"example": "2025-01-01T00:00:00Z"},
@@ -134,10 +134,8 @@ class TimeRangeRequestModel(RequestConfigModel):
 
         raise ValueError("End timestamp needs to be greater than start timestamp.")
 
-    model_config = ConfigDict(title="Time Range")
 
-
-class TimeBinsRequestModel(TimeRangeRequestModel):
+class TimeBins(TimeRange):
     bin_size: str | None = Field(
         default=None,
         description="Bin size (ISO-8601 duration).",
@@ -153,7 +151,6 @@ class TimeBinsRequestModel(TimeRangeRequestModel):
         return value
 
     model_config = ConfigDict(
-        title="Time Bins",
         json_schema_extra={
             "description": (
                 "Time bins defined using a start/end timestamp (ISO-8601, UTC) "
@@ -165,7 +162,7 @@ class TimeBinsRequestModel(TimeRangeRequestModel):
     )
 
 
-class TimeSeriesRequestModel(TimeRangeRequestModel):
+class TimeSeries(TimeRange):
     interval: str | None = Field(
         default=None,
         description="Interval (ISO-8601 duration).",
@@ -181,7 +178,6 @@ class TimeSeriesRequestModel(TimeRangeRequestModel):
         return value
 
     model_config = ConfigDict(
-        title="Time Series",
         json_schema_extra={
             "description": (
                 "Time series defined using a start/end timestamp (ISO-8601, UTC) "

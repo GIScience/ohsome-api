@@ -10,15 +10,15 @@ from pydantic import (
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.models import Measure, SnapshotColumns, SnapshotColumnsGrouped
+from ohsome_api.models import Measure, TimeSeriesGroupedByResult, TimeSeriesResult
 from ohsome_api.request_models import (
     FilterRequestModel,
     GroupByRequestModel,
 )
 from ohsome_api.request_models.aoi import AoiRequestModel
 from ohsome_api.request_models.time import (
-    TimeRangeRequestModel,
-    TimeSeriesRequestModel,
+    TimeRange,
+    TimeSeries,
     Timestamp,
     TimestampLatest,
 )
@@ -35,7 +35,7 @@ class StatsFeaturesRequest(
     FilterRequestModel,
     GroupByRequestModel,
 ):
-    time: TimeSeriesRequestModel | Timestamp | TimestampLatest
+    time: TimeSeries | Timestamp | TimestampLatest
     clip: bool = Field(
         default=False,
         description=(
@@ -48,27 +48,27 @@ class StatsFeaturesRequest(
     @computed_field
     @property
     def start(self) -> datetime | Literal["latest"]:
-        if isinstance(self.time, TimeRangeRequestModel):
+        if isinstance(self.time, TimeRange):
             return self.time.start
         return self.time
 
     @computed_field
     @property
     def end(self) -> datetime | Literal["latest"]:
-        if isinstance(self.time, TimeRangeRequestModel):
+        if isinstance(self.time, TimeRange):
             return self.time.end
         return self.time
 
     @computed_field
     @property
     def interval(self) -> str | None:
-        if isinstance(self.time, TimeSeriesRequestModel):
+        if isinstance(self.time, TimeSeries):
             return self.time.interval
         return None
 
 
 class StatsFeaturesResponse(BaseResponseModel):
-    result: SnapshotColumns | SnapshotColumnsGrouped
+    result: TimeSeriesResult | TimeSeriesGroupedByResult
 
 
 @router.post(
@@ -87,7 +87,7 @@ class StatsFeaturesResponse(BaseResponseModel):
 async def post_features_as_json(
     parameters: StatsFeaturesRequest,
     measure: Measure,
-) -> dict[str, SnapshotColumns]:
+) -> dict[str, TimeSeriesResult]:
     return {
         "result": await service.get_features_columns(
             ohsome_filter=parameters.ohsome_filter,

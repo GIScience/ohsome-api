@@ -6,10 +6,10 @@ from pydantic import Field
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.models import Measure, TimeBinColumns
+from ohsome_api.models import Measure, TimeBinsResult
 from ohsome_api.request_models import FilterRequestModel
 from ohsome_api.request_models.aoi import AoiRequestModel
-from ohsome_api.request_models.time import TimeBinsRequestModel
+from ohsome_api.request_models.time import TimeBins
 from ohsome_api.response_models import BaseResponseModel
 from ohsome_api.response_renderers import CSVTimeBinsResponse
 
@@ -23,7 +23,7 @@ class StatsCurrentnessRequest(
     AoiRequestModel,
     FilterRequestModel,
 ):
-    time: TimeBinsRequestModel
+    time: TimeBins
     clip: bool = Field(
         default=False,
         description=(
@@ -35,7 +35,7 @@ class StatsCurrentnessRequest(
 
 
 class StatsCurrentnessResponse(BaseResponseModel):
-    result: TimeBinColumns
+    result: TimeBinsResult
 
 
 @router.post(
@@ -48,7 +48,7 @@ class StatsCurrentnessResponse(BaseResponseModel):
 async def post_currentness_as_json(
     parameters: StatsCurrentnessRequest,
     measure: Measure,
-) -> dict[str, TimeBinColumns]:
+) -> dict[str, TimeBinsResult]:
     return {
         "result": await service.get_currentness_columns(
             ohsome_filter=parameters.ohsome_filter,

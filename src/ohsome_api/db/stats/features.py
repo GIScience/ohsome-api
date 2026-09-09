@@ -9,8 +9,8 @@ from ohsome_api.db.errors import ResultTooLargeError
 from ohsome_api.db.stats.utils import get_aggregation_clause
 from ohsome_api.models import (
     Measure,
-    SnapshotColumns,
-    SnapshotColumnsGrouped,
+    TimeSeriesGroupedByResult,
+    TimeSeriesResult,
 )
 
 SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "features.sql").read_text()
@@ -25,7 +25,7 @@ async def get_features(
     aoi_wkt: str,
     measure: Measure,
     clip: bool,
-) -> SnapshotColumns:
+) -> TimeSeriesResult:
     filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=2)
     aggregation_clause = get_aggregation_clause(measure, clip)
     sql = SQL_QUERY_TEMPLATE % {
@@ -47,7 +47,7 @@ async def get_features(
 
     timestamps: list[datetime] = list(zerofilled_series.keys())
     values: list[int] = list(zerofilled_series.values())
-    return SnapshotColumns(timestamp=timestamps, value=values)
+    return TimeSeriesResult(timestamp=timestamps, value=values)
 
 
 async def get_features_grouped_by_tag(
@@ -57,7 +57,7 @@ async def get_features_grouped_by_tag(
     measure: Measure,
     group_by_tag: str,
     clip: bool,
-) -> SnapshotColumnsGrouped:
+) -> TimeSeriesGroupedByResult:
     filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=3)
     aggregation_clause = get_aggregation_clause(measure, clip)
     limit = CONFIG.group_by_time_series_size_limit + 1
@@ -104,7 +104,7 @@ async def get_features_grouped_by_tag(
         for (value, x) in zerofilled_results.items()
         if value is not None
     }
-    return SnapshotColumnsGrouped(
+    return TimeSeriesGroupedByResult(
         timestamp=timestamps,
         value=total_values,
         values=group_by_values,
