@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Literal
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import (
     Field,
-    TypeAdapter,
     computed_field,
 )
 
@@ -26,15 +25,9 @@ from ohsome_api.request_models.time import (
 from ohsome_api.response_models import BaseResponseModel
 from ohsome_api.response_renderers import CSVSnapshotsResponse
 
-td_adapter = TypeAdapter(timedelta)
-
 router = APIRouter(
     dependencies=[Depends(api_key_header_scheme)],
 )
-
-
-class StatsFeaturesResponse(BaseResponseModel):
-    result: SnapshotColumns | SnapshotColumnsGrouped
 
 
 class StatsFeaturesRequest(
@@ -72,6 +65,10 @@ class StatsFeaturesRequest(
         if isinstance(self.time, TimeSeriesRequestModel):
             return self.time.interval
         return None
+
+
+class StatsFeaturesResponse(BaseResponseModel):
+    result: SnapshotColumns | SnapshotColumnsGrouped
 
 
 @router.post(

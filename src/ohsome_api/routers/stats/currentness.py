@@ -10,10 +10,7 @@ from ohsome_api.models import Measure, TimeBinColumns
 from ohsome_api.request_models import FilterRequestModel
 from ohsome_api.request_models.aoi import AoiRequestModel
 from ohsome_api.request_models.time import TimeBinsRequestModel
-from ohsome_api.response_models import (
-    TimeBinsColumnsResponseModel,
-    TimeBinsResponseModel,
-)
+from ohsome_api.response_models import BaseResponseModel
 from ohsome_api.response_renderers import CSVTimeBinsResponse
 
 VERSION = version("ohsome-api")
@@ -22,8 +19,7 @@ router = APIRouter(
 )
 
 
-# TODO: Rename request model to reflect currentness
-class TimeBinsRequestParametersModel(
+class StatsCurrentnessRequest(
     AoiRequestModel,
     FilterRequestModel,
 ):
@@ -38,15 +34,19 @@ class TimeBinsRequestParametersModel(
     )
 
 
+class StatsCurrentnessResponse(BaseResponseModel):
+    result: TimeBinColumns
+
+
 @router.post(
     "/stats/currentness/{measure}.json",
     response_class=JSONResponse,
-    response_model=TimeBinsColumnsResponseModel,
+    response_model=StatsCurrentnessResponse,
     summary="Currentness of features in time bins.",
     tags=["Statistics"],
 )
 async def post_currentness_as_json(
-    parameters: TimeBinsRequestParametersModel,
+    parameters: StatsCurrentnessRequest,
     measure: Measure,
 ) -> dict[str, TimeBinColumns]:
     return {
@@ -65,7 +65,6 @@ async def post_currentness_as_json(
 @router.post(
     "/stats/currentness/{measure}.csv",
     response_class=CSVTimeBinsResponse,
-    response_model=TimeBinsResponseModel,
     responses={
         200: {
             "content": {
@@ -81,7 +80,7 @@ async def post_currentness_as_json(
     tags=["Statistics"],
 )
 async def post_currentness_as_csv(
-    parameters: TimeBinsRequestParametersModel,
+    parameters: StatsCurrentnessRequest,
     measure: Measure,
 ) -> dict[str, list]:
     return {

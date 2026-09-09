@@ -6,11 +6,7 @@ from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-from ohsome_api.models import (
-    Attribution,
-    TimeBinColumns,
-    TimeBinRow,
-)
+from ohsome_api.models import Attribution
 
 VERSION = version("ohsome-api")
 
@@ -23,11 +19,3 @@ class BaseResponseModel(BaseModel):
 
 class FilterResponseModel(BaseResponseModel):
     filter: OhsomeFilter
-
-
-class TimeBinsResponseModel(BaseResponseModel):
-    result: list[TimeBinRow]
-
-
-class TimeBinsColumnsResponseModel(BaseResponseModel):
-    result: TimeBinColumns

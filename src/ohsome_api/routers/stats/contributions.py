@@ -7,10 +7,7 @@ from ohsome_api.models import TimeBinColumns, TimeBinRow
 from ohsome_api.request_models import FilterRequestModel
 from ohsome_api.request_models.aoi import AoiRequestModel
 from ohsome_api.request_models.time import TimeBinsRequestModel
-from ohsome_api.response_models import (
-    TimeBinsColumnsResponseModel,
-    TimeBinsResponseModel,
-)
+from ohsome_api.response_models import BaseResponseModel
 from ohsome_api.response_renderers import CSVTimeBinsResponse
 
 router = APIRouter(
@@ -18,22 +15,26 @@ router = APIRouter(
 )
 
 
-class TimeBinsRequestParametersModel(
+class StatsContributionsRequest(
     AoiRequestModel,
     FilterRequestModel,
 ):
     time: TimeBinsRequestModel
 
 
+class StatsContributionsResponse(BaseResponseModel):
+    result: TimeBinColumns
+
+
 @router.post(
     "/stats/contributions/count.json",
     response_class=JSONResponse,
-    response_model=TimeBinsColumnsResponseModel,
+    response_model=StatsContributionsResponse,
     summary="Contributions per time bin.",
     tags=["Statistics (Experimental)"],
 )
 async def post_contributors_count_as_json(
-    parameters: TimeBinsRequestParametersModel,
+    parameters: StatsContributionsRequest,
 ) -> dict[str, TimeBinColumns]:
     return {
         "result": await service.get_contributions_count_columns(
@@ -49,7 +50,6 @@ async def post_contributors_count_as_json(
 @router.post(
     "/stats/contributions/count.csv",
     response_class=CSVTimeBinsResponse,
-    response_model=TimeBinsResponseModel,
     responses={
         200: {
             "content": {
@@ -65,7 +65,7 @@ async def post_contributors_count_as_json(
     tags=["Statistics (Experimental)"],
 )
 async def post_contributors_count_as_csv(
-    parameters: TimeBinsRequestParametersModel,
+    parameters: StatsContributionsRequest,
 ) -> dict[str, list[TimeBinRow]]:
     return {
         "result": await service.get_contributions_count_rows(
