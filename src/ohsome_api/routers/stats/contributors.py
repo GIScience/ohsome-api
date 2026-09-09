@@ -1,5 +1,3 @@
-from importlib.metadata import version
-
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
@@ -13,13 +11,8 @@ from ohsome_api.response_models import (
     TimeBinsColumnsResponseModel,
     TimeBinsResponseModel,
 )
-from ohsome_api.response_renderers import (
-    CSV_RESPONSE_DESCRIPTION,
-    CSV_TIME_BINS_RESPONSE_EXAMPLE,
-    CSVTimeBinsResponse,
-)
+from ohsome_api.response_renderers import CSVTimeBinsResponse
 
-VERSION = version("ohsome-api")
 router = APIRouter(
     dependencies=[Depends(api_key_header_scheme)],
 )
@@ -62,13 +55,13 @@ async def post_contributors_count_as_json(
             "content": {
                 "text/csv": {
                     "schema": {"type": "string"},
-                    "example": CSV_TIME_BINS_RESPONSE_EXAMPLE,
+                    "example": CSVTimeBinsResponse.example,
                 },
             },
         },
     },
     summary="Active contributors per time bin.",
-    description=CSV_RESPONSE_DESCRIPTION,
+    description=CSVTimeBinsResponse.description,
     tags=["Statistics"],
 )
 async def post_contributors_count_as_csv(

@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from importlib.metadata import version
 from typing import Literal, cast
 
 from fastapi import APIRouter, Depends
@@ -25,19 +24,11 @@ from ohsome_api.request_models.time import (
     Timestamp,
     TimestampLatest,
 )
-from ohsome_api.response_models import (
-    SnapshotColumnsResponseModel,
-    SnapshotsResponseModel,
-)
-from ohsome_api.response_renderers import (
-    CSV_RESPONSE_DESCRIPTION,
-    CSV_SNAPSHOT_EXAMPLE,
-    CSVSnapshotsResponse,
-)
+from ohsome_api.response_models import SnapshotColumnsResponseModel
+from ohsome_api.response_renderers import CSVSnapshotsResponse
 
 td_adapter = TypeAdapter(timedelta)
 
-VERSION = version("ohsome-api")
 router = APIRouter(
     dependencies=[Depends(api_key_header_scheme)],
 )
@@ -114,19 +105,18 @@ async def post_features_as_json(
 @router.post(
     "/stats/features/{measure}.csv",
     response_class=CSVSnapshotsResponse,
-    response_model=SnapshotsResponseModel,
     responses={
         200: {
             "content": {
                 "text/csv": {
                     "schema": {"type": "string"},
-                    "example": CSV_SNAPSHOT_EXAMPLE,
+                    "example": CSVSnapshotsResponse.example,
                 },
             },
         },
     },
     summary="Aggregate features by {measure} as time series.",
-    description=CSV_RESPONSE_DESCRIPTION,
+    description=CSVSnapshotsResponse.description,
     tags=["Statistics"],
 )
 async def post_features_as_csv(

@@ -18,11 +18,7 @@ from ohsome_api.response_models import (
     TimeBinsColumnsResponseModel,
     TimeBinsResponseModel,
 )
-from ohsome_api.response_renderers import (
-    CSV_RESPONSE_DESCRIPTION,
-    CSV_TIME_BINS_RESPONSE_EXAMPLE,
-    CSVTimeBinsResponse,
-)
+from ohsome_api.response_renderers import CSVTimeBinsResponse
 
 VERSION = version("ohsome-api")
 router = APIRouter(
@@ -79,13 +75,13 @@ async def post_currentness_as_json(
             "content": {
                 "text/csv": {
                     "schema": {"type": "string"},
-                    "example": CSV_TIME_BINS_RESPONSE_EXAMPLE,
+                    "example": CSVTimeBinsResponse.example,
                 },
             },
         },
     },
     summary="Currentness of features in time bins.",
-    description=CSV_RESPONSE_DESCRIPTION,
+    description=CSVTimeBinsResponse.description,
     tags=["Statistics"],
 )
 async def post_currentness_as_csv(

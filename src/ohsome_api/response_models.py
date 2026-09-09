@@ -10,8 +10,6 @@ from ohsome_api.models import (
     Attribution,
     SnapshotColumns,
     SnapshotColumnsGrouped,
-    SnapshotRow,
-    SnapshotRowGroupedByTag,
     TimeBinColumns,
     TimeBinRow,
 )
@@ -35,10 +33,6 @@ class TimeBinsResponseModel(BaseResponseModel):
 
 class TimeBinsColumnsResponseModel(BaseResponseModel):
     result: TimeBinColumns
-
-
-class SnapshotsResponseModel(BaseResponseModel):
-    result: list[SnapshotRow | SnapshotRowGroupedByTag]
 
 
 class SnapshotColumnsResponseModel(BaseResponseModel):
