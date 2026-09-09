@@ -1,6 +1,5 @@
 from datetime import datetime
-from enum import StrEnum
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
@@ -17,10 +16,7 @@ class Metadata(BaseModel):
     end: datetime
 
 
-class MeasureEnum(StrEnum):
-    COUNT = "count"
-    LENGTH = "length"
-    AREA = "area"
+Measure = Literal["count", "length", "area"]
 
 
 class TimeBinRow(BaseModel):

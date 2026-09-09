@@ -3,7 +3,7 @@ from datetime import datetime
 from asyncpg import Record
 
 from ohsome_api.models import (
-    MeasureEnum,
+    Measure,
     TimeBinColumns,
 )
 
@@ -38,11 +38,11 @@ def zerofill_records_to_time_bin_columns(
     return TimeBinColumns(start=start_timestamps, end=end_timestamps, value=values)
 
 
-def get_aggregation_clause(measure: MeasureEnum, clip: bool) -> str:
+def get_aggregation_clause(measure: Measure, clip: bool) -> str:
     match measure:
-        case MeasureEnum.COUNT:
+        case "count":
             return "COUNT(*) AS value"
-        case MeasureEnum.LENGTH:
+        case "length":
             # [m]
             if not clip:
                 return """
@@ -68,7 +68,7 @@ def get_aggregation_clause(measure: MeasureEnum, clip: bool) -> str:
                 )
             ) AS value
             """
-        case MeasureEnum.AREA:
+        case "area":
             # [m²]
             if not clip:
                 return """

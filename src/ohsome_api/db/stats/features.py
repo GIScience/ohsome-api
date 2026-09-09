@@ -8,7 +8,7 @@ from ohsome_api.db.db import db
 from ohsome_api.db.errors import ResultTooLargeError
 from ohsome_api.db.stats.utils import get_aggregation_clause
 from ohsome_api.models import (
-    MeasureEnum,
+    Measure,
     SnapshotColumns,
     SnapshotColumnsGrouped,
 )
@@ -23,7 +23,7 @@ async def get_features(
     ohsome_filter: OhsomeFilter,
     series: list[datetime],
     aoi_wkt: str,
-    measure: MeasureEnum,
+    measure: Measure,
     clip: bool,
 ) -> SnapshotColumns:
     filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=2)
@@ -54,7 +54,7 @@ async def get_features_grouped_by_tag(
     ohsome_filter: OhsomeFilter,
     series: list[datetime],
     aoi_wkt: str,
-    measure: MeasureEnum,
+    measure: Measure,
     group_by_tag: str,
     clip: bool,
 ) -> SnapshotColumnsGrouped:

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Literal, cast
+from typing import Literal
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -11,11 +11,10 @@ from pydantic import (
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.models import MeasureEnum, SnapshotColumns
+from ohsome_api.models import Measure, SnapshotColumns, SnapshotColumnsGrouped
 from ohsome_api.request_models import (
     FilterRequestModel,
     GroupByRequestModel,
-    MeasureRequestModel,
 )
 from ohsome_api.request_models.aoi import AoiRequestModel
 from ohsome_api.request_models.time import (
@@ -24,7 +23,7 @@ from ohsome_api.request_models.time import (
     Timestamp,
     TimestampLatest,
 )
-from ohsome_api.response_models import SnapshotColumnsResponseModel
+from ohsome_api.response_models import BaseResponseModel
 from ohsome_api.response_renderers import CSVSnapshotsResponse
 
 td_adapter = TypeAdapter(timedelta)
@@ -34,7 +33,11 @@ router = APIRouter(
 )
 
 
-class StatsFeaturesRequestModel(
+class StatsFeaturesResponse(BaseResponseModel):
+    result: SnapshotColumns | SnapshotColumnsGrouped
+
+
+class StatsFeaturesRequest(
     AoiRequestModel,
     FilterRequestModel,
     GroupByRequestModel,
@@ -74,7 +77,7 @@ class StatsFeaturesRequestModel(
 @router.post(
     "/stats/features/{measure}.json",
     response_class=JSONResponse,
-    response_model=SnapshotColumnsResponseModel,
+    response_model=StatsFeaturesResponse,
     response_model_exclude_none=True,
     summary="Aggregate features by {measure} as time series.",
     description=(
@@ -85,8 +88,8 @@ class StatsFeaturesRequestModel(
     tags=["Statistics"],
 )
 async def post_features_as_json(
-    parameters: StatsFeaturesRequestModel,
-    measure: MeasureRequestModel,
+    parameters: StatsFeaturesRequest,
+    measure: Measure,
 ) -> dict[str, SnapshotColumns]:
     return {
         "result": await service.get_features_columns(
@@ -95,7 +98,7 @@ async def post_features_as_json(
             end=parameters.end,
             interval=parameters.interval,
             aoi_wkt=parameters.aoi_wkt,
-            measure=MeasureEnum(measure),
+            measure=measure,
             group_by=parameters.group_by,
             clip=parameters.clip,
         )
@@ -120,8 +123,8 @@ async def post_features_as_json(
     tags=["Statistics"],
 )
 async def post_features_as_csv(
-    parameters: StatsFeaturesRequestModel,
-    measure: MeasureRequestModel,
+    parameters: StatsFeaturesRequest,
+    measure: Measure,
 ) -> dict[str, list]:
     return {
         "result": await service.get_features_rows(
@@ -130,7 +133,7 @@ async def post_features_as_csv(
             end=parameters.end,
             interval=parameters.interval,
             aoi_wkt=parameters.aoi_wkt,
-            measure=cast(MeasureEnum, measure),
+            measure=measure,
             group_by=parameters.group_by,
             clip=parameters.clip,
         )

@@ -1,5 +1,4 @@
 from importlib.metadata import version
-from typing import cast
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -7,11 +6,8 @@ from pydantic import Field
 
 from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
-from ohsome_api.models import MeasureEnum, TimeBinColumns
-from ohsome_api.request_models import (
-    FilterRequestModel,
-    MeasureRequestModel,
-)
+from ohsome_api.models import Measure, TimeBinColumns
+from ohsome_api.request_models import FilterRequestModel
 from ohsome_api.request_models.aoi import AoiRequestModel
 from ohsome_api.request_models.time import TimeBinsRequestModel
 from ohsome_api.response_models import (
@@ -51,7 +47,7 @@ class TimeBinsRequestParametersModel(
 )
 async def post_currentness_as_json(
     parameters: TimeBinsRequestParametersModel,
-    measure: MeasureRequestModel,
+    measure: Measure,
 ) -> dict[str, TimeBinColumns]:
     return {
         "result": await service.get_currentness_columns(
@@ -60,7 +56,7 @@ async def post_currentness_as_json(
             end=parameters.time.end,
             bin_size=parameters.time.bin_size,
             aoi_wkt=parameters.aoi_wkt,
-            measure=cast(MeasureEnum, measure),
+            measure=measure,
             clip=parameters.clip,
         )
     }
@@ -86,7 +82,7 @@ async def post_currentness_as_json(
 )
 async def post_currentness_as_csv(
     parameters: TimeBinsRequestParametersModel,
-    measure: MeasureRequestModel,
+    measure: Measure,
 ) -> dict[str, list]:
     return {
         "result": await service.get_currentness_row(
@@ -95,7 +91,7 @@ async def post_currentness_as_csv(
             end=parameters.time.end,
             bin_size=parameters.time.bin_size,
             aoi_wkt=parameters.aoi_wkt,
-            measure=cast(MeasureEnum, measure),
+            measure=measure,
             clip=parameters.clip,
         )
     }

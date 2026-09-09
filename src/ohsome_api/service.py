@@ -27,7 +27,7 @@ from ohsome_api.db.stats.features import get_features, get_features_grouped_by_t
 from ohsome_api.db.time import generate_timestamp_series, get_latest_timestamp
 from ohsome_api.models import (
     ExtractionRow,
-    MeasureEnum,
+    Measure,
     Metadata,
     SnapshotColumns,
     SnapshotColumnsGrouped,
@@ -58,7 +58,7 @@ async def get_currentness_row(
     end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
-    measure: MeasureEnum,
+    measure: Measure,
     clip: bool,
 ) -> list[TimeBinRow]:
     columns = await get_currentness_columns(
@@ -78,7 +78,7 @@ async def get_currentness_columns(
     end: datetime | Literal["latest"],
     bin_size: str | None,
     aoi_wkt: str,
-    measure: MeasureEnum,
+    measure: Measure,
     clip: bool,
 ) -> TimeBinColumns:
     if end == "latest":
@@ -144,7 +144,7 @@ async def get_features_rows(
     end: datetime | Literal["latest"],
     interval: str | None,
     aoi_wkt: str,
-    measure: MeasureEnum,
+    measure: Measure,
     group_by: Optional[GroupByTagModel],
     clip: bool,
 ) -> list[SnapshotRow] | list[SnapshotRowGroupedByTag]:
@@ -182,7 +182,7 @@ async def get_features_columns(
     end: datetime | Literal["latest"],
     interval: str | None,
     aoi_wkt: str,
-    measure: MeasureEnum,
+    measure: Measure,
     group_by: Optional[GroupByTagModel],
     clip: bool,
 ) -> SnapshotColumns:

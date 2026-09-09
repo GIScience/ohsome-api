@@ -9,7 +9,7 @@ from ohsome_api.db.stats.utils import (
     zerofill_records_to_time_bin_columns,
 )
 from ohsome_api.models import (
-    MeasureEnum,
+    Measure,
     TimeBinColumns,
 )
 
@@ -22,7 +22,7 @@ async def get_currentness(
     end: datetime,
     series: list[datetime],
     aoi_wkt: str,
-    measure: MeasureEnum,
+    measure: Measure,
     clip: bool,
 ) -> TimeBinColumns:
     filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)

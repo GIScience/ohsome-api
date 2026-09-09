@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from ohsome_api.models import MeasureEnum, TimeBinRow
+from ohsome_api.models import TimeBinRow
 from ohsome_api.service import get_currentness_row
 
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
@@ -17,7 +17,7 @@ async def test_get_currentness_count(aoi_wkt_heigit: str):
         end,
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
-        measure=MeasureEnum.COUNT,
+        measure="count",
         clip=True,
     )
     assert result == [
@@ -38,7 +38,7 @@ async def test_get_currentness_count_latest(aoi_wkt_heigit: str):
         end,
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
-        measure=MeasureEnum.COUNT,
+        measure="count",
         clip=True,
     )
     assert result == [
@@ -59,7 +59,7 @@ async def test_get_currentness_count_with_bin_size(aoi_wkt_heigit: str):
         end,
         "P1M",
         aoi_wkt_heigit,
-        measure=MeasureEnum.COUNT,
+        measure="count",
         clip=True,
     )
 
@@ -91,7 +91,7 @@ async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
         end,
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
-        measure=MeasureEnum.COUNT,
+        measure="count",
         clip=True,
     )
 
@@ -103,7 +103,7 @@ async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
         end,
         bin_size=None,
         aoi_wkt=aoi_wkt_heigit,
-        measure=MeasureEnum.COUNT,
+        measure="count",
         clip=True,
     )
 
@@ -116,7 +116,7 @@ async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
         end,
         bin_size,
         aoi_wkt_heigit,
-        measure=MeasureEnum.COUNT,
+        measure="count",
         clip=True,
     )
     assert bins == [
