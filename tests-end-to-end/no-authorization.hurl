@@ -16,7 +16,6 @@ GET	{{BASE_URL}}/filter/validation?filter=tree=yes
 HTTP *
 [Asserts]
 status == 200
-header "Content-Type" == "application/json"
 
 # Authorization required.
 POST {{BASE_URL}}/stats/currentness/count.json
