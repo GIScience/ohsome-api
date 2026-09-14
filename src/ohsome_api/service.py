@@ -202,6 +202,8 @@ async def get_features_columns(
     if group_by is None:
         return await get_features(
             ohsome_filter,
+            start,
+            end,
             series,
             aoi_wkt,
             measure,
@@ -210,6 +212,8 @@ async def get_features_columns(
     else:
         return await get_features_grouped_by_tag(
             ohsome_filter,
+            start,
+            end,
             series,
             aoi_wkt,
             measure,

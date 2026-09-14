@@ -21,20 +21,25 @@ SQL_QUERY_TEMPLATE_GROUP_BY = Path(
 
 async def get_features(
     ohsome_filter: OhsomeFilter,
+    start: datetime,
+    end: datetime,
     series: list[datetime],
     aoi_wkt: str,
     measure: Measure,
     clip: bool,
 ) -> TimeSeriesResult:
-    filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=2)
+    filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
     aggregation_clause = get_aggregation_clause(measure, clip)
     sql = SQL_QUERY_TEMPLATE % {
         "filter_clause": filter_clause,
         "aggregation_clause": aggregation_clause,
     }
+
     records = await db.fetch_rows(
         sql,
         aoi_wkt,
+        start,
+        end,
         series,
         *filter_args,
     )  # order matters!
@@ -52,13 +57,15 @@ async def get_features(
 
 async def get_features_grouped_by_tag(
     ohsome_filter: OhsomeFilter,
+    start: datetime,
+    end: datetime,
     series: list[datetime],
     aoi_wkt: str,
     measure: Measure,
     group_by_tag: str,
     clip: bool,
 ) -> TimeSeriesGroupedByResult:
-    filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=3)
+    filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=5)
     aggregation_clause = get_aggregation_clause(measure, clip)
     limit = CONFIG.group_by_time_series_size_limit + 1
     sql = SQL_QUERY_TEMPLATE_GROUP_BY % {
@@ -69,6 +76,8 @@ async def get_features_grouped_by_tag(
     records = await db.fetch_rows(
         sql,
         aoi_wkt,
+        start,
+        end,
         series,
         group_by_tag,
         *filter_args,
