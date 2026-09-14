@@ -60,21 +60,21 @@ set -a; source .env; set +a
 #### Logging
 
 Logging is configured in [`src/ohsome_api/log_config.yaml`](src/ohsome_api/log_config).
-It is possible to provide a custom log config YAML file which follows the [logging config dictschema](https://docs.python.org/3/library/logging.config.html#logging-config-dictschema) of Python by setting the environment variable `OHSOME_API_LOG_CONFIG`.
+It is possible to provide a custom log config YAML file which follows the [logging config dictschema](https://docs.python.org/3/library/logging.config.html#logging-config-dictschema) of Python by setting the environment variable `OHSOME_API__LOG_CONFIG`.
 
-The log level can be set independently of the log config by setting the environment variable `OHSOME_API_LOG_LEVEL` to one of the [log levels](https://docs.python.org/3/library/logging.html#levels) of Python:
+The log level can be set independently of the log config by setting the environment variable `OHSOME_API__LOG_LEVEL` to one of the [log levels](https://docs.python.org/3/library/logging.html#levels) of Python:
 
 ```sh
-export OHSOME_API_LOG_LEVEL=DEBUG
+export OHSOME_API__LOG_LEVEL=DEBUG
 ```
 
 #### Debugging
 
-To log the SQL query, arguments and the execution plan turn on debug logging (see above) and set the environment variable `OHSOME_API_OHSOMEDB_DEBUG` to `True`:
+To log the SQL query, arguments and the execution plan turn on debug logging (see above) and set the environment variable `OHSOME_API__OHSOMEDB__DEBUG` to `True`:
 
 ```sh
-export OHSOME_API_LOG_LEVEL=DEBUG
-export OHSOME_API_OHSOMEDB_DEBUG=True
+export OHSOME_API__LOG_LEVEL=DEBUG
+export OHSOME_API__OHSOMEDB__DEBUG=True
 ```
 
 

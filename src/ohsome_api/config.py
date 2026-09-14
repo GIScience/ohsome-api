@@ -44,8 +44,8 @@ class Config(BaseSettings):
     time_series_size_limit: int = 1_000  # rows
     group_by_time_series_size_limit: int = 1_000_000  # rows
     model_config = SettingsConfigDict(
-        env_prefix="OHSOME_API_",
-        env_nested_delimiter="_",
+        env_prefix="OHSOME_API__",
+        env_nested_delimiter="__",
     )
 
 

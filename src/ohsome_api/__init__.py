@@ -13,7 +13,7 @@ with open(CONFIG.log_config) as f:
 # Hypercorn loggers are configured via its CLI.
 logging.config.dictConfig(config)
 
-log_level = os.getenv("OHSOME_API_LOG_LEVEL", None)
+log_level = os.getenv("OHSOME_API__LOG_LEVEL", None)
 if log_level is not None:
     log_level = log_level.upper()
     logging.getLogger().setLevel(log_level)
