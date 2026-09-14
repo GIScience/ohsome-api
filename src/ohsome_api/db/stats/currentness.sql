@@ -1,21 +1,19 @@
--- $1: start
--- $2: end
--- $3: series
--- $4: aoi
+-- $1: aoi
+-- $2: start
+-- $3: end
+-- $4: series
 WITH aoi AS (
-    SELECT (ST_DUMP(ST_GEOMFROMTEXT($4, 4326))).geom as geom
+    SELECT (ST_DUMP(ST_GEOMFROMTEXT($1, 4326))).geom as geom
 )
 
 SELECT
     %(aggregation_clause)s,
-    WIDTH_BUCKET(valid_from, $3::timestamptz []) AS time_bin
-FROM contributions c, aoi
+    WIDTH_BUCKET(valid_from, $4::timestamptz []) AS time_bin
+FROM contributions c
+JOIN aoi on (ST_INTERSECTS(c.geom, aoi.geom))
 WHERE
-    1 = 1
+    valid_from >= $2::timestamptz AND valid_from < $3::timestamptz
+    AND (status_geom_type).status = 'latest'
     AND %(filter_clause)s
-    AND valid_from >= $1::timestamptz
-    AND valid_from < $2::timestamptz
-    AND ST_INTERSECTS(c.geom, aoi.geom)
-    AND (status_geom_type).status = 'latest'  -- noqa
 GROUP BY time_bin
 ORDER BY time_bin

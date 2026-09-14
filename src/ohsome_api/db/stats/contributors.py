@@ -26,10 +26,10 @@ async def get_contributors_count(
 
     records = await db.fetch_rows(
         sql,
+        aoi_wkt,
         start,
         end,
         series,
-        aoi_wkt,
         *filter_args,
     )  # order matters!
 

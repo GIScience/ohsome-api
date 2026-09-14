@@ -27,10 +27,10 @@ async def get_contributions_count(
 
     records = await db.fetch_rows(
         sql,
+        aoi_wkt,
         start,
         end,
         series,
-        aoi_wkt,
         *filter_args,
     )  # order matters!
 

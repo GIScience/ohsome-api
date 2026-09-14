@@ -33,10 +33,10 @@ async def get_currentness(
     }
     records = await db.fetch_rows(
         sql,
+        aoi_wkt,
         start,
         end,
         series,
-        aoi_wkt,
         *filter_args,
     )  # order matters!
 
