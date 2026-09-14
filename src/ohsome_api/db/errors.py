@@ -1,6 +1,10 @@
-class TimeSeriesTooLargeError(ValueError):
+class OhsomeAPIError(ValueError):
     pass
 
 
-class ResultTooLargeError(ValueError):
+class TimeSeriesTooLargeError(OhsomeAPIError):
+    pass
+
+
+class ResultTooLargeError(OhsomeAPIError):
     pass

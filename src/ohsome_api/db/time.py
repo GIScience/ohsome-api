@@ -3,16 +3,9 @@ from pathlib import Path
 
 from ohsome_api.config import CONFIG
 from ohsome_api.db.db import db
+from ohsome_api.db.errors import TimeSeriesTooLargeError
 
 QUERIES_DIR = Path(__file__).parent / "queries"
-
-
-class TimeSeriesTooLargeError(ValueError):
-    pass
-
-
-class ResultTooLargeError(ValueError):
-    pass
 
 
 async def generate_timestamp_series(

@@ -18,8 +18,8 @@ class DatabaseConfig(BaseModel):
     pool_max_size_stats: int = 10
     pool_min_size_extraction: int = 0
     pool_max_size_extraction: int = 10
-    timeout_stats: int = 60 * 3
-    timeout_extraction: int = 60 * 3
+    timeout_stats: int | float = 60 * 3
+    timeout_extraction: int | float = 60 * 3
     debug: bool = False  # Whether to run EXPLAIN ANALYZE for every query
 
     @computed_field

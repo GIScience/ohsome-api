@@ -14,3 +14,13 @@ class BaseResponseModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
     api_version: str = VERSION
     attribution: Attribution = Attribution()
+
+
+class Error(BaseModel):
+    type: str
+    msg: str
+
+
+class HTTPError(BaseModel):
+    # Structure mirrors HTTPValidationError (FastAPI/Pydantic), but without 'loc'
+    detail: list[Error]

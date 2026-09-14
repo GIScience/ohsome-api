@@ -8,14 +8,6 @@ from ohsome_api.models import (
 )
 
 
-class TimeSeriesTooLargeError(ValueError):
-    pass
-
-
-class ResultTooLargeError(ValueError):
-    pass
-
-
 def zerofill_records_to_time_bin_columns(
     records: list[Record],
     series: list[datetime],

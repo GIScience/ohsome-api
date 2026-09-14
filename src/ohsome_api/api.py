@@ -10,6 +10,11 @@ from pydantic import (
     BaseModel,
     TypeAdapter,
 )
+from starlette.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_422_UNPROCESSABLE_CONTENT,
+    HTTP_504_GATEWAY_TIMEOUT,
+)
 
 import ohsome_api.routers.extraction.collections
 import ohsome_api.routers.extraction.contributions
@@ -22,7 +27,8 @@ import ohsome_api.routers.stats.currentness
 import ohsome_api.routers.stats.features
 from ohsome_api.config import CONFIG
 from ohsome_api.db.db import db
-from ohsome_api.db.errors import ResultTooLargeError, TimeSeriesTooLargeError
+from ohsome_api.db.errors import OhsomeAPIError
+from ohsome_api.response_models import HTTPError
 
 VERSION = importlib.metadata.version("ohsome-api")
 METADATA_PROJECT = importlib.metadata.metadata("ohsome-api")
@@ -69,6 +75,10 @@ app = FastAPI(
         "name": "GNU Affero General Public License",
         "url": "https://www.gnu.org/licenses/agpl-3.0.en.html",
     },
+    responses={
+        400: {"model": HTTPError},
+        504: {"model": HTTPError},
+    },
 )
 
 app.include_router(ohsome_api.routers.filter.router)
@@ -83,41 +93,60 @@ app.include_router(ohsome_api.routers.extraction.contributions.router)
 
 
 @app.exception_handler(asyncpg.InternalServerError)
-async def postgres_internal_server_error_handler(
-    _: Request, exception: asyncpg.InternalServerError
+async def handle_topology_error(
+    request: Request, exception: asyncpg.InternalServerError
 ) -> JSONResponse:
-    msg = str(exception)
-    if "TopologyException" in msg:
-        return JSONResponse(
-            status_code=422,
-            content={
-                "detail": [
-                    {
-                        "type": "topology_exception",
-                        "msg": (
-                            "Topology Exception occurred while processing request."
-                            "Check if input area of interest is valid."
-                        ),
-                    }
-                ]
-            },
-        )
-    raise exception
+    if "TopologyException" in str(exception):
+        raise exception
+
+    match request.method:
+        case "GET":
+            loc = ["query", "aoi"]
+        case "POST":
+            loc = ["body", "aoi"]
+        case _:
+            raise exception
+
+    return JSONResponse(
+        status_code=HTTP_422_UNPROCESSABLE_CONTENT,
+        content={
+            "detail": [
+                {
+                    "loc": loc,
+                    "type": "topology_exception",
+                    "msg": (
+                        "Topology Exception occurred while processing request."
+                        "Check if input area of interest is valid."
+                    ),
+                }
+            ]
+        },
+    )
 
 
-@app.exception_handler(ResultTooLargeError)
-@app.exception_handler(TimeSeriesTooLargeError)
 @app.exception_handler(TimeoutError)  # PoolAcquireTimeoutError, QueryTimeoutError
-async def timeout_error(
-    _: Request,
-    error: TimeoutError | ResultTooLargeError | TimeSeriesTooLargeError,
-) -> JSONResponse:
+async def handle_timeout_error(_: Request, error: TimeoutError) -> JSONResponse:
     # Asyncpg raises timeouts via asyncio
 
     # Timeout raised during streaming (/extraction)
     # can not be handled since response has already started.
     return JSONResponse(
-        status_code=422,
+        status_code=HTTP_504_GATEWAY_TIMEOUT,
+        content={
+            "detail": [
+                {
+                    "type": type(error).__name__,
+                    "msg": str(error),
+                }
+            ],
+        },
+    )
+
+
+@app.exception_handler(OhsomeAPIError)  # ResultTooLargeError, TimeSeriesTooLargeError
+async def handle_ohsome_api_error(_: Request, error: OhsomeAPIError) -> JSONResponse:
+    return JSONResponse(
+        status_code=HTTP_400_BAD_REQUEST,
         content={
             "detail": [
                 {
