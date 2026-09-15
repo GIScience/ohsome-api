@@ -9,7 +9,7 @@ pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")
 
 
 async def test_get_currentness_count(aoi_wkt_heigit: str):
-    start = datetime(year=2025, month=1, day=1)
+    start = datetime(year=2025, month=1, day=1, tzinfo=timezone.utc)
     end = start + timedelta(days=365)
     result = await get_currentness_row(
         "building=* and building!=no and type:way",
@@ -30,7 +30,7 @@ async def test_get_currentness_count(aoi_wkt_heigit: str):
 
 
 async def test_get_currentness_count_latest(aoi_wkt_heigit: str):
-    start = datetime(year=2025, month=1, day=1)
+    start = datetime(year=2025, month=1, day=1, tzinfo=timezone.utc)
     end = "latest"
     result = await get_currentness_row(
         "building=* and building!=no and type:way",
