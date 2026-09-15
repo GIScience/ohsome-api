@@ -3,7 +3,7 @@ from pathlib import Path
 
 from ohsome_api.config import CONFIG
 from ohsome_api.db.db import db
-from ohsome_api.db.errors import TimeSeriesTooLargeError
+from ohsome_api.db.errors import StartGreaterThanEndError, TimeSeriesTooLargeError
 
 QUERIES_DIR = Path(__file__).parent / "queries"
 
@@ -13,6 +13,11 @@ async def generate_timestamp_series(
     end: datetime,
     interval: str | None,
 ) -> list[datetime]:
+    if start > end:
+        raise StartGreaterThanEndError(
+            "Start timestamp must be smaller than end timestamp."
+        )
+
     if start == end:
         return [start]
 

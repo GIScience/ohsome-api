@@ -8,3 +8,7 @@ class TimeSeriesTooLargeError(OhsomeAPIError):
 
 class ResultTooLargeError(OhsomeAPIError):
     pass
+
+
+class StartGreaterThanEndError(OhsomeAPIError):
+    pass

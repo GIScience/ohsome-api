@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from ohsome_api.db.time import generate_timestamp_series
+from ohsome_api.db.time import StartGreaterThanEndError, generate_timestamp_series
 
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
 
@@ -70,3 +70,10 @@ async def test_generate_timestamp_series_exceeds_limit():
     bin_size = "PT1S"
     with pytest.raises(ValueError):
         await generate_timestamp_series(start, end_one_month_later, bin_size)
+
+
+async def test_generate_timestamp_series_start_greater_than_latest():
+    start = datetime(2099, 1, 1, tzinfo=timezone.utc)
+    end = datetime(2001, 1, 1, tzinfo=timezone.utc)
+    with pytest.raises(StartGreaterThanEndError):
+        await generate_timestamp_series(start, end, interval=None)
