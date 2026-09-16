@@ -3,7 +3,7 @@
 -- $3: end
 -- $4: series
 WITH aoi AS (
-    SELECT (ST_DUMP(ST_GEOMFROMTEXT($1, 4326))).geom as geom
+    SELECT ST_GEOMFROMTEXT($1, 4326) as geom
 )
 
 SELECT
