@@ -1,5 +1,4 @@
 from datetime import datetime
-from pathlib import Path
 
 from asyncpg import Record
 
@@ -7,8 +6,6 @@ from ohsome_api.config import CONFIG
 from ohsome_api.db.db import db
 from ohsome_api.db.errors import StartGreaterThanEndError, TimeSeriesTooLargeError
 from ohsome_api.models import TimeBinsResult
-
-QUERIES_DIR = Path(__file__).parent / "queries"
 
 
 async def generate_timestamp_series(
