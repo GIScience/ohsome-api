@@ -7,7 +7,7 @@ WITH aoi AS (
 )
 
 SELECT
-    COUNT(*) AS value,
+    %(aggregation_clause)s,
     WIDTH_BUCKET(valid_from, $4::timestamptz []) AS time_bin
 FROM contributions c
 JOIN aoi ON (ST_INTERSECTS(c.geom, aoi.geom))

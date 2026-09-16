@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Literal
 
+from ohsome_api.models import Measure
+
 
 def _filter_by_time(
     start: datetime | Literal["latest"],
@@ -58,3 +60,62 @@ def _filter_by_time(
     """,
         time_args,
     )
+
+
+def get_aggregation_clause(measure: Measure | Literal["user"], clip: bool) -> str:  # noqa: C901
+    match measure:
+        case "count":
+            return "COUNT(*) AS value"
+        case "user":
+            return "COUNT(DISTINCT user_id) AS value"
+        case "length":
+            # [m]
+            if not clip:
+                return """
+                ROUND(SUM(c.length)) AS value
+                """
+
+            return """
+            ROUND(
+                SUM(
+                    CASE
+                        WHEN ST_Covers(
+                            aoi.geom,
+                            c.geom
+                        )
+                        THEN c.length -- Use precomputed length from ohsome-planet
+                        ELSE ST_Length(
+                            ST_Intersection(
+                                c.geom,
+                                aoi.geom
+                            )::geography
+                        )
+                    END
+                )
+            ) AS value
+            """
+        case "area":
+            # [m²]
+            if not clip:
+                return """
+                ROUND(SUM(c.area)) AS value
+                """
+            return """
+            ROUND(
+                SUM(
+                    CASE
+                        WHEN ST_Covers(
+                            aoi.geom,
+                            c.geom
+                        )
+                        THEN c.area -- Use precomputed area from ohsome-planet
+                        ELSE ST_Area(
+                            ST_Intersection(
+                                c.geom,
+                                aoi.geom
+                            )::geography
+                        )
+                    END
+                )
+            ) AS value
+            """

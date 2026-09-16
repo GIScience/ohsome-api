@@ -3,8 +3,9 @@ from pathlib import Path
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
+from ohsome_api.db.clauses import get_aggregation_clause
 from ohsome_api.db.db import db
-from ohsome_api.db.stats.utils import zerofill_records_to_time_bin_columns
+from ohsome_api.db.time import zerofill_records_to_time_bin_columns
 from ohsome_api.models import TimeBinsResult
 
 SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "contributions.sql").read_text()
@@ -21,6 +22,7 @@ async def get_contributions_count(
     filter_clause_tags_before = filter_clause.replace("tags", "tags_before")
 
     sql = SQL_QUERY_TEMPLATE % {
+        "aggregation_clause": get_aggregation_clause("count", clip=False),
         "filter_clause": filter_clause,
         "filter_clause_tags_before": filter_clause_tags_before,
     }

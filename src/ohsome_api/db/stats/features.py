@@ -4,9 +4,9 @@ from pathlib import Path
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
 from ohsome_api.config import CONFIG
+from ohsome_api.db.clauses import get_aggregation_clause
 from ohsome_api.db.db import db
 from ohsome_api.db.errors import ResultTooLargeError
-from ohsome_api.db.stats.utils import get_aggregation_clause
 from ohsome_api.models import (
     Measure,
     TimeSeriesGroupedByResult,

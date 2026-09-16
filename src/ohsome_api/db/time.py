@@ -1,9 +1,12 @@
 from datetime import datetime
 from pathlib import Path
 
+from asyncpg import Record
+
 from ohsome_api.config import CONFIG
 from ohsome_api.db.db import db
 from ohsome_api.db.errors import StartGreaterThanEndError, TimeSeriesTooLargeError
+from ohsome_api.models import TimeBinsResult
 
 QUERIES_DIR = Path(__file__).parent / "queries"
 
@@ -53,3 +56,25 @@ async def generate_timestamp_series(
 async def get_latest_timestamp() -> datetime:
     sql = "SELECT last_timestamp FROM contributions_state"
     return (await db.fetch_row(sql))[0]
+
+
+def zerofill_records_to_time_bin_columns(
+    records: list[Record],
+    series: list[datetime],
+) -> TimeBinsResult:
+    zerofilled_series = {i: 0 for i in range(len(series) - 1)}
+
+    for record in records:
+        zerofilled_series[record["time_bin"] - 1] = record["value"]
+
+    start_timestamps: list[datetime] = [
+        series[time_bin] for time_bin in zerofilled_series
+    ]
+
+    end_timestamps: list[datetime] = [
+        series[time_bin + 1] for time_bin in zerofilled_series
+    ]
+
+    values: list[int] = list(zerofilled_series.values())
+
+    return TimeBinsResult(start=start_timestamps, end=end_timestamps, value=values)
