@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import Field
 
-from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import Measure, TimeBinsResult
 from ohsome_api.request_models import FilterRequestModel
@@ -12,6 +11,7 @@ from ohsome_api.request_models.aoi import AoiRequestModel
 from ohsome_api.request_models.time import TimeBins
 from ohsome_api.response_models import BaseResponseModel
 from ohsome_api.response_renderers import CSVTimeBinsResponse
+from ohsome_api.service.stats import currentness
 
 VERSION = version("ohsome-api")
 router = APIRouter(
@@ -50,7 +50,7 @@ async def post_currentness_as_json(
     measure: Measure,
 ) -> dict[str, TimeBinsResult]:
     return {
-        "result": await service.get_currentness_columns(
+        "result": await currentness.get_currentness_columns(
             ohsome_filter=parameters.ohsome_filter,
             start=parameters.time.start,
             end=parameters.time.end,
@@ -84,7 +84,7 @@ async def post_currentness_as_csv(
     measure: Measure,
 ) -> dict[str, list]:
     return {
-        "result": await service.get_currentness_row(
+        "result": await currentness.get_currentness_row(
             ohsome_filter=parameters.ohsome_filter,
             start=parameters.time.start,
             end=parameters.time.end,

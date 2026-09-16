@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from ohsome_api.models import TimeBinsRowResult
-from ohsome_api.service import get_currentness_row
+from ohsome_api.service.stats.currentness import get_currentness_row
 
 pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")]
 

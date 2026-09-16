@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
-from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import TimeBinsResult
 from ohsome_api.request_models import FilterRequestModel
@@ -9,6 +8,7 @@ from ohsome_api.request_models.aoi import AoiRequestModel
 from ohsome_api.request_models.time import TimeBins
 from ohsome_api.response_models import BaseResponseModel
 from ohsome_api.response_renderers import CSVTimeBinsResponse
+from ohsome_api.service.stats import contributors
 
 router = APIRouter(
     dependencies=[Depends(api_key_header_scheme)],
@@ -37,7 +37,7 @@ async def post_contributors_count_as_json(
     parameters: StatsContributorsRequest,
 ) -> dict[str, TimeBinsResult]:
     return {
-        "result": await service.get_contributors_count_columns(
+        "result": await contributors.get_contributors_count_columns(
             ohsome_filter=parameters.ohsome_filter,
             start=parameters.time.start,
             end=parameters.time.end,
@@ -68,7 +68,7 @@ async def post_contributors_count_as_csv(
     parameters: StatsContributorsRequest,
 ) -> dict[str, list]:
     return {
-        "result": await service.get_contributors_count_rows(
+        "result": await contributors.get_contributors_count_rows(
             ohsome_filter=parameters.ohsome_filter,
             start=parameters.time.start,
             end=parameters.time.end,

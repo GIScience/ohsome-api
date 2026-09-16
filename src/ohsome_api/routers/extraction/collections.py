@@ -6,7 +6,6 @@ from fastapi.responses import StreamingResponse
 from ohsome_filter_to_sql import OhsomeFilter
 from pydantic import Field, computed_field
 
-from ohsome_api import service
 from ohsome_api.config import CONFIG
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.request_models import (
@@ -14,6 +13,7 @@ from ohsome_api.request_models import (
 )
 from ohsome_api.request_models.aoi import AoiQueryModel, AoiRequestModel
 from ohsome_api.request_models.time import Timestamp, TimestampLatest
+from ohsome_api.service.extraction import collections
 
 VERSION = version("ohsome-api")
 router = APIRouter(
@@ -141,7 +141,7 @@ async def get_features_collections_extract(
 async def features_collections_extract(
     parameters: ExtractionCollectionsRequest | ExtractionCollectionsGETRequest,
 ) -> StreamingResponse:
-    stream = await service.extract_features_collections_as_parquet(
+    stream = await collections.extract_features_collections_as_parquet(
         parameters.ohsome_filter,
         parameters.member_filter,
         parameters.aoi_wkt,
@@ -187,7 +187,7 @@ async def get_features_collections_members_extract(
 async def features_collections_members_extract(
     parameters: ExtractionCollectionsRequest | ExtractionCollectionsGETRequest,
 ) -> StreamingResponse:
-    stream = await service.extract_features_collections_members_as_parquet(
+    stream = await collections.extract_features_collections_members_as_parquet(
         parameters.ohsome_filter,
         parameters.member_filter,
         parameters.aoi_wkt,

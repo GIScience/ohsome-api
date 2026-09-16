@@ -85,15 +85,15 @@ async def get_features_grouped_by_tag(
 
     # TODO: extract post-processing to function
     zerofilled_totals = {ts: 0 for ts in series}
-    all_tags: set[str] = set()
+    groups: set[str] = set()
 
     for record in records:
         zerofilled_totals[record["ts"]] = (
             zerofilled_totals[record["ts"]] + record["value"]
         )
-        all_tags.add(record["grp"])
+        groups.add(record["grp"])
 
-    if len(all_tags) * len(series) > limit:
+    if len(groups) * len(series) > limit:
         raise ResultTooLargeError(
             "The provided query produced too many results. The given "
             "time series parameters in combination with the "
@@ -101,7 +101,7 @@ async def get_features_grouped_by_tag(
         )
 
     zerofilled_results: dict[str, dict[datetime, int]] = dict()
-    for group in all_tags:
+    for group in sorted(groups):
         zerofilled_results[group] = {ts: 0 for ts in series}
     for record in records:
         zerofilled_results[record["grp"]][record["ts"]] = record["value"]

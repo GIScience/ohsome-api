@@ -8,7 +8,6 @@ from pydantic import (
     computed_field,
 )
 
-from ohsome_api import service
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import Measure, TimeSeriesGroupedByResult, TimeSeriesResult
 from ohsome_api.request_models import (
@@ -24,6 +23,7 @@ from ohsome_api.request_models.time import (
 )
 from ohsome_api.response_models import BaseResponseModel
 from ohsome_api.response_renderers import CSVSnapshotsResponse
+from ohsome_api.service.stats import features
 
 router = APIRouter(
     dependencies=[Depends(api_key_header_scheme)],
@@ -89,7 +89,7 @@ async def post_features_as_json(
     measure: Measure,
 ) -> dict[str, TimeSeriesResult]:
     return {
-        "result": await service.get_features_columns(
+        "result": await features.get_features_columns(
             ohsome_filter=parameters.ohsome_filter,
             start=parameters.start,
             end=parameters.end,
@@ -124,7 +124,7 @@ async def post_features_as_csv(
     measure: Measure,
 ) -> dict[str, list]:
     return {
-        "result": await service.get_features_rows(
+        "result": await features.get_features_rows(
             ohsome_filter=parameters.ohsome_filter,
             start=parameters.start,
             end=parameters.end,
