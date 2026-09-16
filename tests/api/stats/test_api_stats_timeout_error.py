@@ -37,7 +37,7 @@ async def test_stats_features_query_timeout(
             "type": "QueryTimeoutError",
             "msg": (
                 "Query timeout limit has been exceeded. "
-                "For statistics endpoints the timeout limit is 0.01. "
+                "For statistics endpoints the timeout limit is 180. "
                 "For extraction endpoints the timeout limit is 180."
             ),
         }

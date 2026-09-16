@@ -27,7 +27,7 @@ import ohsome_api.routers.stats.currentness
 import ohsome_api.routers.stats.features
 from ohsome_api.config import CONFIG
 from ohsome_api.db.db import db
-from ohsome_api.db.errors import OhsomeAPIError
+from ohsome_api.db.errors import OhsomeAPIError, OhsomeApiTimeoutError
 from ohsome_api.response_models import HTTPError
 
 VERSION = importlib.metadata.version("ohsome-api")
@@ -124,8 +124,10 @@ async def handle_topology_error(
     )
 
 
-@app.exception_handler(TimeoutError)  # PoolAcquireTimeoutError, QueryTimeoutError
-async def handle_timeout_error(_: Request, error: TimeoutError) -> JSONResponse:
+@app.exception_handler(OhsomeApiTimeoutError)
+async def handle_timeout_error(
+    _: Request, error: OhsomeApiTimeoutError
+) -> JSONResponse:
     # Asyncpg raises timeouts via asyncio
 
     # Timeout raised during streaming (/extraction)
@@ -143,7 +145,7 @@ async def handle_timeout_error(_: Request, error: TimeoutError) -> JSONResponse:
     )
 
 
-@app.exception_handler(OhsomeAPIError)  # ResultTooLargeError, TimeSeriesTooLargeError
+@app.exception_handler(OhsomeAPIError)
 async def handle_ohsome_api_error(_: Request, error: OhsomeAPIError) -> JSONResponse:
     return JSONResponse(
         status_code=HTTP_400_BAD_REQUEST,

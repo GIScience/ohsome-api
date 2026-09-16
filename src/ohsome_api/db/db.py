@@ -11,27 +11,12 @@ import asyncpg
 from asyncpg import Connection, Pool, Record
 
 from ohsome_api.config import CONFIG
+from ohsome_api.db.errors import PoolAcquireTimeoutError, QueryTimeoutError
 
 CONNECTION_STRING = CONFIG.ohsomedb.connection_string
 SCHEMA = CONFIG.ohsomedb.schemaname
 
 logger = logging.getLogger("ohsome-api")
-
-
-class PoolAcquireTimeoutError(TimeoutError):
-    pass
-
-
-class QueryTimeoutError(TimeoutError):
-    def __init__(self) -> None:
-        message = (
-            f"Query timeout limit has been exceeded. "
-            f"For statistics endpoints the timeout limit is "
-            f"{CONFIG.ohsomedb.timeout_stats}. "
-            f"For extraction endpoints the timeout limit is "
-            f"{CONFIG.ohsomedb.timeout_extraction}."
-        )
-        super().__init__(message)
 
 
 def convert_datetime_to_timestamp(input_: Any) -> Any:
