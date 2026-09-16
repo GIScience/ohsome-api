@@ -29,9 +29,9 @@ class QueryTimeoutError(OhsomeApiTimeoutError):
     def __init__(self) -> None:
         message = (
             f"Query timeout limit has been exceeded. "
-            f"For statistics endpoints the timeout limit is "
+            f"For statistics requests the timeout limit is "
             f"{CONFIG.ohsomedb.timeout_stats}. "
-            f"For extraction endpoints the timeout limit is "
+            f"For extraction requests the timeout limit is "
             f"{CONFIG.ohsomedb.timeout_extraction}."
         )
         super().__init__(message)

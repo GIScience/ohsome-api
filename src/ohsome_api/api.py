@@ -12,7 +12,10 @@ from pydantic import (
 )
 from starlette.status import (
     HTTP_400_BAD_REQUEST,
+    HTTP_401_UNAUTHORIZED,
+    HTTP_403_FORBIDDEN,
     HTTP_422_UNPROCESSABLE_CONTENT,
+    HTTP_429_TOO_MANY_REQUESTS,
     HTTP_504_GATEWAY_TIMEOUT,
 )
 
@@ -28,7 +31,13 @@ import ohsome_api.routers.stats.features
 from ohsome_api.config import CONFIG
 from ohsome_api.db.db import db
 from ohsome_api.db.errors import OhsomeAPIError, OhsomeApiTimeoutError
-from ohsome_api.response_models import HTTPError
+from ohsome_api.response_models import (
+    HTTPBadRequestError,
+    HTTPForbiddenError,
+    HTTPGatewayTimeoutError,
+    HTTPTooManyRequestsError,
+    HTTPUnauthorizedError,
+)
 
 VERSION = importlib.metadata.version("ohsome-api")
 METADATA_PROJECT = importlib.metadata.metadata("ohsome-api")
@@ -76,8 +85,11 @@ app = FastAPI(
         "url": "https://www.gnu.org/licenses/agpl-3.0.en.html",
     },
     responses={
-        400: {"model": HTTPError},
-        504: {"model": HTTPError},
+        HTTP_400_BAD_REQUEST: {"model": HTTPBadRequestError},
+        HTTP_401_UNAUTHORIZED: {"model": HTTPUnauthorizedError},
+        HTTP_403_FORBIDDEN: {"model": HTTPForbiddenError},
+        HTTP_429_TOO_MANY_REQUESTS: {"model": HTTPTooManyRequestsError},
+        HTTP_504_GATEWAY_TIMEOUT: {"model": HTTPGatewayTimeoutError},
     },
 )
 
@@ -135,12 +147,8 @@ async def handle_timeout_error(
     return JSONResponse(
         status_code=HTTP_504_GATEWAY_TIMEOUT,
         content={
-            "detail": [
-                {
-                    "type": type(error).__name__,
-                    "msg": str(error),
-                }
-            ],
+            "type": type(error).__name__,
+            "error": str(error),
         },
     )
 
@@ -150,12 +158,8 @@ async def handle_ohsome_api_error(_: Request, error: OhsomeAPIError) -> JSONResp
     return JSONResponse(
         status_code=HTTP_400_BAD_REQUEST,
         content={
-            "detail": [
-                {
-                    "type": type(error).__name__,
-                    "msg": str(error),
-                }
-            ],
+            "type": type(error).__name__,
+            "error": str(error),
         },
     )
 

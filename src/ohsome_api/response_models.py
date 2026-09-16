@@ -16,11 +16,27 @@ class BaseResponseModel(BaseModel):
     attribution: Attribution = Attribution()
 
 
-class Error(BaseModel):
-    type: str
-    msg: str
+class BaseError(BaseModel):
+    # Structure mirrors errors by Tyk
+    error: str
+    type: str | None = None
 
 
-class HTTPError(BaseModel):
-    # Structure mirrors HTTPValidationError (FastAPI/Pydantic), but without 'loc'
-    detail: list[Error]
+class HTTPBadRequestError(BaseError):
+    pass
+
+
+class HTTPGatewayTimeoutError(BaseError):
+    pass
+
+
+class HTTPForbiddenError(BaseError):
+    pass
+
+
+class HTTPTooManyRequestsError(BaseError):
+    pass
+
+
+class HTTPUnauthorizedError(BaseError):
+    pass

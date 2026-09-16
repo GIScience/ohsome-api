@@ -20,14 +20,11 @@ async def test_stats_features_time_series_too_large(
     )
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.headers["content-type"] == "application/json"
-    details = response.json()["detail"]
-    assert details == [
-        {
-            "type": "TimeSeriesTooLargeError",
-            "msg": (
-                "The provided values for the time parameter "
-                "(time bin or time series) "
-                "lead to a time series larger than 1000 points/bins."
-            ),
-        }
-    ]
+    assert response.json() == {
+        "type": "TimeSeriesTooLargeError",
+        "error": (
+            "The provided values for the time parameter "
+            "(time bin or time series) "
+            "lead to a time series larger than 1000 points/bins."
+        ),
+    }

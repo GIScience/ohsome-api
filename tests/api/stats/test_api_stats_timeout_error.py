@@ -31,14 +31,11 @@ async def test_stats_features_query_timeout(
     )
     assert response.status_code == HTTP_504_GATEWAY_TIMEOUT
     assert response.headers["content-type"] == "application/json"
-    detail = response.json()["detail"]
-    assert detail == [
-        {
-            "type": "QueryTimeoutError",
-            "msg": (
-                "Query timeout limit has been exceeded. "
-                "For statistics endpoints the timeout limit is 180. "
-                "For extraction endpoints the timeout limit is 180."
-            ),
-        }
-    ]
+    assert response.json() == {
+        "type": "QueryTimeoutError",
+        "error": (
+            "Query timeout limit has been exceeded. "
+            "For statistics requests the timeout limit is 180. "
+            "For extraction requests the timeout limit is 180."
+        ),
+    }
