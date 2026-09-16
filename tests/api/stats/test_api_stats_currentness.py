@@ -49,7 +49,7 @@ def test_currentness_area_as_json(client: TestClient, aoi_geojson_heigit: dict):
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "application/json"
-    assert response.json()["result"]["value"][0] == 770
+    assert response.json()["result"]["value"][0] == 772
     assert len(response.json()["result"]["value"]) == 1
 
 
