@@ -23,6 +23,7 @@ Get a free API key by `signing up here`_ to access the ohsome API.
    reference/index
    how-to-guides/index
    explanation
+   faq
    migration_guide
 
 ..   autodocs
