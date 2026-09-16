@@ -91,7 +91,7 @@ async def get_features_grouped_by_tag(
         zerofilled_totals[record["ts"]] = (
             zerofilled_totals[record["ts"]] + record["value"]
         )
-        all_tags.add(record["tag_value"])
+        all_tags.add(record["grp"])
 
     if len(all_tags) * len(series) > limit:
         raise ResultTooLargeError(
@@ -101,10 +101,10 @@ async def get_features_grouped_by_tag(
         )
 
     zerofilled_results: dict[str, dict[datetime, int]] = dict()
-    for tag_value in all_tags:
-        zerofilled_results[tag_value] = {ts: 0 for ts in series}
+    for group in all_tags:
+        zerofilled_results[group] = {ts: 0 for ts in series}
     for record in records:
-        zerofilled_results[record["tag_value"]][record["ts"]] = record["value"]
+        zerofilled_results[record["grp"]][record["ts"]] = record["value"]
 
     timestamps: list[datetime] = list(zerofilled_totals.keys())
     total_values: list[int] = list(zerofilled_totals.values())
@@ -116,5 +116,5 @@ async def get_features_grouped_by_tag(
     return TimeSeriesGroupedByResult(
         timestamp=timestamps,
         value=total_values,
-        values=group_by_values,
+        group=group_by_values,
     )

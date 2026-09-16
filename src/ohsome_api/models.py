@@ -37,7 +37,7 @@ class TimeSeriesRowResult(BaseModel):
 
 
 class TimeSeriesRowGroupedByResult(TimeSeriesRowResult):
-    tagvalue: str
+    group: str
 
 
 class TimeSeriesResult(BaseModel):
@@ -46,7 +46,7 @@ class TimeSeriesResult(BaseModel):
 
 
 class TimeSeriesGroupedByResult(TimeSeriesResult):
-    values: dict[str, list[int]]
+    group: dict[str, list[int]]
 
 
 class ExtractionRow(TypedDict):

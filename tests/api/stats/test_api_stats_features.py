@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 from httpx2 import Response
 from starlette.status import HTTP_200_OK
@@ -97,7 +96,7 @@ def test_features_group_by_as_json(client: TestClient, aoi_heigit: dict):
             "2025-12-31T00:00:00Z",
         ],
         "value": [3, 3, 4],
-        "values": {
+        "group": {
             "university": [2, 2, 3],
             "greenhouse": [1, 1, 1],
         },
@@ -134,7 +133,6 @@ timestamp;value
     )
 
 
-@pytest.mark.skip(reason="Failing due no fix output order!")
 def test_features_group_by_tag_as_csv(
     client: TestClient, aoi_heigit: dict, expected_api_version: str
 ):
@@ -161,13 +159,13 @@ def test_features_group_by_tag_as_csv(
         == f"""# apiVersion: {expected_api_version}
 # attribution.url: https://ohsome.org/copyrights
 # attribution.text: \xa9 OpenStreetMap contributors
-timestamp;value;tagvalue
-2024-01-01T00:00:00Z;2;university
-2025-01-01T00:00:00Z;2;university
-2025-12-31T00:00:00Z;3;university
+timestamp;value;group
 2024-01-01T00:00:00Z;1;greenhouse
 2025-01-01T00:00:00Z;1;greenhouse
 2025-12-31T00:00:00Z;1;greenhouse
+2024-01-01T00:00:00Z;2;university
+2025-01-01T00:00:00Z;2;university
+2025-12-31T00:00:00Z;3;university
 2024-01-01T00:00:00Z;3;
 2025-01-01T00:00:00Z;3;
 2025-12-31T00:00:00Z;4;

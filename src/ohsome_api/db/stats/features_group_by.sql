@@ -14,7 +14,7 @@ series AS (
 SELECT
     %(aggregation_clause)s,
     series.ts,
-    tags ->> $5 as tag_value
+    tags ->> $5 as grp
 FROM contributions c
 JOIN aoi ON (ST_INTERSECTS(c.geom, aoi.geom))
 JOIN series ON (valid_from <= series.ts AND valid_to > series.ts)
@@ -23,6 +23,6 @@ WHERE
     AND (%(filter_clause)s)
     -- exclude deleted and invalid states
     AND (status_geom_type).status in ('history', 'latest')
-GROUP BY series.ts, tag_value
-ORDER BY series.ts, tag_value
+GROUP BY series.ts, grp
+ORDER BY series.ts, grp
 LIMIT %(limit)s

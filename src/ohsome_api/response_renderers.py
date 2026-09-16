@@ -72,14 +72,14 @@ timestamp;result
 
     def _render(self, writer: Writer, content: dict) -> None:
         results = content["result"]
-        is_grouped_by_tag = len(results) > 0 and "tagvalue" in results[0]
+        is_grouped_by_tag = len(results) > 0 and "group" in results[0]
         if is_grouped_by_tag:
-            header = ["timestamp", "value", "tagvalue"]
+            header = ["timestamp", "value", "group"]
             rows = [
                 (
                     r["timestamp"],
                     r["value"],
-                    r["tagvalue"],
+                    r["group"],
                 )
                 for r in results
             ]
