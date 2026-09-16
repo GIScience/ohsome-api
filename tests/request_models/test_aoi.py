@@ -8,32 +8,38 @@ from ohsome_api.request_models.aoi import (
 
 
 @pytest.fixture
-def aoi_geojson_invalid_topology():
+def aoi_invalid_topology_wkt() -> str:
+    return "POLYGON((8.674585 49.418922,8.676354 49.417888,8.674585 49.417888,8.676354 49.418922,8.674585 49.418922))"  # noqa
+
+
+@pytest.fixture
+def aoi_invalid_topology_geojson() -> dict:
     return {
         "type": "Polygon",
         "coordinates": [
             [
-                [8.674585743714516, 49.418922925485816],
-                [8.676354634855528, 49.417888246956096],
-                [8.674585743714516, 49.417888246956096],
-                [8.676354634855528, 49.418922925485816],
-                [8.674585743714516, 49.418922925485816],
+                [8.674585, 49.418922],
+                [8.676354, 49.417888],
+                [8.674585, 49.417888],
+                [8.676354, 49.418922],
+                [8.674585, 49.418922],
             ]
         ],
     }
 
 
-def test_smoke_test_heigit(aoi_heigit: dict):
-    AoiRequestModel(aoi=aoi_heigit)
+def test_heigit(aoi_heigit: dict, aoi_wkt_heigit: str):
+    assert AoiRequestModel(aoi=aoi_heigit).aoi_wkt == aoi_wkt_heigit
 
 
-def test_smoke_test_audimax(aoi_audimax: dict):
-    AoiRequestModel(aoi=aoi_audimax)
+def test_audimax(aoi_audimax: dict, aoi_wkt_audimax: str):
+    assert AoiRequestModel(aoi=aoi_audimax).aoi_wkt == aoi_wkt_audimax
 
 
-def test_geojson_none():
+@pytest.mark.parametrize("aoi", ("", [], {}, None))
+def test_invalid_empty(aoi: str | list | dict | None):
     with pytest.raises(ValidationError):
-        AoiRequestModel(aoi=None)
+        AoiRequestModel(aoi=aoi)
 
 
 def test_bbox_invalid():
@@ -42,22 +48,34 @@ def test_bbox_invalid():
 
 
 def test_bbox_out_of_bounds_positive_x():
-    with pytest.raises(ValidationError):
+    with pytest.raises(
+        ValidationError,
+        match="x coordinate need to be between -360 and 360",
+    ):
         AoiRequestModel(aoi=(-180, 10, 360, 20))
 
 
 def test_bbox_out_of_bounds_negative_x():
-    with pytest.raises(ValidationError):
+    with pytest.raises(
+        ValidationError,
+        match="x coordinate need to be between -360 and 360",
+    ):
         AoiRequestModel(aoi=(-360, 10, 5, 20))
 
 
 def test_bbox_out_of_bounds_positive_y():
-    with pytest.raises(ValidationError):
+    with pytest.raises(
+        ValidationError,
+        match="y coordinate need to be between -90 and 90",
+    ):
         AoiRequestModel(aoi=(-10, -10, 10, 91))
 
 
 def test_bbox_out_of_bounds_negative_y():
-    with pytest.raises(ValidationError):
+    with pytest.raises(
+        ValidationError,
+        match="y coordinate need to be between -90 and 90",
+    ):
         AoiRequestModel(aoi=(-10, -91, 10, 10))
 
 
@@ -100,41 +118,27 @@ def test_wkt_valid_invalid_type():
         AoiRequestModel(aoi="LINESTRING (20 10, 5 20)")
 
 
-def test_geojson_invalid_topology(aoi_geojson_invalid_topology: dict):
+@pytest.mark.parametrize(
+    "aoi", [aoi_invalid_topology_wkt, aoi_invalid_topology_geojson]
+)
+def test_invalid_topology(aoi: str | dict):
     with pytest.raises(ValueError):
-        AoiRequestModel.model_validate(aoi_geojson_invalid_topology)
+        AoiRequestModel(aoi=aoi)
 
 
-def test_smoke_aoi_query_model():
-    AoiQueryModel.model_validate(
-        {
-            "aoi": "8.670919,49.416393,8.673839,49.417686",
-        }
-    )
+def test_query(aoi_wkt_audimax: str):
+    aoi = AoiQueryModel(aoi="8.670919,49.416393,8.673839,49.417686")
+    assert aoi.aoi_wkt == aoi_wkt_audimax
 
 
-def test_aoi_query_model_too_many_coords():
+@pytest.mark.parametrize(
+    "aoi",
+    (
+        "8.670919,49.416393,8.673839,49.417686,8.570917",  # too many
+        "8.670919,49.416393,8.673839",  # too few
+        "8.670919,49.416393,8.673839,foo",  # no float
+    ),
+)
+def test_query_invalid(aoi: str):
     with pytest.raises(ValueError):
-        AoiQueryModel.model_validate(
-            {
-                "aoi": "8.670919,49.416393,8.673839,49.417686,8.570917",
-            }
-        )
-
-
-def test_aoi_query_model_too_few_coords():
-    with pytest.raises(ValueError):
-        AoiQueryModel.model_validate(
-            {
-                "aoi": "8.670919,49.416393,8.673839",
-            }
-        )
-
-
-def test_aoi_query_model_coord_is_not_a_float():
-    with pytest.raises(ValueError):
-        AoiQueryModel.model_validate(
-            {
-                "aoi": "8.670919,49.416393,8.673839,foo",
-            }
-        )
+        AoiQueryModel(aoi=aoi)
