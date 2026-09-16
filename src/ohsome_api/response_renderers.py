@@ -24,7 +24,12 @@ class CSVResponse(Response, ABC):
 
     def render(self, content: dict) -> bytes:
         csvfile = StringIO()
-        writer = csv.writer(csvfile, delimiter=";", lineterminator="\n")
+        writer = csv.writer(
+            csvfile,
+            delimiter=";",
+            lineterminator="\n",
+            dialect="unix",
+        )
         comment = [
             [f"# apiVersion: {VERSION}"],
             [f"# attribution.url: {ATTRIBUTION.url}"],

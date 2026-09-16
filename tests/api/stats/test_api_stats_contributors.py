@@ -30,10 +30,10 @@ def test_contributors_count_as_csv(client: TestClient, aoi_heigit: dict):
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
-    expected_result = f"""# apiVersion: {version("ohsome-api")}
-# attribution.url: https://ohsome.org/copyrights
-# attribution.text: © OpenStreetMap contributors
-start;end;value
-2024-01-01T00:00:00Z;2025-12-31T00:00:00Z;6
+    expected_result = f""""# apiVersion: {version("ohsome-api")}"
+"# attribution.url: https://ohsome.org/copyrights"
+"# attribution.text: © OpenStreetMap contributors"
+"start";"end";"value"
+"2024-01-01T00:00:00Z";"2025-12-31T00:00:00Z";"6"
 """
     assert response.text == expected_result

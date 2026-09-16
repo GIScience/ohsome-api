@@ -122,13 +122,13 @@ def test_features_as_csv(
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
     assert (
         response.text
-        == f"""# apiVersion: {expected_api_version}
-# attribution.url: https://ohsome.org/copyrights
-# attribution.text: \xa9 OpenStreetMap contributors
-timestamp;value
-2024-01-01T00:00:00Z;3
-2025-01-01T00:00:00Z;3
-2025-12-31T00:00:00Z;4
+        == f""""# apiVersion: {expected_api_version}"
+"# attribution.url: https://ohsome.org/copyrights"
+"# attribution.text: \xa9 OpenStreetMap contributors"
+"timestamp";"value"
+"2024-01-01T00:00:00Z";"3"
+"2025-01-01T00:00:00Z";"3"
+"2025-12-31T00:00:00Z";"4"
 """
     )
 
@@ -156,18 +156,18 @@ def test_features_group_by_tag_as_csv(
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
     assert (
         response.text
-        == f"""# apiVersion: {expected_api_version}
-# attribution.url: https://ohsome.org/copyrights
-# attribution.text: \xa9 OpenStreetMap contributors
-timestamp;value;group
-2024-01-01T00:00:00Z;1;greenhouse
-2025-01-01T00:00:00Z;1;greenhouse
-2025-12-31T00:00:00Z;1;greenhouse
-2024-01-01T00:00:00Z;2;university
-2025-01-01T00:00:00Z;2;university
-2025-12-31T00:00:00Z;3;university
-2024-01-01T00:00:00Z;3;
-2025-01-01T00:00:00Z;3;
-2025-12-31T00:00:00Z;4;
+        == f""""# apiVersion: {expected_api_version}"
+"# attribution.url: https://ohsome.org/copyrights"
+"# attribution.text: \xa9 OpenStreetMap contributors"
+"timestamp";"value";"group"
+"2024-01-01T00:00:00Z";"1";"greenhouse"
+"2025-01-01T00:00:00Z";"1";"greenhouse"
+"2025-12-31T00:00:00Z";"1";"greenhouse"
+"2024-01-01T00:00:00Z";"2";"university"
+"2025-01-01T00:00:00Z";"2";"university"
+"2025-12-31T00:00:00Z";"3";"university"
+"2024-01-01T00:00:00Z";"3";""
+"2025-01-01T00:00:00Z";"3";""
+"2025-12-31T00:00:00Z";"4";""
 """
     )

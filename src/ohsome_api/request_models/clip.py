@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from ohsome_api.request_models import RequestConfigModel
+from ohsome_api.request_models.config import RequestConfigModel
 
 
 class ClipRequestModel(RequestConfigModel):

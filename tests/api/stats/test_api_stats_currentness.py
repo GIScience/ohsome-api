@@ -83,13 +83,13 @@ def test_currentness_as_csv(client: TestClient, aoi_heigit: dict):
     )
     assert response.status_code == HTTP_200_OK
     assert response.headers["content-type"] == "text/csv; charset=utf-8"
-    expected_result = f"""# apiVersion: {VERSION}
-# attribution.url: https://ohsome.org/copyrights
-# attribution.text: © OpenStreetMap contributors
-start;end;value
-2023-01-01T00:00:00Z;2024-01-01T00:00:00Z;0
-2024-01-01T00:00:00Z;2025-01-01T00:00:00Z;0
-2025-01-01T00:00:00Z;2025-12-31T00:00:00Z;2
+    expected_result = f""""# apiVersion: {VERSION}"
+"# attribution.url: https://ohsome.org/copyrights"
+"# attribution.text: © OpenStreetMap contributors"
+"start";"end";"value"
+"2023-01-01T00:00:00Z";"2024-01-01T00:00:00Z";"0"
+"2024-01-01T00:00:00Z";"2025-01-01T00:00:00Z";"0"
+"2025-01-01T00:00:00Z";"2025-12-31T00:00:00Z";"2"
 """
     # TODO: Why no timezone in response?
     assert response.text == expected_result
