@@ -16,6 +16,11 @@ def test_csv_snapshots_response_neutralize_formula_prefixes():
                     Hello
                     newline""",
             },
+            {
+                "timestamp": "2020-01-01T00:00:00Z",
+                "value": 5,
+                "group": 'Hello two double quotes ""',
+            },
         ]
     }
     expected = """"# apiVersion: 2.0.0rc2"
@@ -26,5 +31,6 @@ def test_csv_snapshots_response_neutralize_formula_prefixes():
 "2020-01-01T00:00:00Z";"5";"
                     Hello
                     newline"
+"2020-01-01T00:00:00Z";"5";"Hello two double quotes \"\"\"\""
 """
     assert CSVSnapshotsResponse(content).body.decode() == expected  # type: ignore

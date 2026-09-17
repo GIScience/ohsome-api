@@ -15,11 +15,12 @@ ATTRIBUTION = Attribution()
 class CSVResponse(Response, ABC):
     media_type = "text/csv"
     description = (
-        "CSV Response Format:\n"
+        "CSV response format:\n"
         "- Delimiter: `;`\n"
         "- Comments: `#`\n"
         "- Line terminator: `\\n`\n"
-        "- Quote character: `\\`"
+        '- Quote character: `"\n'
+        "All fields are quoted."
     )
 
     def render(self, content: dict) -> bytes:
@@ -45,11 +46,11 @@ class CSVResponse(Response, ABC):
 
 
 class CSVTimeBinsResponse(CSVResponse):
-    example = f"""# apiVersion: {VERSION}
-# attribution.url: https://ohsome.org/copyrights
-# attribution.text: © OpenStreetMap contributors
-start;end;value
-2007-10-08T00:00:00Z;2026-01-01T00:00:00Z;163
+    example = f""""# apiVersion: {VERSION}"
+"# attribution.url: https://ohsome.org/copyrights"
+"# attribution.text: © OpenStreetMap contributors"
+"start";"end";"value"
+"2007-10-08T00:00:00Z;2026-01-01T00:00:00Z";"163"
 """
 
     def _render(self, writer: Writer, content: dict) -> None:
@@ -68,11 +69,11 @@ start;end;value
 
 
 class CSVSnapshotsResponse(CSVResponse):
-    example = f"""# apiVersion: {VERSION}
-# attribution.url: https://ohsome.org/copyrights
-# attribution.text: © OpenStreetMap contributors
-timestamp;result
-2026-01-01T00:00:00Z;163
+    example = f""""# apiVersion: {VERSION}"
+"# attribution.url: https://ohsome.org/copyrights"
+"# attribution.text: © OpenStreetMap contributors"
+"timestamp";"result"
+"2026-01-01T00:00:00Z";"163"
 """
 
     def _render(self, writer: Writer, content: dict) -> None:
