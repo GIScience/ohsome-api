@@ -4,13 +4,13 @@ from typing import Literal
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import (
-    Field,
     computed_field,
 )
 
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import Measure, TimeSeriesGroupedByResult, TimeSeriesResult
 from ohsome_api.request_models import (
+    ClipRequestModel,
     FilterRequestModel,
     GroupByRequestModel,
 )
@@ -34,16 +34,9 @@ class StatsFeaturesRequest(
     AoiRequestModel,
     FilterRequestModel,
     GroupByRequestModel,
+    ClipRequestModel,
 ):
     time: TimeSeries | Timestamp | TimestampLatest
-    clip: bool = Field(
-        default=False,
-        description=(
-            "If true, length and area calculations use the clipped feature geometries. "
-            "Clipping can be computationally expensive for large AOIs, "
-            "depending on your ohsome filter, and is usually unnecessary."
-        ),
-    )
 
     @computed_field
     @property

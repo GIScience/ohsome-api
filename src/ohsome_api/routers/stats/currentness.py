@@ -2,11 +2,10 @@ from importlib.metadata import version
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from pydantic import Field
 
 from ohsome_api.dependencies import api_key_header_scheme
 from ohsome_api.models import Measure, TimeBinsResult
-from ohsome_api.request_models import FilterRequestModel
+from ohsome_api.request_models import ClipRequestModel, FilterRequestModel
 from ohsome_api.request_models.aoi import AoiRequestModel
 from ohsome_api.request_models.time import TimeBins
 from ohsome_api.response_models import BaseResponseModel
@@ -19,19 +18,8 @@ router = APIRouter(
 )
 
 
-class StatsCurrentnessRequest(
-    AoiRequestModel,
-    FilterRequestModel,
-):
+class StatsCurrentnessRequest(AoiRequestModel, FilterRequestModel, ClipRequestModel):
     time: TimeBins
-    clip: bool = Field(
-        default=False,
-        description=(
-            "If true, length and area calculations use the clipped feature geometries. "
-            "Clipping can be computationally expensive for large AOIs, "
-            "depending on your ohsome filter, and is usually unnecessary."
-        ),
-    )
 
 
 class StatsCurrentnessResponse(BaseResponseModel):
