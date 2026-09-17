@@ -101,7 +101,7 @@ async def get_features_grouped_by_tag(
         )
 
     zerofilled_results: dict[str, dict[datetime, int]] = dict()
-    for group in sorted(groups):
+    for group in sorted(groups, key=lambda x: (x is not None, x)):
         zerofilled_results[group] = {ts: 0 for ts in series}
     for record in records:
         zerofilled_results[record["grp"]][record["ts"]] = record["value"]
