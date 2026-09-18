@@ -171,3 +171,23 @@ def test_features_group_by_tag_as_csv(
 "2025-12-31T00:00:00Z";"4";""
 """
     )
+
+
+def test_features_group_by_missing_group_key(client: TestClient, aoi_bbox_global: dict):
+    response = client.post(
+        "/stats/features/count.json",
+        json={
+            "filter": "highway=*",
+            "time": {
+                "start": "2024-01-01",
+                "end": "2025-12-31",
+                "interval": "P1Y",
+            },
+            "aoi": aoi_bbox_global,
+            "groupBy": {
+                "type": "byTag",
+                "key": "maxspeed",
+            },
+        },
+    )
+    assert response.status_code == HTTP_200_OK

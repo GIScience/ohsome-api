@@ -141,6 +141,11 @@ def aoi_str_bbox_audimax(aoi_bbox_audimax: BBox) -> str:
     return json.dumps(aoi_bbox_audimax)
 
 
+@pytest.fixture
+def aoi_bbox_global() -> tuple[float, float, float, float]:
+    return (-180.0, -90.0, 180.0, 90.0)
+
+
 @pytest.fixture(
     params=[
         "aoi_geojson_heigit",
