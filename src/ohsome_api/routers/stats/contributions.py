@@ -31,7 +31,7 @@ class StatsContributionsResponse(BaseResponseModel):
     response_class=JSONResponse,
     response_model=StatsContributionsResponse,
     summary="Contributions per time bin.",
-    tags=["Statistics (Experimental)"],
+    tags=["Statistics"],
 )
 async def post_contributors_count_as_json(
     parameters: StatsContributionsRequest,
@@ -62,7 +62,7 @@ async def post_contributors_count_as_json(
     },
     summary="Active contributors per time bin.",
     description=CSVTimeBinsResponse.description,
-    tags=["Statistics (Experimental)"],
+    tags=["Statistics"],
 )
 async def post_contributors_count_as_csv(
     parameters: StatsContributionsRequest,

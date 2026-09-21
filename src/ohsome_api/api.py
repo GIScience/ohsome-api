@@ -46,9 +46,7 @@ td_adapter = TypeAdapter(timedelta)
 
 METADATA_TAGS = [
     {"name": "Statistics"},
-    {"name": "Statistics (Experimental)"},
     {"name": "Extraction"},
-    {"name": "Extraction (Experimental)"},
     {"name": "Filter Validation"},
     {"name": "Metadata"},
 ]
