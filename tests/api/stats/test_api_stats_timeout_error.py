@@ -35,7 +35,11 @@ async def test_stats_features_query_timeout(
         "type": "QueryTimeoutError",
         "error": (
             "Query timeout limit has been exceeded. "
-            "For statistics requests the timeout limit is 180. "
-            "For extraction requests the timeout limit is 180."
+            "For statistics requests the timeout limit is 180s. "
+            "For extraction requests the timeout limit is 180s. "
+            "Try reducing request complexity "
+            "(e.g. simplify the geometry, make it smaller "
+            "or reduce the number of points/bins of the time series/bins "
+            "and try again."
         ),
     }
