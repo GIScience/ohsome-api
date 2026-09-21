@@ -91,10 +91,12 @@ class Database:
                 acquiring = False
                 yield connection
         except TimeoutError as error:
-            # Only raise custom error TimeoutError is thrown during acquiring
+            # Only raise custom error if TimeoutError is thrown during acquiring
             if acquiring:
                 raise PoolAcquireTimeoutError(
-                    f"Could not acquire connection within {timeout}s"
+                    "Could not acquire database connection. "
+                    + "The service is temporarily busy. "
+                    + "Please retry shortly."
                 ) from error
             raise
 
