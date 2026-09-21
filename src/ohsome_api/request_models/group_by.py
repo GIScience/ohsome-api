@@ -17,11 +17,10 @@ class GroupByRequestModel(RequestConfigModel):
     group_by: GroupByTag | None = Field(
         default=None,
         description=(
-            "`(experimental, optional)`; If given indicates that the "
-            "results should also values for individual subsets of the "
-            "result defined by the presence of tags with the given key"
+            "Splits the result into subsets for each distinct "
+            + "value of the specified OSM tag key."
         ),
         json_schema_extra={
-            "examples": [None],
+            "examples": [{"groupBy": {"type": "byTag", "key": "natural"}}]
         },
     )
