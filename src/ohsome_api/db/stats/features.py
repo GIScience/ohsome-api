@@ -101,7 +101,7 @@ async def get_features_grouped_by_tag(
         )
 
     zerofilled_results: dict[str, dict[datetime, int]] = dict()
-    for group in sorted(groups, key=lambda x: (x is not None, x)):
+    for group in groups:
         zerofilled_results[group] = {ts: 0 for ts in series}
     for record in records:
         zerofilled_results[record["grp"]][record["ts"]] = record["value"]
@@ -109,12 +109,12 @@ async def get_features_grouped_by_tag(
     timestamps: list[datetime] = list(zerofilled_totals.keys())
     total_values: list[int] = list(zerofilled_totals.values())
     group_by_values: dict[str, list[int]] = {
-        value: list(x.values())
-        for (value, x) in zerofilled_results.items()
-        if value is not None
+        group: list(x.values())
+        for (group, x) in zerofilled_results.items()
+        if group is not None
     }
     return TimeSeriesGroupedByResult(
         timestamp=timestamps,
         value=total_values,
-        group=group_by_values,
+        group=dict(sorted(group_by_values.items())),
     )
