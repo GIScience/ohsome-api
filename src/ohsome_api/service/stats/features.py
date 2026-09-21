@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal, cast
+from typing import Literal
 
 from ohsome_filter_to_sql import OhsomeFilter
 
@@ -29,28 +29,21 @@ async def get_features_rows(
         ohsome_filter, start, end, interval, aoi_wkt, measure, group_by, clip
     )
 
-    if group_by is None:
+    if not isinstance(columns, TimeSeriesGroupedByResult):
         return [
             TimeSeriesRowResult(timestamp=ts, value=val)
             for (ts, val) in zip(columns.timestamp, columns.value, strict=True)
         ]
 
-    columns_grouped: TimeSeriesGroupedByResult = cast(
-        TimeSeriesGroupedByResult, columns
-    )
-    timestamps = columns.timestamp
     result: list[TimeSeriesRowGroupedByResult] = []
-    if columns_grouped.group is not None:
-        for group in columns_grouped.group:
-            result = result + [
-                TimeSeriesRowGroupedByResult(timestamp=ts, value=val, group=group)
-                for (ts, val) in zip(
-                    timestamps, columns_grouped.group[group], strict=True
-                )
-            ]
+    for group in columns.group:
+        result += [
+            TimeSeriesRowGroupedByResult(timestamp=ts, value=val, group=group)
+            for (ts, val) in zip(columns.timestamp, columns.group[group], strict=True)
+        ]
     result = result + [
         TimeSeriesRowGroupedByResult(timestamp=ts, value=val, group="")
-        for (ts, val) in zip(timestamps, columns.value, strict=True)
+        for (ts, val) in zip(columns.timestamp, columns.value, strict=True)
     ]
 
     return result
