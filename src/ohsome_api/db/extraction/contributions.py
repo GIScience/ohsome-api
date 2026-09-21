@@ -1,4 +1,3 @@
-# TODO: Factor out SQLs to files
 from datetime import datetime
 from pathlib import Path
 from typing import AsyncIterator, Literal, cast
