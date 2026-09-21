@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Literal
+from typing import ClassVar, Literal
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import (
+    ConfigDict,
     computed_field,
 )
 
@@ -58,6 +59,24 @@ class StatsFeaturesRequest(
         if isinstance(self.time, TimeSeries):
             return self.time.interval
         return None
+
+    model_config: ClassVar[ConfigDict] = {
+        "json_schema_extra": {
+            "examples": [
+                # Same as example values for individual parameters but without group_by
+                {
+                    "aoi": [8.68812, 49.4039, 8.72362, 49.41582],
+                    "filter": "geometry:point and natural=tree",
+                    "time": {
+                        "start": "2025-01-01T00:00:00Z",
+                        "end": "2026-01-01T00:00:00Z",
+                        "interval": "P1M",
+                    },
+                    "clip": False,
+                }
+            ]
+        }
+    }
 
 
 class StatsFeaturesResponse(BaseResponseModel):
