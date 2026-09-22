@@ -10,16 +10,16 @@ requires-python = ">=3.14"
 dependencies = [
     "asyncpg>=0.31.0",
     "fastapi>=0.135.1",
-    "geojson-pydantic>=2.1.1",
+    "geojson-pydantic>=2.1.1,<3.0.0",
     "hypercorn>=0.18.0",
     "ohsome-filter-to-sql>=0.14.0",
     "ohsomedb-schema",
-    "pyarrow>=24.0.0",
-    "pydantic>=2.12.5",
-    "pydantic-settings>=2.13.1",
-    "pyproj>=3.7.2",
-    "pyyaml>=6.0.3",
-    "shapely>=2.1.2",
+    "pyarrow>=24.0.0,<25.0.0",
+    "pydantic>=2.12.5,<3.0.0",
+    "pydantic-settings>=2.13.1,<3.0.0",
+    "pyproj>=3.7.2,<4.0.0",
+    "pyyaml>=6.0.3,<7.0.0",
+    "shapely>=2.1.2,<3.0.0",
 ]
 [project.urls]
 Homepage = "https://heigit.org/big-spatial-data-analytics/"
@@ -62,6 +62,9 @@ docs = [
 
 [tool.fastapi]
 entrypoint = "ohsome_api.api:app"
+
+[tool.uv]
+add-bounds = "major"
 
 [tool.uv.sources]
 ohsomedb-schema = { git = "https://gitlab.heigit.org/giscience/big-data/ohsome/ohsomedb/ohsomedb-schema.git", tag = "0.1.1" }
