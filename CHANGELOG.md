@@ -12,13 +12,13 @@
 ### Bug Fixes
 
 * time: check if start is smaller than end before generating time series and throw useful error message instead of a 500 - Internal Server Error (39fb4ac)
-* config: allow config name to be split by a single underscore (7a93d85)
+* config: allow configuration name to be split by a single underscore (7a93d85)
 * actually use the dedicated extraction pool for extraction requests (33418b5)
 
 ### New Features
 
 * Improvements to the ohsome filter:
-    * New ohsome filter syntax to allow multiple geometry/osm types (`geometry:(point, line)`) (2f5356f)
+    * New ohsome filter syntax to allow multiple geometry/OSM types (`geometry:(point, line)`) (2f5356f)
     * Allow new lines in ohsome filter (dfff628)
 
 ### Other Changes
@@ -27,11 +27,12 @@
 * openapi/error: add possible error status code and response models (c0be651)
 * make error message more helpful by providing action suggestions (9f719cf)
 * api: remove experimental state of group by parameter and add example (a2f95fe)
+* db: improve performance by re-introducing global time filter and remove st_dump from SQL queries (78488a4, 526bb7a)
 
 ### Documentation
 
-* add faq regarding api quota limits (ec3a8da)
-* openapi: update example and description of csv response format (5018a72)
+* add FAQ regarding API quota limits (ec3a8da)
+* openapi: update example and description of CSV response format (5018a72)
 
 
 ## 2.0.0-rc2
