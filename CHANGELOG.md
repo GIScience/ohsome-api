@@ -14,6 +14,7 @@
 * time: check if start is smaller than end before generating time series and throw useful error message instead of a 500 - Internal Server Error (39fb4ac)
 * config: allow configuration name to be split by a single underscore (7a93d85)
 * actually use the dedicated extraction pool for extraction requests (33418b5)
+* currentness: put brackets around ohsome filter where clause (8a2049e)
 
 ### New Features
 
