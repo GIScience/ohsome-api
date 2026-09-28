@@ -1,7 +1,7 @@
 from ohsome_api.response_renderers import CSVSnapshotsResponse
 
 
-def test_csv_snapshots_response_neutralize_formula_prefixes():
+def test_csv_snapshots_response_neutralize_formula_prefixes(expected_api_version: str):
     content = {
         "result": [
             {
@@ -23,7 +23,7 @@ def test_csv_snapshots_response_neutralize_formula_prefixes():
             },
         ]
     }
-    expected = """"# apiVersion: 2.0.0rc2"
+    expected = f""""# apiVersion: f{expected_api_version}"
 "# attribution.url: https://ohsome.org/copyrights"
 "# attribution.text: © OpenStreetMap contributors"
 "timestamp";"value";"group"
