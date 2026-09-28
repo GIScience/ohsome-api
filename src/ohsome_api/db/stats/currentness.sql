@@ -14,6 +14,6 @@ JOIN aoi on (ST_INTERSECTS(c.geom, aoi.geom))
 WHERE
     valid_from >= $2::timestamptz AND valid_from < $3::timestamptz
     AND (status_geom_type).status = 'latest'
-    AND %(filter_clause)s
+    AND (%(filter_clause)s)
 GROUP BY time_bin
 ORDER BY time_bin
