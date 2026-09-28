@@ -23,7 +23,7 @@ def test_csv_snapshots_response_neutralize_formula_prefixes(expected_api_version
             },
         ]
     }
-    expected = f""""# apiVersion: f{expected_api_version}"
+    expected = f""""# apiVersion: {expected_api_version}"
 "# attribution.url: https://ohsome.org/copyrights"
 "# attribution.text: © OpenStreetMap contributors"
 "timestamp";"value";"group"
