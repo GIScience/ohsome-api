@@ -1,6 +1,6 @@
 # Changelog
 
-## Current Main
+## 2.0.0
 
 ### Breaking Change
 
