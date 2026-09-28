@@ -16,6 +16,8 @@ NEW_VERSION=$(uv version --short)
 
 sed --in-place "s/$OLD_VERSION/$NEW_VERSION/g" tests/conftest.py
 
+pytest
+
 git add -p pyproject.toml tests/conftest.py
 git add uv.lock
 
