@@ -38,4 +38,4 @@
 
 ## 2.0.0-rc2
 
-To migrate from v1, please [take a look the guide](https://docs.ohsome.org/ohsome-api/v2-rc/migration_guide.html).
+To migrate from v1, please [take a look the guide](https://docs.ohsome.org/ohsome-api/v2/migration_guide.html).

@@ -6,7 +6,7 @@ Here you can find a reference of all supported API endpoints. If you want an int
 Requests to the `stats` endpoints timeout after 180s (3m).
 Requests to the `extraction` endpoints timeout after 240s (4m).
 
-.. _swagger UI: https://api.heigit.org/ohsome-api/v2-rc/docs
+.. _swagger UI: https://api.heigit.org/ohsome-api/v2/docs
 .. _ohsome dashboard: https://ohsome-dashboard.heigit.org
 
 .. openapi:: ../_static/openapi.json

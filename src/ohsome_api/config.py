@@ -40,7 +40,7 @@ class Config(BaseSettings):
     log_config: FilePath = Path(Path(__file__).parent / "log_config.yaml").resolve()
     root_path: str = ""
     docs_path: str | None = None
-    external_docs_url: str = "https://docs.ohsome.org/ohsome-api/v2-rc"
+    external_docs_url: str = "https://docs.ohsome.org/ohsome-api/stable"
     time_series_size_limit: int = 1_000  # rows
     group_by_time_series_size_limit: int = 1_000_000  # rows
     model_config = SettingsConfigDict(

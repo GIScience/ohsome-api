@@ -13,5 +13,5 @@ hurl --test *.hurl
 
 ```sh
 API_KEY=… uv run schemathesis run \
-    https://api.heigit.org/ohsome-api/v2-rc/openapi.json
+    https://api.heigit.org/ohsome-api/v2/openapi.json
 ```

@@ -43,15 +43,15 @@ The URLs for the ohsome API v2 have changed:
 
 API endpoints root URL
     | **v1**: ``https://api.ohsome.org/v1/``
-    | **v2**: ``https://api.heigit.org/ohsome-api/v2-rc/`` [1]_
+    | **v2**: ``https://api.heigit.org/ohsome-api/v2/`` [1]_
 
 API documentation
     | **v1**: ``https://api.ohsome.org/v1/swagger-ui.html``
-    | **v2**: ``https://api.heigit.org/ohsome-api/v2-rc/docs`` [1]_
+    | **v2**: ``https://api.heigit.org/ohsome-api/v2/docs`` [1]_
 
 General reference documentation, how-to guides and explanations
     | **v1**: ``https://docs.ohsome.org/ohsome-api/v1/``
-    | **v2**: ``https://docs.ohsome.org/ohsome-api/v2-rc/`` [1]_
+    | **v2**: ``https://docs.ohsome.org/ohsome-api/v2/`` [1]_
 
 
 .. important::
@@ -82,19 +82,19 @@ You find these now consistently under the ``/stats`` directory:
    * - **v1**
      - **v2**
    * - ``/v1/elements/count``
-     - ``/v2-rc/stats/features/count``\  [2]_
+     - ``/v2/stats/features/count``\  [2]_
    * - ``/v1/elements/length``
-     - ``/v2-rc/stats/features/length``
+     - ``/v2/stats/features/length``
    * - ``/v1/elements/area``
-     - ``/v2-rc/stats/features/area``
+     - ``/v2/stats/features/area``
    * - ``/v1/elements/perimeter``
      - not available in **v2**
    * - ``/v1/contributions/count``
-     - ``/v2-rc/stats/contributions/count``
+     - ``/v2/stats/contributions/count``
    * - ``/v1/contributions/latest/count``
-     - ``/v2-rc/stats/currentness/count``
+     - ``/v2/stats/currentness/count``
    * - ``/v1/users/count``
-     - ``/v2-rc/stats/contributors/count``
+     - ``/v2/stats/contributors/count``
    * - ``/v1/…/density``
      - not available, can be calculated on client side
    * - ``/v1/…/ratio``
@@ -255,19 +255,19 @@ Paths
    * - **v1**
      - **v2**
    * - ``/v1/elements/geometry``
-     - ``/v2-rc/extraction/features``
+     - ``/v2/extraction/features``
    * - ``/v1/elementsFullHistory/geometry``
-     - ``/v2-rc/extraction/features``
+     - ``/v2/extraction/features``
    * - ``/v1/contributions/geometry``
-     - ``/v2-rc/extraction/contributions``\  [6]_
+     - ``/v2/extraction/contributions``\  [6]_
    * - ``/v1/…/bbox``
      - N/A (bbox is always included in result alongside full geometry)
    * - ``/v1/…/centroid``
      - not yet implemented, can be calculated on client side in post-processing
    * - N/A
-     - ``/v2-rc/extraction/collections``\  [7]_
+     - ``/v2/extraction/collections``\  [7]_
    * - N/A
-     - ``/v2-rc/extraction/collections_members``\  [7]_
+     - ``/v2/extraction/collections_members``\  [7]_
 
 
 .. _request-parameters-1:
@@ -325,7 +325,7 @@ many tools, or converted to other formats like GeoJSON for further
 processing.
 
 See the `API
-documentation <https://docs.ohsome.org/ohsome-api/v2-rc/reference/data_model.html>`__
+documentation <https://docs.ohsome.org/ohsome-api/v2/reference/data_model.html>`__
 for details about the new extraction data format.
 
 Metadata Endpoints
@@ -340,13 +340,13 @@ Metadata Endpoints
      - **v2**
      - comment
    * - ``/v1/metadata``
-     - ``/v2-rc/metadata``
+     - ``/v2/metadata``
      -
    * - N/A
-     - ``/v2-rc/filter/validate``
+     - ``/v2/filter/validate``
      - checks whether the given filter is valid or returns a 422 Validation Error if not
    * - N/A
-     - ``/v2-rc/health``
+     - ``/v2/health``
      - returns wheter the API is up and running
 
 
@@ -401,7 +401,7 @@ curl
 
 .. code-block:: shell
 
-   curl -X 'POST' 'https://api.heigit.org/ohsome-api/v2-rc/stats/features/count.csv' \
+   curl -X 'POST' 'https://api.heigit.org/ohsome-api/v2/stats/features/count.csv' \
      -H 'Authorization: <your-api-key>' \
      -H 'Content-Type: application/json' \
      -d '{
@@ -439,7 +439,7 @@ python
 .. code-block:: python
 
    import httpx
-   OHSOME_API_URL = "https://api.heigit.org/ohsome-api/v2-rc"
+   OHSOME_API_URL = "https://api.heigit.org/ohsome-api/v2"
    OHSOME_API_KEY = # insert your api key here
    response = httpx.post(
        OHSOME_API_URL + "/stats/features/count.json",

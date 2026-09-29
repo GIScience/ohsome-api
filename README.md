@@ -16,7 +16,7 @@ Furthermore, data extraction methods are provided to access the historic develop
 > [!IMPORTANT]
 > This repository is for ohsome API version 2, a complete rewrite of the ohsome API, including a new database backend.
 >
-> See our [migration guide](https://docs.ohsome.org/ohsome-api/v2-rc/migration_guide.html) for the differences between the versions and how to upgrade to the new version.
+> See our [migration guide](https://docs.ohsome.org/ohsome-api/v2/migration_guide.html) for the differences between the versions and how to upgrade to the new version.
 
 ## Using the ohsome API
 
@@ -24,11 +24,11 @@ To make your life easier, we already have a running ohsome API instance on our s
 where you can send your requests to analyze the history of the OpenStreetMap data.
 This instance is publicly accessible under the following URL:
 
-- https://api.heigit.org/ohsome-api/v2-rc (release candidate for v2)
+- https://api.heigit.org/ohsome-api/v2 (release candidate for v2)
 
 If you need further information, visit these sites:
-- [Documentation](https://docs.ohsome.org/ohsome-api/v2-rc)
-- [Swagger UI](https://api.heigit.org/ohsome-api/v2-rc/docs)
+- [Documentation](https://docs.ohsome.org/ohsome-api/stable)
+- [Swagger UI](https://api.heigit.org/ohsome-api/v2/docs)
 
 ## Development Setup
 

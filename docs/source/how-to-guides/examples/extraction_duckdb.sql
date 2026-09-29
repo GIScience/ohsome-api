@@ -23,7 +23,7 @@ SET VARIABLE clip = 'false';
 
 CREATE TABLE ohsome_features AS
 SELECT * FROM read_parquet(
-    'https://api.heigit.org/ohsome-api/v2-rc/extraction/features.parquet'
+    'https://api.heigit.org/ohsome-api/v2/extraction/features.parquet'
     || '?filter=' || getvariable('filter')
     || '&time=' || getvariable('time')
     || '&aoi=' || getvariable('aoi')
@@ -44,7 +44,7 @@ SET VARIABLE aoi = '5.98865807458, 47.3024876979, 15.0169958839, 54.983104153'; 
 
 CREATE TABLE ohsome_contributions AS
 SELECT * FROM read_parquet(
-    'https://api.heigit.org/ohsome-api/v2-rc/extraction/contributions.parquet'
+    'https://api.heigit.org/ohsome-api/v2/extraction/contributions.parquet'
     || '?filter=' || getvariable('filter')
     || '&time=' || getvariable('time')
     || '&aoi=' || getvariable('aoi')
