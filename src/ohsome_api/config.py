@@ -14,12 +14,18 @@ class DatabaseConfig(BaseModel):
     dbname: str = "ohsomedb"
     schemaname: str = "current"
     application_name: str = "ohsome-api"
+    pool_acquire_timeout: int = 10
     pool_min_size_stats: int = 1
     pool_max_size_stats: int = 10
     pool_min_size_extraction: int = 0
     pool_max_size_extraction: int = 10
     timeout_stats: int | float = 60 * 3
     timeout_extraction: int | float = 60 * 3
+    aoi_clusters_max: int = 5
+    work_mem: str = "256MB"
+    time_boundaries_check_days: int = 356
+    batch_size_extraction_features: int = 10000
+    batch_size_extraction_collections: int = 200
     debug: bool = False  # Whether to run EXPLAIN ANALYZE for every query
 
     @computed_field

@@ -5,10 +5,13 @@ import json
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
+from pathlib import Path
 from typing import Any, AsyncIterator
 
 import asyncpg
 from asyncpg import Connection, Pool, Record
+from shapely.geometry.base import BaseGeometry
+from shapely.wkb import dumps as dump_wkb
 
 from ohsome_api.config import CONFIG
 from ohsome_api.db.errors import PoolAcquireTimeoutError, QueryTimeoutError
@@ -28,12 +31,22 @@ def convert_datetime_to_timestamp(input_: Any) -> Any:
         return input_
 
 
-async def jsonb_codec(connection: Connection) -> None:
+def encode_geometry(geometry: BaseGeometry) -> bytes:
+    return dump_wkb(geometry, srid=4326)
+
+
+async def init_connection(connection: Connection) -> None:
     await connection.set_type_codec(
         "jsonb",
         encoder=(lambda x: x),
         decoder=json.loads,
         schema="pg_catalog",
+    )
+    await connection.set_type_codec(
+        "geometry",
+        encoder=encode_geometry,
+        decoder=(lambda x: x),
+        format="binary",
     )
 
 
@@ -48,7 +61,7 @@ class Database:
             dsn=CONNECTION_STRING,
             min_size=CONFIG.ohsomedb.pool_min_size_stats,
             max_size=CONFIG.ohsomedb.pool_max_size_stats,
-            init=jsonb_codec,
+            init=init_connection,
             command_timeout=CONFIG.ohsomedb.timeout_stats,  # query timeout
             server_settings={
                 "application_name": "ohsome-api",
@@ -59,11 +72,15 @@ class Database:
             dsn=CONNECTION_STRING,
             min_size=CONFIG.ohsomedb.pool_min_size_extraction,
             max_size=CONFIG.ohsomedb.pool_max_size_extraction,
-            init=jsonb_codec,
+            init=init_connection,
             command_timeout=CONFIG.ohsomedb.timeout_extraction,  # query timeout
             server_settings={
                 "application_name": "ohsome-api",
                 "search_path": f"{SCHEMA},public",
+                # Does not work as long as
+                # "SET citus.propagate_set_commands = 'local';"
+                # is not set on the database level
+                # "work_mem": CONFIG.ohsomedb.work_mem
             },
         )
         logging.info("Database connection pools established.")
@@ -104,7 +121,7 @@ class Database:
         async with self.acquire_connection(self.pool) as connection:
             try:
                 if CONFIG.ohsomedb.debug:
-                    await self.debug_query(self.pool, sql, *args)
+                    await self.debug_query(connection, sql, *args)
                 record: Record = await connection.fetchrow(sql, *args)
             except TimeoutError as error:
                 raise QueryTimeoutError() from error
@@ -116,20 +133,25 @@ class Database:
 
     async def fetch_rows(self, sql: str, *args: Any) -> list[Record]:
         async with self.acquire_connection(self.pool) as connection:
+            # TODO why can't we set this in the pool settings? It seems to be ignored there.  # noqa: E501
+            # TODO: This should be done in the database setup
+            await connection.execute("SET citus.propagate_set_commands = 'local';")
             try:
-                if CONFIG.ohsomedb.debug:
-                    await self.debug_query(self.pool, sql, *args)
-                records: list[Record] = await connection.fetch(sql, *args)
+                async with connection.transaction(readonly=True):
+                    await connection.execute(
+                        f"SET LOCAL work_mem = '{CONFIG.ohsomedb.work_mem}';"
+                    )
+                    await connection.execute("SET LOCAL jit = off;")
+                    if CONFIG.ohsomedb.debug:
+                        await self.debug_query(connection, sql, *args)
+                    records: list[Record] = await connection.fetch(sql, *args)
             except TimeoutError as error:
                 raise QueryTimeoutError() from error
 
         return records
 
     async def fetch_batch(
-        self,
-        sql: str,
-        *args: Any,
-        batch_size: int = 10000,
+        self, sql: str, *args: Any, batch_size: int
     ) -> AsyncIterator[list[Record]]:
         async with (
             self.acquire_connection(self.pool_extraction) as connection,
@@ -139,7 +161,7 @@ class Database:
             batch: list[Record] = []
             try:
                 if CONFIG.ohsomedb.debug:
-                    await self.debug_query(self.pool_extraction, sql, *args)
+                    await self.debug_query(connection, sql, *args)
                 async for record in connection.cursor(sql, *args, prefetch=batch_size):
                     batch.append(record)
                     if len(batch) >= batch_size:
@@ -152,26 +174,31 @@ class Database:
 
     async def explain(
         self,
-        pool: Pool | None,
+        connection: Connection,
         sql: str,
         *args: Any,
         analyze: bool = False,
     ) -> str:
         explain_sql = "EXPLAIN "
         if analyze:
-            explain_sql += "ANALYZE "
+            explain_sql += "(analyse, buffers, verbose, costs)\n"
         explain_sql += sql
 
-        async with self.acquire_connection(pool) as connection:
-            result = await connection.fetch(explain_sql, *args)
-            return "\n".join(r["QUERY PLAN"] for r in result)
+        logger.info("SQL Query: \n" + explain_sql)
 
-    async def debug_query(self, pool: Pool | None, sql: str, *args: Any) -> None:
-        plan = await self.explain(pool, sql, *args, analyze=True)
-        logger.debug(plan)
+        # await connection.execute("SET citus.explain_all_tasks = on;")
+        result = await connection.fetch(explain_sql, *args)
+        return "\n".join(r["QUERY PLAN"] for r in result)
 
-        logger.debug("SQL Query: \n" + sql)
-        logger.debug("Args: \n" + str(convert_datetime_to_timestamp(args)))
+    async def debug_query(self, connection: Connection, sql: str, *args: Any) -> None:
+        plan = await self.explain(connection, sql, *args, analyze=True)
+        hash_ = hash(sql)
+        basepath = Path(f"debug_sql_{hash_}")
+        basepath.with_suffix("sql").write_text(sql)
+        basepath.with_suffix("plan").write_text(plan)
+
+        logger.info(f"Query and plan written to {basepath}")
+        logger.info("Args: \n" + str(convert_datetime_to_timestamp(args)))
 
 
 db = Database()
