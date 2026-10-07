@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 import pytest
+from shapely.wkt import loads
 
 from ohsome_api.models import TimeBinsRowResult
 from ohsome_api.service.stats.currentness import get_currentness_row
@@ -16,7 +17,7 @@ async def test_get_currentness_count(aoi_wkt_heigit: str):
         start,
         end,
         bin_size=None,
-        aoi_wkt=aoi_wkt_heigit,
+        aoi=loads(aoi_wkt_heigit),
         measure="count",
         clip=True,
     )
@@ -37,7 +38,7 @@ async def test_get_currentness_count_latest(aoi_wkt_heigit: str):
         start,
         end,
         bin_size=None,
-        aoi_wkt=aoi_wkt_heigit,
+        aoi=loads(aoi_wkt_heigit),
         measure="count",
         clip=True,
     )
@@ -58,7 +59,7 @@ async def test_get_currentness_count_with_bin_size(aoi_wkt_heigit: str):
         start,
         end,
         "P1M",
-        aoi_wkt_heigit,
+        aoi=loads(aoi_wkt_heigit),
         measure="count",
         clip=True,
     )
@@ -90,7 +91,7 @@ async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
         start,
         end,
         bin_size=None,
-        aoi_wkt=aoi_wkt_heigit,
+        aoi=loads(aoi_wkt_heigit),
         measure="count",
         clip=True,
     )
@@ -102,7 +103,7 @@ async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
         start,
         end,
         bin_size=None,
-        aoi_wkt=aoi_wkt_heigit,
+        aoi=loads(aoi_wkt_heigit),
         measure="count",
         clip=True,
     )
@@ -115,7 +116,7 @@ async def test_get_currentness_count_by_month(aoi_wkt_heigit: str):
         start,
         end,
         bin_size,
-        aoi_wkt_heigit,
+        aoi=loads(aoi_wkt_heigit),
         measure="count",
         clip=True,
     )

@@ -98,7 +98,7 @@ async def contributions_extract(
 ) -> StreamingResponse:
     stream = await contributions.extract_contributions_as_parquet(
         parameters.ohsome_filter,
-        parameters.aoi_wkt,
+        parameters.aoi_wkb(),
         parameters.start,
         parameters.end,
     )

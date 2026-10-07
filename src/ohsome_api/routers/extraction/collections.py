@@ -144,7 +144,7 @@ async def features_collections_extract(
     stream = await collections.extract_features_collections_as_parquet(
         parameters.ohsome_filter,
         parameters.member_filter,
-        parameters.aoi_wkt,
+        parameters.aoi_wkb(),
         parameters.clip,
         parameters.time,
     )
@@ -190,7 +190,7 @@ async def features_collections_members_extract(
     stream = await collections.extract_features_collections_members_as_parquet(
         parameters.ohsome_filter,
         parameters.member_filter,
-        parameters.aoi_wkt,
+        parameters.aoi_wkb(),
         parameters.clip,
         parameters.time,
     )

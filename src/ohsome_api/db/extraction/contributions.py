@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import AsyncIterator, Literal, cast
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
+from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.db.db import db
 from ohsome_api.models import ExtractionRow
@@ -12,7 +13,7 @@ SQL_QUERY_TEMPLATE = Path(Path(__file__).parent / "contributions.sql").read_text
 
 async def extract_contributions(
     ohsome_filter: OhsomeFilter,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     start: datetime,
     end: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
@@ -42,7 +43,7 @@ async def extract_contributions(
     }
 
     async for batch in db.fetch_batch(
-        sql, aoi_wkt, *time_args, *filter_args, batch_size=10000
+        sql, aoi, *time_args, *filter_args, batch_size=10000
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 

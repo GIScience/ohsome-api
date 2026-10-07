@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import AsyncIterator, Literal
 
 from ohsome_filter_to_sql import OhsomeFilter
+from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.db.extraction.contributions import (
     extract_contributions as extract_contributions_,
@@ -15,13 +16,13 @@ from ohsome_api.parquet import ContributionParquetSink, Sink
 
 async def extract_contributions(
     ohsome_filter: OhsomeFilter,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     start: datetime,
     end: datetime | Literal["latest"],
     sink_type: type[Sink],
 ) -> AsyncIterator[bytes]:
 
-    producer = extract_contributions_(ohsome_filter, aoi_wkt, start, end)
+    producer = extract_contributions_(ohsome_filter, aoi, start, end)
 
     first_batch = await anext(producer)
 
@@ -40,13 +41,13 @@ async def extract_contributions(
 
 async def extract_contributions_as_parquet(
     ohsome_filter: OhsomeFilter,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     start: datetime,
     end: datetime | Literal["latest"],
 ) -> AsyncIterator[bytes]:
     return await extract_contributions(
         ohsome_filter,
-        aoi_wkt,
+        aoi,
         start,
         end,
         ContributionParquetSink,

@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import AsyncIterator, Literal
 
 from ohsome_filter_to_sql import OhsomeFilter
+from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.db.extraction.features import extract_features as extract_features_
 from ohsome_api.models import ExtractionRow
@@ -10,7 +11,7 @@ from ohsome_api.parquet import ArrowSink, ParquetSink, Sink
 
 async def extract_features(
     ohsome_filter: OhsomeFilter,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     clip: bool,
     start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
@@ -19,9 +20,7 @@ async def extract_features(
 ) -> AsyncIterator[bytes]:
     """Extract features from database batch wise."""
 
-    producer = extract_features_(
-        ohsome_filter, aoi_wkt, clip, start, end, contributions
-    )
+    producer = extract_features_(ohsome_filter, aoi, clip, start, end, contributions)
 
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(producer)
@@ -41,25 +40,25 @@ async def extract_features(
 
 async def extract_features_as_parquet(
     ohsome_filter: OhsomeFilter,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     clip: bool,
     start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
     contributions: bool,
 ) -> AsyncIterator[bytes]:
     return await extract_features(
-        ohsome_filter, aoi_wkt, clip, start, end, contributions, ParquetSink
+        ohsome_filter, aoi, clip, start, end, contributions, ParquetSink
     )
 
 
 async def extract_features_as_arrow(
     ohsome_filter: OhsomeFilter,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     clip: bool,
     start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
     contributions: bool,
 ) -> AsyncIterator[bytes]:
     return await extract_features(
-        ohsome_filter, aoi_wkt, clip, start, end, contributions, ArrowSink
+        ohsome_filter, aoi, clip, start, end, contributions, ArrowSink
     )

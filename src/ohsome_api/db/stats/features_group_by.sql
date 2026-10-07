@@ -4,7 +4,7 @@
 -- $4: series
 -- $5: group_by_tag
 WITH aoi AS (
-    SELECT ST_GEOMFROMTEXT($1, 4326) as geom
+    SELECT $1::geometry as geom
 ),
 
 series AS (

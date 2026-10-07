@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import AsyncIterator, Literal, cast
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
+from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api import CONFIG
 from ohsome_api.db.clauses import _filter_by_time
@@ -17,7 +18,7 @@ SQL_QUERY_TEMPLATE_NO_CLIP = Path(
 
 def extract_features(
     ohsome_filter: OhsomeFilter,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     clip: bool,
     start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
@@ -50,7 +51,7 @@ def extract_features(
         #   (e.g. GeometryType)
         db.fetch_batch(
             sql,
-            aoi_wkt,
+            aoi,
             *time_args,
             *filter_args,
             batch_size=CONFIG.ohsomedb.batch_size_extraction_features,

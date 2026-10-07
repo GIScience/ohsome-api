@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Literal
 
 from ohsome_filter_to_sql import OhsomeFilter
+from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.db.stats.currentness import get_currentness
 from ohsome_api.db.time import generate_timestamp_series, get_latest_timestamp
@@ -13,12 +14,12 @@ async def get_currentness_row(
     start: datetime,
     end: datetime | Literal["latest"],
     bin_size: str | None,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     measure: Measure,
     clip: bool,
 ) -> list[TimeBinsRowResult]:
     columns = await get_currentness_columns(
-        ohsome_filter, start, end, bin_size, aoi_wkt, measure, clip
+        ohsome_filter, start, end, bin_size, aoi, measure, clip
     )
     return [
         TimeBinsRowResult(start=start, end=end, value=val)
@@ -33,7 +34,7 @@ async def get_currentness_columns(
     start: datetime,
     end: datetime | Literal["latest"],
     bin_size: str | None,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     measure: Measure,
     clip: bool,
 ) -> TimeBinsResult:
@@ -46,7 +47,7 @@ async def get_currentness_columns(
         start,
         end,
         series,
-        aoi_wkt,
+        aoi,
         measure,
         clip,
     )

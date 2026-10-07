@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import AsyncIterator, Literal, cast
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
+from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.db.db import db
 from ohsome_api.models import (
@@ -20,7 +21,7 @@ SQL_QUERY_TEMPLATE_MEMBERS_FEATURES = Path(
 
 async def extract_features_collection(
     ohsome_filter: OhsomeFilter,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
     """Extract all features"""
@@ -55,7 +56,7 @@ async def extract_features_collection(
 
     # TODO: make batch size configurable (maybe as function arg)
     async for batch in db.fetch_batch(
-        sql, aoi_wkt, *time_args, *filter_args, batch_size=200
+        sql, aoi, *time_args, *filter_args, batch_size=200
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
@@ -63,7 +64,7 @@ async def extract_features_collection(
 async def extract_features_collection_members_collections(  # noqa: PLR0915
     collections: list[ExtractionRow],
     ohsome_filter: OhsomeFilter,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> list[ExtractionRow]:
@@ -130,7 +131,7 @@ async def extract_features_collection_members_collections(  # noqa: PLR0915
     }
     members = await db.fetch_rows(
         sql,
-        aoi_wkt,
+        aoi,
         ids,
         versions,
         *time_args,
@@ -155,7 +156,7 @@ async def extract_features_collection_members_collections(  # noqa: PLR0915
 async def extract_features_collection_members_features(
     collections: list[ExtractionRow],
     ohsome_filter: OhsomeFilter,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     clip: bool,
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[list[ExtractionRow]]:
@@ -225,6 +226,6 @@ async def extract_features_collection_members_features(
         "filter_clause": filter_clause,
     }
     async for batch in db.fetch_batch(
-        sql, aoi_wkt, ids, versions, *time_args, *filter_args, batch_size=10000
+        sql, aoi, ids, versions, *time_args, *filter_args, batch_size=10000
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]

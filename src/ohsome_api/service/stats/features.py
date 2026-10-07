@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Literal
 
 from ohsome_filter_to_sql import OhsomeFilter
+from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.db.stats.features import get_features, get_features_grouped_by_tag
 from ohsome_api.db.time import generate_timestamp_series, get_latest_timestamp
@@ -20,13 +21,13 @@ async def get_features_rows(
     start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
     interval: str | None,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     measure: Measure,
     group_by: GroupByTag | None,
     clip: bool,
 ) -> list[TimeSeriesRowResult] | list[TimeSeriesRowGroupedByResult]:
     columns = await get_features_columns(
-        ohsome_filter, start, end, interval, aoi_wkt, measure, group_by, clip
+        ohsome_filter, start, end, interval, aoi, measure, group_by, clip
     )
 
     if not isinstance(columns, TimeSeriesGroupedByResult):
@@ -54,7 +55,7 @@ async def get_features_columns(
     start: datetime | Literal["latest"],
     end: datetime | Literal["latest"],
     interval: str | None,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     measure: Measure,
     group_by: GroupByTag | None,
     clip: bool,
@@ -74,7 +75,7 @@ async def get_features_columns(
             start,
             end,
             series,
-            aoi_wkt,
+            aoi,
             measure,
             clip,
         )
@@ -84,7 +85,7 @@ async def get_features_columns(
         start,
         end,
         series,
-        aoi_wkt,
+        aoi,
         measure,
         group_by.key,
         clip,

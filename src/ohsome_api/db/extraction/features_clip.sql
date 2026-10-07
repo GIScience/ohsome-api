@@ -1,6 +1,6 @@
 --$1: aoi
 WITH aoi AS (
-    SELECT ST_GEOMFROMTEXT($1, 4326) AS geom
+    SELECT $1::geometry AS geom
 )
 
 SELECT

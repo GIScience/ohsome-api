@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
+from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.db.clauses import get_aggregation_clause
 from ohsome_api.db.db import db
@@ -19,7 +20,7 @@ async def get_currentness(
     start: datetime,
     end: datetime,
     series: list[datetime],
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     measure: Measure,
     clip: bool,
 ) -> TimeBinsResult:
@@ -31,7 +32,7 @@ async def get_currentness(
     }
     records = await db.fetch_rows(
         sql,
-        aoi_wkt,
+        aoi,
         start,
         end,
         series,

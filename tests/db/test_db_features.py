@@ -1,4 +1,5 @@
 import pytest
+from shapely.wkt import loads
 
 from ohsome_api.db.extraction.features import extract_features
 
@@ -7,9 +8,10 @@ pytestmark = [pytest.mark.usefixtures("ohsomedb_testcontainer", "database_pool")
 
 async def test_extract_features(aoi_wkt_audimax: str):
     ohsome_filter = "id:node/1702635807"
+    geom = loads(aoi_wkt_audimax)
     producer = extract_features(
         ohsome_filter,
-        aoi_wkt_audimax,
+        geom,
         clip=True,
         start="latest",
         end="latest",

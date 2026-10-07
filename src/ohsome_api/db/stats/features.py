@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
+from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.config import CONFIG
 from ohsome_api.db.clauses import get_aggregation_clause
@@ -24,7 +25,7 @@ async def get_features(
     start: datetime,
     end: datetime,
     series: list[datetime],
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     measure: Measure,
     clip: bool,
 ) -> TimeSeriesResult:
@@ -37,7 +38,7 @@ async def get_features(
 
     records = await db.fetch_rows(
         sql,
-        aoi_wkt,
+        aoi,
         start,
         end,
         series,
@@ -60,7 +61,7 @@ async def get_features_grouped_by_tag(
     start: datetime,
     end: datetime,
     series: list[datetime],
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
     measure: Measure,
     group_by_tag: str,
     clip: bool,
@@ -75,7 +76,7 @@ async def get_features_grouped_by_tag(
     }
     records = await db.fetch_rows(
         sql,
-        aoi_wkt,
+        aoi,
         start,
         end,
         series,

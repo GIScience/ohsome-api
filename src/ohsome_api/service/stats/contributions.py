@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Literal
 
 from ohsome_filter_to_sql import OhsomeFilter
+from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.db.stats.contributions import get_contributions_count
 from ohsome_api.db.time import generate_timestamp_series, get_latest_timestamp
@@ -13,7 +14,7 @@ async def get_contributions_count_columns(
     start: datetime,
     end: datetime | Literal["latest"],
     bin_size: str | None,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
 ) -> TimeBinsResult:
 
     if end == "latest":
@@ -25,7 +26,7 @@ async def get_contributions_count_columns(
         start,
         end,
         series,
-        aoi_wkt,
+        aoi,
     )
 
 
@@ -34,14 +35,14 @@ async def get_contributions_count_rows(
     start: datetime,
     end: datetime | Literal["latest"],
     bin_size: str | None,
-    aoi_wkt: str,
+    aoi: Polygon | MultiPolygon,
 ) -> list[TimeBinsRowResult]:
     columns = await get_contributions_count_columns(
         ohsome_filter,
         start,
         end,
         bin_size,
-        aoi_wkt,
+        aoi,
     )
     return [
         TimeBinsRowResult(start=start, end=end, value=val)

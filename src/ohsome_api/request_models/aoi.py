@@ -7,6 +7,7 @@ from pydantic import (
     computed_field,
     field_validator,
 )
+from shapely import geometry
 from shapely.geometry import mapping
 from shapely.wkt import loads as load_wkt
 
@@ -84,6 +85,12 @@ class AoiRequestModel(RequestConfigModel):
     @property
     def aoi_wkt(self) -> str:
         return self.aoi.wkt  # type: ignore
+
+    def aoi_wkb(self) -> geometry.Polygon | geometry.MultiPolygon:
+        geom = load_wkt(self.aoi_wkt)
+        if not isinstance(geom, geometry.Polygon | geometry.MultiPolygon):
+            raise TypeError("AOI geometry must be a Polygon or MultiPolygon.")
+        return geom
 
     @classmethod
     def bbox(cls, value: BBox) -> Polygon | MultiPolygon:  # noqa: C901
@@ -169,3 +176,9 @@ class AoiQueryModel(RequestConfigModel):
     def aoi_wkt(self) -> str:
         bbox = self.aoi.split(",")
         return AoiRequestModel(aoi=bbox).aoi_wkt
+
+    def aoi_wkb(self) -> geometry.Polygon | geometry.MultiPolygon:
+        geom = load_wkt(self.aoi_wkt)
+        if not isinstance(geom, geometry.Polygon | geometry.MultiPolygon):
+            raise TypeError("AOI geometry must be a Polygon or MultiPolygon.")
+        return geom

@@ -43,7 +43,7 @@ async def post_currentness_as_json(
             start=parameters.time.start,
             end=parameters.time.end,
             bin_size=parameters.time.bin_size,
-            aoi_wkt=parameters.aoi_wkt,
+            aoi=parameters.aoi_wkb(),
             measure=measure,
             clip=parameters.clip,
         )
@@ -77,7 +77,7 @@ async def post_currentness_as_csv(
             start=parameters.time.start,
             end=parameters.time.end,
             bin_size=parameters.time.bin_size,
-            aoi_wkt=parameters.aoi_wkt,
+            aoi=parameters.aoi_wkb(),
             measure=measure,
             clip=parameters.clip,
         )

@@ -128,7 +128,7 @@ async def features_extract(
 ) -> StreamingResponse:
     stream = await features.extract_features_as_parquet(
         parameters.ohsome_filter,
-        parameters.aoi_wkt,
+        parameters.aoi_wkb(),
         parameters.clip,
         parameters.start,
         parameters.end,
@@ -178,7 +178,7 @@ async def features_extract_as_arrow(
 
     stream = await features.extract_features_as_arrow(
         parameters.ohsome_filter,
-        parameters.aoi_wkt,
+        parameters.aoi_wkb(),
         parameters.clip,
         parameters.start,
         parameters.end,

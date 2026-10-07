@@ -2,7 +2,7 @@
 -- $2: ids
 -- $3: versions
 WITH aoi AS (
-    SELECT ST_GEOMFROMTEXT($1, 4326) AS geom
+    SELECT $1::geometry AS geom
 ),
 
 collection AS (
