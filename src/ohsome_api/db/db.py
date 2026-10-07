@@ -97,7 +97,7 @@ class Database:
     async def acquire_connection(
         self,
         pool: Pool | None,
-        timeout: int = 10,
+        timeout: int = CONFIG.ohsomedb.pool_acquire_timeout,
     ) -> AsyncIterator[Connection]:
         if pool is None:
             raise ConnectionError("Database connection pool not initialized.")
@@ -192,6 +192,7 @@ class Database:
 
     async def debug_query(self, connection: Connection, sql: str, *args: Any) -> None:
         plan = await self.explain(connection, sql, *args, analyze=True)
+
         hash_ = hash(sql)
         basepath = Path(f"debug_sql_{hash_}")
         basepath.with_suffix("sql").write_text(sql)
