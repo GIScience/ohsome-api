@@ -1,7 +1,7 @@
 -- $1: aoi
 -- $2: time
 WITH aoi AS (
-    SELECT (ST_DUMP(ST_GEOMFROMTEXT($1, 4326))).geom as geom
+    SELECT ST_GEOMFROMTEXT($1, 4326) AS geom
 )
 
 SELECT
@@ -25,7 +25,6 @@ SELECT
     ST_YMax(c.geom) as ymax
 FROM contributions AS c
 JOIN aoi ON ST_INTERSECTS(c.geom, aoi.geom)
-WHERE
-    1 = 1
+WHERE 1 = 1
     AND (%(time_clause)s)
     AND (%(filter_clause)s)

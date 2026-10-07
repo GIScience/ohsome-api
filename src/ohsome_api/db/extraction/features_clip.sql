@@ -1,6 +1,6 @@
 --$1: aoi
 WITH aoi AS (
-    SELECT (ST_DUMP(ST_GEOMFROMTEXT($1, 4326))).geom as geom
+    SELECT ST_GEOMFROMTEXT($1, 4326) AS geom
 )
 
 SELECT
@@ -37,7 +37,6 @@ CROSS JOIN
                 ELSE ST_Intersection(c.geom, aoi.geom)
             END AS geom
     ) proc
-WHERE
-    1 = 1
+WHERE 1 = 1
     AND (%(time_clause)s)
     AND (%(filter_clause)s)

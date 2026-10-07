@@ -2,7 +2,7 @@
 -- $2: ids
 -- $3: version
 WITH aoi AS (
-    SELECT (ST_DUMP(ST_GEOMFROMTEXT($1, 4326))).geom AS geom
+    SELECT ST_GEOMFROMTEXT($1, 4326) AS geom
 ),
 
 collection AS (
@@ -27,7 +27,7 @@ members AS (
         )
     %(join_geom_sql)s
     WHERE
-				1=1
+				1 = 1
 				AND (%(time_clause)s)
 				AND (%(filter_clause)s)
     GROUP BY collection.id, (status_geom_type).geom_type

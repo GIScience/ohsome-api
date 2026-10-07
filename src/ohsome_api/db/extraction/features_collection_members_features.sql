@@ -2,7 +2,7 @@
 -- $2: ids
 -- $3: versions
 WITH aoi AS (
-    SELECT (ST_DUMP(ST_GEOMFROMTEXT($1, 4326))).geom AS geom
+    SELECT ST_GEOMFROMTEXT($1, 4326) AS geom
 ),
 
 collection AS (
@@ -43,5 +43,6 @@ JOIN contributions AS c
         AND m.member_osm_id = c.osm_id
     )
 %(clipped_geom_sql)s
-WHERE (%(time_clause)s)
-AND (%(filter_clause)s)
+WHERE 1 = 1
+    AND (%(time_clause)s)
+    AND (%(filter_clause)s)

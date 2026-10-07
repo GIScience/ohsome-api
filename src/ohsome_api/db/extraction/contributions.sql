@@ -1,7 +1,7 @@
 
 -- $1: aoi
 WITH aoi AS (
-    SELECT (ST_DUMP(ST_GEOMFROMTEXT($1, 4326))).geom as geom
+    SELECT ST_GEOMFROMTEXT($1, 4326) AS geom
 )
 
 SELECT
@@ -27,8 +27,7 @@ SELECT
     ST_YMax(c.geom) as ymax
 FROM contributions c
 JOIN aoi ON (ST_INTERSECTS(aoi.geom, c.geom))
-WHERE
-    1 = 1
+WHERE 1 = 1
     AND status_geom_type = ANY(array[
         ('latest', 'Point')::status_geom_type_type,
         ('latest','LineString')::status_geom_type_type,
