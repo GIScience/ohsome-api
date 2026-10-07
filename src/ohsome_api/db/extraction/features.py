@@ -4,6 +4,7 @@ from typing import AsyncIterator, Literal, cast
 
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 
+from ohsome_api import CONFIG
 from ohsome_api.db.clauses import _filter_by_time
 from ohsome_api.db.db import db
 from ohsome_api.models import ExtractionRow
@@ -47,5 +48,11 @@ def extract_features(
         AsyncIterator[list[ExtractionRow]],
         # PERF: batch_size should be different depending on expected row size
         #   (e.g. GeometryType)
-        db.fetch_batch(sql, aoi_wkt, *time_args, *filter_args, batch_size=10000),
+        db.fetch_batch(
+            sql,
+            aoi_wkt,
+            *time_args,
+            *filter_args,
+            batch_size=CONFIG.ohsomedb.batch_size_extraction_features,
+        ),
     )
