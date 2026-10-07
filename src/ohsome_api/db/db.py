@@ -195,8 +195,8 @@ class Database:
 
         hash_ = hash(sql)
         basepath = Path(f"debug_sql_{hash_}")
-        basepath.with_suffix("sql").write_text(sql)
-        basepath.with_suffix("plan").write_text(plan)
+        basepath.with_suffix(".sql").write_text(sql)
+        basepath.with_suffix(".plan").write_text(plan)
 
         logger.info(f"Query and plan written to {basepath}")
         logger.info("Args: \n" + str(convert_datetime_to_timestamp(args)))

@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Literal
 
+from ohsome_api import CONFIG
 from ohsome_api.models import Measure
 
 
@@ -119,3 +120,7 @@ def get_aggregation_clause(measure: Measure | Literal["user"], clip: bool) -> st
                 )
             ) AS value
             """
+
+
+def disable_time_range_check_flag(start: datetime, end: datetime) -> bool:
+    return (end - start) > timedelta(days=CONFIG.ohsomedb.time_boundaries_check_days)

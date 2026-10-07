@@ -28,6 +28,10 @@ class DatabaseConfig(BaseModel):
     batch_size_extraction_collections: int = 200
     debug: bool = False  # Whether to run EXPLAIN ANALYZE for every query
 
+    model_config = SettingsConfigDict(
+        frozen=True,
+    )
+
     @computed_field
     @property
     def connection_string(self) -> str:
@@ -52,6 +56,7 @@ class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="OHSOME_API__",
         env_nested_delimiter="__",
+        frozen=True,
     )
 
 

@@ -5,7 +5,7 @@ from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.config import CONFIG
-from ohsome_api.db.clauses import get_aggregation_clause
+from ohsome_api.db.clauses import disable_time_range_check_flag, get_aggregation_clause
 from ohsome_api.db.db import db
 from ohsome_api.db.errors import ResultTooLargeError
 from ohsome_api.models import (
@@ -34,6 +34,7 @@ async def get_features(
     sql = SQL_QUERY_TEMPLATE % {
         "filter_clause": filter_clause,
         "aggregation_clause": aggregation_clause,
+        "disable_time_boundary_check": disable_time_range_check_flag(start, end),
     }
 
     records = await db.fetch_rows(
@@ -72,6 +73,7 @@ async def get_features_grouped_by_tag(
     sql = SQL_QUERY_TEMPLATE_GROUP_BY % {
         "filter_clause": filter_clause,
         "aggregation_clause": aggregation_clause,
+        "disable_time_boundary_check": disable_time_range_check_flag(start, end),
         "limit": limit,
     }
     records = await db.fetch_rows(

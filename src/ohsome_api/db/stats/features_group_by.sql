@@ -19,7 +19,7 @@ FROM contributions c
 JOIN aoi ON (ST_INTERSECTS(c.geom, aoi.geom))
 JOIN series ON (valid_from <= series.ts AND valid_to > series.ts)
 WHERE 1 = 1
-    AND (valid_to > $2::timestamptz and valid_from <= $3::timestamptz)
+    AND (%(disable_time_boundary_check)s OR (valid_to > $2::timestamptz and valid_from <= $3::timestamptz))
     AND (%(filter_clause)s)
     -- exclude deleted and invalid states
     AND (status_geom_type).status in ('history', 'latest')
