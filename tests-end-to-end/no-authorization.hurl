@@ -6,13 +6,13 @@ HTTP *
 status == 200
 header "Content-Type" == "application/json"
 
-GET	{{BASE_URL}}/openapi.json
+GET {{BASE_URL}}/openapi.json
 HTTP *
 [Asserts]
 status == 200
 header "Content-Type" == "application/json"
 
-GET	{{BASE_URL}}/filter/validation?filter=tree=yes
+GET {{BASE_URL}}/filter/validation?filter=tree=yes
 HTTP *
 [Asserts]
 status == 200

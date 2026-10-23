@@ -470,10 +470,10 @@ ohsome-py
    from ohsome import OhsomeClient
    client = OhsomeClient()
    response = client.elements.count.post(
-	   endpoint="elements/area",
-	   bboxes=[8.625,49.3711,8.7334,49.4397],
-	   time="2020-01-01",
-	   filter="landuse=farmland and geometry:polygon"
+      endpoint="elements/area",
+      bboxes=[8.625,49.3711,8.7334,49.4397],
+      time="2020-01-01",
+      filter="landuse=farmland and geometry:polygon"
    )
 
 **v2**:

@@ -1,17 +1,17 @@
 {
-	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": ["config:recommended"],
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
   "dependencyDashboard": true,
-	"dependencyDashboardApproval": true,
-	"commitMessagePrefix": "ci(renovate):",
-	"minimumReleaseAge": "7 days",
-	"lockFileMaintenance": {
-		"enabled": true,
-		"automerge": true
-	},
-	"pre-commit": {
-		"enabled": true
-	},
+  "dependencyDashboardApproval": true,
+  "commitMessagePrefix": "ci(renovate):",
+  "minimumReleaseAge": "7 days",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true
+  },
+  "pre-commit": {
+    "enabled": true
+  },
   "dockerfile": {
     "enabled": true
   },
