@@ -11,6 +11,7 @@ from shapely import geometry
 from shapely.geometry import mapping
 from shapely.wkt import loads as load_wkt
 
+from ohsome_api.db.aoi import wkt_to_geometry
 from ohsome_api.request_models.config import RequestConfigModel
 
 
@@ -73,6 +74,9 @@ GeoJSONGeometry = Annotated[
 ]
 
 
+# TODO: Check how many parts of a MultiPolygon
+# are presents and reject if more than 500x.
+# Should be configurable.
 class AoiRequestModel(RequestConfigModel):
     aoi: BBox | GeoJSONGeometry | WKT = Field(
         description=(
@@ -87,10 +91,7 @@ class AoiRequestModel(RequestConfigModel):
         return self.aoi.wkt  # type: ignore
 
     def aoi_wkb(self) -> geometry.Polygon | geometry.MultiPolygon:
-        geom = load_wkt(self.aoi_wkt)
-        if not isinstance(geom, geometry.Polygon | geometry.MultiPolygon):
-            raise TypeError("AOI geometry must be a Polygon or MultiPolygon.")
-        return geom
+        return wkt_to_geometry(self.aoi_wkt)
 
     @classmethod
     def bbox(cls, value: BBox) -> Polygon | MultiPolygon:  # noqa: C901
@@ -178,7 +179,4 @@ class AoiQueryModel(RequestConfigModel):
         return AoiRequestModel(aoi=bbox).aoi_wkt
 
     def aoi_wkb(self) -> geometry.Polygon | geometry.MultiPolygon:
-        geom = load_wkt(self.aoi_wkt)
-        if not isinstance(geom, geometry.Polygon | geometry.MultiPolygon):
-            raise TypeError("AOI geometry must be a Polygon or MultiPolygon.")
-        return geom
+        return wkt_to_geometry(self.aoi_wkt)

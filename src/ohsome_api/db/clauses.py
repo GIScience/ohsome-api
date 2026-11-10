@@ -1,7 +1,11 @@
 from datetime import datetime, timedelta
 from typing import Literal
 
+from shapely.geometry import MultiPolygon
+from shapely.geometry.polygon import Polygon
+
 from ohsome_api import CONFIG
+from ohsome_api.db.aoi import cluster
 from ohsome_api.models import Measure
 
 
@@ -120,6 +124,21 @@ def get_aggregation_clause(measure: Measure | Literal["user"], clip: bool) -> st
                 )
             ) AS value
             """
+
+
+def get_geometry_clause(
+    aoi: Polygon | MultiPolygon, shift: int
+) -> tuple[str, list[Polygon | MultiPolygon]]:
+    if isinstance(aoi, Polygon):
+        return f"ST_INTERSECTS(c.geom, ${shift + 1}::geometry)", [aoi]
+
+    clusters = cluster(aoi)
+    return " OR ".join(
+        [
+            f"ST_INTERSECTS(c.geom, ${shift + i}::geometry)"
+            for i, _ in enumerate(clusters, 1)
+        ]
+    ), clusters
 
 
 def disable_time_range_check_flag(start: datetime, end: datetime) -> bool:

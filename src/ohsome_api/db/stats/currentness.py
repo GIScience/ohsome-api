@@ -4,7 +4,7 @@ from pathlib import Path
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 from shapely.geometry import MultiPolygon, Polygon
 
-from ohsome_api.db.clauses import get_aggregation_clause
+from ohsome_api.db.clauses import get_aggregation_clause, get_geometry_clause
 from ohsome_api.db.db import db
 from ohsome_api.db.time import zerofill_records_to_time_bin_columns
 from ohsome_api.models import (
@@ -24,11 +24,16 @@ async def get_currentness(
     measure: Measure,
     clip: bool,
 ) -> TimeBinsResult:
-    filter_clause, filter_args = ohsome_filter_to_sql(ohsome_filter, args_shift=4)
+    geometry_clause, geometry_args = get_geometry_clause(aoi, shift=4)
+    filter_clause, filter_args = ohsome_filter_to_sql(
+        ohsome_filter, args_shift=(4 + len(geometry_args))
+    )
     aggregation_clause = get_aggregation_clause(measure, clip)
     sql = SQL_QUERY_TEMPLATE % {
         "aggregation_clause": aggregation_clause,
+        "geometry_clause": geometry_clause,
         "filter_clause": filter_clause,
+        "aoi_join": "CROSS JOIN aoi" if clip else "",
     }
     records = await db.fetch_rows(
         sql,
@@ -36,6 +41,7 @@ async def get_currentness(
         start,
         end,
         series,
+        *geometry_args,
         *filter_args,
     )  # order matters!
 

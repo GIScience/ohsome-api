@@ -5,6 +5,7 @@ from typing import AsyncIterator, Literal, cast
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 from shapely.geometry import MultiPolygon, Polygon
 
+from ohsome_api import CONFIG
 from ohsome_api.db.db import db
 from ohsome_api.models import (
     ExtractionRow,
@@ -56,7 +57,11 @@ async def extract_features_collection(
 
     # TODO: make batch size configurable (maybe as function arg)
     async for batch in db.fetch_batch(
-        sql, aoi, *time_args, *filter_args, batch_size=200
+        sql,
+        aoi,
+        *time_args,
+        *filter_args,
+        batch_size=CONFIG.ohsomedb.batch_size_extraction_collections,
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 
@@ -226,6 +231,12 @@ async def extract_features_collection_members_features(
         "filter_clause": filter_clause,
     }
     async for batch in db.fetch_batch(
-        sql, aoi, ids, versions, *time_args, *filter_args, batch_size=10000
+        sql,
+        aoi,
+        ids,
+        versions,
+        *time_args,
+        *filter_args,
+        batch_size=CONFIG.ohsomedb.batch_size_extraction_features,
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]

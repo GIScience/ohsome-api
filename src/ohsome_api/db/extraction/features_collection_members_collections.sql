@@ -6,7 +6,7 @@ WITH aoi AS (
 ),
 
 collection AS (
-		SELECT UNNEST($2::int []) AS id, UNNEST($3::int []) AS version
+    SELECT UNNEST($2::int []) AS id, UNNEST($3::int []) AS version
 ),
 
 members AS (
@@ -26,10 +26,9 @@ members AS (
             AND collection.version = ANY(m.relation_osm_version_list)
         )
     %(join_geom_sql)s
-    WHERE
-				1 = 1
-				AND (%(time_clause)s)
-				AND (%(filter_clause)s)
+    WHERE 1 = 1
+        AND (%(time_clause)s)
+        AND (%(filter_clause)s)
     GROUP BY collection.id, (status_geom_type).geom_type
 )
 

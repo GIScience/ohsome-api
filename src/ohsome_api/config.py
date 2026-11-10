@@ -23,7 +23,7 @@ class DatabaseConfig(BaseModel):
     timeout_extraction: int | float = 60 * 3
     aoi_clusters_max: int = 5
     work_mem: str = "256MB"
-    time_boundaries_check_days: int = 356
+    time_boundaries_check_days: int = 365
     batch_size_extraction_features: int = 10000
     batch_size_extraction_collections: int = 200
     debug: bool = False  # Whether to run EXPLAIN ANALYZE for every query
