@@ -5,6 +5,7 @@ from typing import AsyncIterator, Literal, cast
 from ohsome_filter_to_sql import OhsomeFilter, ohsome_filter_to_sql
 from shapely.geometry import MultiPolygon, Polygon
 
+from ohsome_api import CONFIG
 from ohsome_api.db.db import db
 from ohsome_api.models import ExtractionRow
 
@@ -43,7 +44,11 @@ async def extract_contributions(
     }
 
     async for batch in db.fetch_batch(
-        sql, aoi, *time_args, *filter_args, batch_size=10000
+        sql,
+        aoi,
+        *time_args,
+        *filter_args,
+        batch_size=CONFIG.ohsomedb.batch_size_extraction_features,
     ):
         yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
 

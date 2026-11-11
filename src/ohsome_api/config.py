@@ -5,6 +5,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # NOTE: Logging is configured in `ohsome_api/__init__.py
 
+MB = 1024 * 1024
+
 
 class DatabaseConfig(BaseModel):
     user: str = "ohsomedb"
@@ -26,6 +28,7 @@ class DatabaseConfig(BaseModel):
     time_boundaries_check_days: int = 365
     batch_size_extraction_features: int = 10000
     batch_size_extraction_collections: int = 200
+    batch_mem_bytes: int = 100 * MB  # 100 MB
     debug: bool = False  # Whether to run EXPLAIN ANALYZE for every query
 
     model_config = SettingsConfigDict(

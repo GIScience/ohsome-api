@@ -159,14 +159,20 @@ class Database:
             connection.transaction(readonly=True),
         ):
             batch: list[Record] = []
+            batch_geom_bytes: int = 0
             try:
                 if CONFIG.ohsomedb.debug:
                     await self.debug_query(connection, sql, *args)
-                async for record in connection.cursor(sql, *args, prefetch=batch_size):
+                async for record in connection.cursor(sql, *args, prefetch=50):
+                    batch_geom_bytes += len(record.get("geom") or b"")
                     batch.append(record)
-                    if len(batch) >= batch_size:
+                    if (
+                        len(batch) >= batch_size
+                        or batch_geom_bytes >= CONFIG.ohsomedb.batch_mem_bytes
+                    ):
                         yield batch
                         batch = []
+                        batch_geom_bytes = 0
             except TimeoutError as error:
                 raise QueryTimeoutError() from error
 
