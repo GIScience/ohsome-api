@@ -324,7 +324,7 @@ class ParquetSink(Sink):
     def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
         batch = self.convert_batch(rows)
         # Which group size should we use?
-        self.writer.write(batch, row_group_size=10000)
+        self.writer.write(batch)
 
         self.xmin = min(self.xmin, *(r["xmin"] for r in rows))
         self.ymin = min(self.ymin, *(r["ymin"] for r in rows))
