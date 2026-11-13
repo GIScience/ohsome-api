@@ -1,5 +1,6 @@
 import io
 import json
+import logging
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from importlib.metadata import version
@@ -10,6 +11,7 @@ from pyarrow import (
     RecordBatch,
     binary,
     bool_,
+    default_memory_pool,
     field,
     float64,
     int32,
@@ -24,6 +26,12 @@ from pyarrow import (
 from pyarrow.ipc import new_stream
 
 from ohsome_api.models import Attribution, ExtractionRow
+
+logger = logging.getLogger("ohsome-api")
+
+logger.info("Using pyarrow version: %s", version("pyarrow"))
+logger.info("Using pyarrow memory pool backend: %s", default_memory_pool().backend_name)
+
 
 crs_metadata = json.loads(pyproj.CRS.from_epsg(4326).to_json())
 # Create the geom field with GeoArrow extension metadata
