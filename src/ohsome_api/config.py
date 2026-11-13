@@ -28,7 +28,7 @@ class DatabaseConfig(BaseModel):
     time_boundaries_check_days: int = 365
     batch_size_extraction_features: int = 10000
     batch_size_extraction_collections: int = 200
-    batch_mem_bytes: int = 100 * MB  # 100 MB
+    batch_mem_bytes: int = 20 * MB  # 20 MB
     debug: bool = False  # Whether to run EXPLAIN ANALYZE for every query
 
     model_config = SettingsConfigDict(
