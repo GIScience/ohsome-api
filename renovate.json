@@ -1,7 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "dependencyDashboard": true,
+  "extends": [
+    "config:recommended"
+  ],
+  "dependencyDashboard": {
+    "enabled": true
+  },
   "dependencyDashboardApproval": true,
   "commitMessagePrefix": "ci(renovate):",
   "minimumReleaseAge": "7 days",
