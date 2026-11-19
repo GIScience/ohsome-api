@@ -43,15 +43,15 @@ The URLs for the ohsome API v2 have changed:
 
 API endpoints root URL
     | **v1**: ``https://api.ohsome.org/v1/``
-    | **v2**: ``https://api.heigit.org/ohsome-api/v2/`` [1]_
+    | **v2**: ``https://api.heigit.org/ohsome-api/v2/``
 
 API documentation
     | **v1**: ``https://api.ohsome.org/v1/swagger-ui.html``
-    | **v2**: ``https://api.heigit.org/ohsome-api/v2/docs`` [1]_
+    | **v2**: ``https://api.heigit.org/ohsome-api/v2/docs``
 
 General reference documentation, how-to guides and explanations
     | **v1**: ``https://docs.ohsome.org/ohsome-api/v1/``
-    | **v2**: ``https://docs.ohsome.org/ohsome-api/v2/`` [1]_
+    | **v2**: ``https://docs.ohsome.org/ohsome-api/v2/``
 
 
 .. important::
@@ -82,7 +82,7 @@ You find these now consistently under the ``/stats`` directory:
    * - **v1**
      - **v2**
    * - ``/v1/elements/count``
-     - ``/v2/stats/features/count``\  [2]_
+     - ``/v2/stats/features/count``\  [1]_
    * - ``/v1/elements/length``
      - ``/v2/stats/features/length``
    * - ``/v1/elements/area``
@@ -130,7 +130,7 @@ parameters.
      - ``aoi``
      - ``"aoi": [ 8.68812, 49.4039, 8.72362, 49.41582 ]``
    * - ``bpolys``
-     - ``aoi``\  [3]_
+     - ``aoi``\  [2]_
      - ``"aoi": { "type": "Polygon", "coordinates": […] }``
    * - ``bcircles``
      - N/A
@@ -145,7 +145,7 @@ parameters.
      - N/A
      -
    * - ``time``
-     - ``time``\  [4]_
+     - ``time``\  [3]_
      - ``"time": { "start": "2014-01-01", "end": "2026-01-01", "interval": "P1Y" }``
    * - ``timeout``
      - N/A
@@ -154,7 +154,7 @@ parameters.
      - ``groupBy``
      - ``"groupBy": { "type": "byTag", "key": "species" }``
    * - N/A
-     - ``clip``
+     - ``clip``\  [4]_
      - ``"clip": true``
 
 
@@ -259,15 +259,15 @@ Paths
    * - ``/v1/elementsFullHistory/geometry``
      - ``/v2/extraction/features``
    * - ``/v1/contributions/geometry``
-     - ``/v2/extraction/contributions``\  [6]_
+     - ``/v2/extraction/contributions``\  [5]_
    * - ``/v1/…/bbox``
      - N/A (bbox is always included in result alongside full geometry)
    * - ``/v1/…/centroid``
      - not yet implemented, can be calculated on client side in post-processing
    * - N/A
-     - ``/v2/extraction/collections``\  [7]_
+     - ``/v2/extraction/collections``\  [6]_
    * - N/A
-     - ``/v2/extraction/collections_members``\  [7]_
+     - ``/v2/extraction/collections_members``\  [6]_
 
 
 .. _request-parameters-1:
@@ -286,7 +286,7 @@ Request Parameters
      - ``aoi``
      - ``"aoi": [ 8.68812, 49.4039, 8.72362, 49.41582 ]``
    * - ``bpolys``
-     - ``aoi``\  [3]_
+     - ``aoi``\  [2]_
      - ``"aoi": { "type": "Polygon", "coordinates": […] }``
    * - ``bcircles``
      - N/A
@@ -301,7 +301,7 @@ Request Parameters
      - N/A
      -
    * - ``time``
-     - ``time``\  [4]_
+     - ``time``\  [3]_
      - ``"time": { "start": "2014-01-01", "end": "2026-01-01" }``
    * - ``timeout``
      - N/A
@@ -494,38 +494,33 @@ Footnotes
 
 
 .. [1]
-   At a later point in time, the URLs will be changed to omit the
-   ``-rc`` part, e.g. the root URL for the API endpoints will be finally
-   ``https://api.heigit.org/ohsome-api/v2/``.
-
-.. [2]
    This endpoint does not include relations that are not representing a
    polygon (i.e. a ``type=multipolygon`` or ``type=boundary``). For
    generating statistics about other relations types, we might include a
    ``stats/collections/count`` endpoint in an upcoming update.
 
-.. [3]
+.. [2]
    instead of a full FeatureCollection, **v2** accepts a single GeoJSON
    Geometry object of a ``Polygon`` or ``MultiPolygon`` only.
 
-.. [4]
+.. [3]
    **v1** also supported a list of timestamps with potentially uneven
    intervals, which is not yet available in **v2**. For such request,
    multiple individual requests can be performed instead.
 
-.. [5]
+.. [4]
    in **v1** all results from ``length`` and ``area`` calculations used
    values based of the OSM features' geometry clipped to the request's
    area of interest. **v2** does by default not perform this clipping.
    For request around relatively small areas, it is recommended to
    specify ``"clip": true`` in order to get precise results.
 
-.. [6]
+.. [5]
    In addition to tags and OSM metadata, the contributions extraction
    now also includes the tags of the respective *changesets*, which was
    not accessible in **v1**.
 
-.. [7]
+.. [6]
    OSM relations that are not a ``type=multipolygon`` or
    ``type=boundary`` (e.g. OSM route relations) were previously included
    in the ``elements/geometry`` output as *GeometryCollection* features.
@@ -536,6 +531,6 @@ Footnotes
    (using the members' respective geometry and including the members'
    tags).
 
-.. [8]
+.. [7]
    see also above for how non-polygonal OSM relations are handled
    differently in **v2** in general
