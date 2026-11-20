@@ -12,12 +12,12 @@ from ohsome_api.db.extraction.features_collection import (
     extract_features_collection_members_features,
 )
 from ohsome_api.models import ExtractionRow
-from ohsome_api.parquet import (
-    ArrowSink,
-    MemberArrowSink,
-    MemberParquetSink,
-    ParquetSink,
-    Sink,
+from ohsome_api.parquet import FEATURES, MEMBERS, ArrowSink, ParquetSink, Sink
+from ohsome_api.service.extraction.streaming import (
+    Batch,
+    encode,
+    map_batches,
+    prepend,
 )
 
 
@@ -36,34 +36,17 @@ async def extract_features_collection(
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(collections_producer)
 
-    async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
+    async def with_members(collections: Batch) -> list[ExtractionRow]:
+        return await extract_features_collection_members_collections(
+            collections,
+            member_filter,
+            aoi,
+            clip,
+            time,
+        )
 
-        with sink_type() as sink:
-            yield sink.write_batch(
-                await extract_features_collection_members_collections(
-                    first,
-                    member_filter,
-                    aoi,
-                    clip,
-                    time,
-                )
-            )
-
-            async for batch in collections_producer:
-                yield sink.write_batch(
-                    await extract_features_collection_members_collections(
-                        batch,
-                        member_filter,
-                        aoi,
-                        clip,
-                        time,
-                    )
-                )
-
-        # after sink is closed metadata and footer is written
-        yield sink.read_bytes()
-
-    return stream(first_batch)
+    batches = map_batches(prepend(first_batch, collections_producer), with_members)
+    return encode(sink_type, FEATURES, batches)
 
 
 async def extract_features_collections_as_parquet(
@@ -105,32 +88,22 @@ async def extract_features_collections_members(
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(collections_producer)
 
-    async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
-
-        with sink_type() as sink:
-            async for members in extract_features_collection_members_features(
-                first,
+    async def members(batches: AsyncIterator[Batch]) -> AsyncIterator[Batch]:
+        # one batch of collections results in several batches of members
+        async for collections in batches:
+            async for batch in extract_features_collection_members_features(
+                collections,
                 member_filter,
                 aoi,
                 clip,
                 time,
             ):
-                yield sink.write_batch(members)
+                yield batch
+                del batch
+            del collections
 
-            async for batch in collections_producer:
-                async for member in extract_features_collection_members_features(
-                    batch,
-                    member_filter,
-                    aoi,
-                    clip,
-                    time,
-                ):
-                    yield sink.write_batch(member)
-
-        # after sink is closed metadata and footer is written
-        yield sink.read_bytes()
-
-    return stream(first_batch)
+    batches = members(prepend(first_batch, collections_producer))
+    return encode(sink_type, MEMBERS, batches)
 
 
 async def extract_features_collections_members_as_parquet(
@@ -141,7 +114,7 @@ async def extract_features_collections_members_as_parquet(
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[bytes]:
     return await extract_features_collections_members(
-        ohsome_filter, member_filter, aoi, clip, time, MemberParquetSink
+        ohsome_filter, member_filter, aoi, clip, time, ParquetSink
     )
 
 
@@ -153,5 +126,5 @@ async def extract_features_collections_members_as_arrow(
     time: datetime | Literal["latest"],
 ) -> AsyncIterator[bytes]:
     return await extract_features_collections_members(
-        ohsome_filter, member_filter, aoi, clip, time, MemberArrowSink
+        ohsome_filter, member_filter, aoi, clip, time, ArrowSink
     )

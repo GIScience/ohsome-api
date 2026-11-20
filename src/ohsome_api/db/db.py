@@ -31,6 +31,24 @@ def convert_datetime_to_timestamp(input_: Any) -> Any:
         return input_
 
 
+def record_size(record: Record) -> int:
+    """Rough size of a record's payload in bytes.
+
+    Counts bytes/str values (e.g. geom, user_name) and the keys and values of
+    dict values (decoded jsonb like tags), which are often larger than the geometry.
+    Python object overhead is not included: the in-memory size of a batch is
+    several times this estimate.
+    """
+    size = 0
+    for value in record.values():
+        if isinstance(value, bytes | str):
+            size += len(value)
+        elif isinstance(value, dict):
+            for k, v in value.items():
+                size += len(k) + (len(v) if isinstance(v, str) else 8)
+    return size
+
+
 def encode_geometry(geometry: BaseGeometry) -> bytes:
     return dump_wkb(geometry, srid=4326)
 
@@ -159,20 +177,20 @@ class Database:
             connection.transaction(readonly=True),
         ):
             batch: list[Record] = []
-            batch_geom_bytes: int = 0
+            batch_bytes: int = 0
             try:
                 if CONFIG.ohsomedb.debug:
                     await self.debug_query(connection, sql, *args)
                 async for record in connection.cursor(sql, *args, prefetch=50):
-                    batch_geom_bytes += len(record.get("geom") or b"")
+                    batch_bytes += record_size(record)
                     batch.append(record)
                     if (
                         len(batch) >= batch_size
-                        or batch_geom_bytes >= CONFIG.ohsomedb.batch_mem_bytes
+                        or batch_bytes >= CONFIG.ohsomedb.batch_mem_bytes
                     ):
                         yield batch
                         batch = []
-                        batch_geom_bytes = 0
+                        batch_bytes = 0
             except TimeoutError as error:
                 raise QueryTimeoutError() from error
 

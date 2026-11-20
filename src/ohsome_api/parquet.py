@@ -2,13 +2,20 @@ import io
 import json
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from copy import deepcopy
+from dataclasses import dataclass
 from importlib.metadata import version
+from operator import itemgetter
 from types import TracebackType
+from typing import Any
 
+import pyarrow.compute as pc
 import pyproj
 from pyarrow import (
+    Array,
     RecordBatch,
+    Schema,
     binary,
     bool_,
     default_memory_pool,
@@ -17,13 +24,13 @@ from pyarrow import (
     int32,
     int64,
     map_,
-    parquet,
     schema,
     string,
     struct,
     timestamp,
 )
-from pyarrow.ipc import new_stream
+from pyarrow.ipc import RecordBatchStreamWriter
+from pyarrow.parquet import ParquetWriter
 
 from ohsome_api.models import Attribution, ExtractionRow
 
@@ -172,7 +179,7 @@ def _api_meta() -> bytes:
     ).encode()
 
 
-def bbox(r: ExtractionRow) -> dict[str, float]:
+def _bbox(r: ExtractionRow) -> dict[str, float]:
     return {
         "xmin": r["xmin"],
         "xmax": r["xmax"],
@@ -181,110 +188,105 @@ def bbox(r: ExtractionRow) -> dict[str, float]:
     }
 
 
-def record_batch(rows: list[ExtractionRow]) -> RecordBatch:
-    return RecordBatch.from_arrays(
-        [
-            [r["osm_type"] for r in rows],
-            [r["osm_id"] for r in rows],
-            [r["valid_from"].timestamp() * 1000000 for r in rows],
-            [r["valid_to"].timestamp() * 1000000 for r in rows],
-            [r["osm_version"] for r in rows],
-            [r["osm_minor_version"] for r in rows],
-            [r["osm_edits"] for r in rows],
-            [r["user_id"] for r in rows],
-            [r["user_name"] for r in rows],
-            [r["changeset_id"] for r in rows],
-            [r["tags"] for r in rows],
-            [bbox(r) for r in rows],
-            [r["geom_type"] for r in rows],
-            [r["geom"] for r in rows],
-            [r["clipped"] for r in rows],
-        ],
-        schema=FEATURE_EXTRACTION_SCHEMA,
-    )
+# Output column name -> how to get its value from an ExtractionRow.
+# Columns whose name equals the row key need no entry.
+_GETTERS: dict[str, Callable[[ExtractionRow], Any]] = {
+    "edit_timestamp": itemgetter("valid_from"),
+    "valid_to_timestamp": itemgetter("valid_to"),
+    "version": itemgetter("osm_version"),
+    "minor_version": itemgetter("osm_minor_version"),
+    "edits": itemgetter("osm_edits"),
+    "contribution_type": itemgetter("contrib_type"),
+    "collection_osm_id": itemgetter("part_of"),
+    "member_role": itemgetter("part_of_role"),
+    "member_pos": itemgetter("part_of_pos"),
+    "bbox": _bbox,
+}
+
+# Low cardinality string columns which benefit from dictionary encoding.
+# Dictionary encoding of unique values (geom, tags, ids) only costs CPU.
+_DICTIONARY_COLUMNS = {"osm_type", "user_name", "contribution_type", "geom_type"}
 
 
-def record_batch_contribution(rows: list[ExtractionRow]) -> RecordBatch:
-    return RecordBatch.from_arrays(
-        [
-            [r["osm_type"] for r in rows],
-            [r["osm_id"] for r in rows],
-            [r["valid_from"].timestamp() * 1000000 for r in rows],
-            [r["valid_to"].timestamp() * 1000000 for r in rows],
-            [r["osm_version"] for r in rows],
-            [r["osm_minor_version"] for r in rows],
-            [r["osm_edits"] for r in rows],
-            [r["user_id"] for r in rows],
-            [r["user_name"] for r in rows],
-            [r["changeset_id"] for r in rows],
-            [r["changeset_tags"] for r in rows],
-            [r["contrib_type"] for r in rows],
-            [r["tags"] for r in rows],
-            [r["tags_before"] for r in rows],
-            [bbox(r) for r in rows],
-            [r["geom_type"] for r in rows],
-            [r["geom"] for r in rows],
-        ],
-        schema=CONTRIBUTION_EXTRACTION_SCHEMA,
-    )
+def _min_max(array: Array) -> tuple[Any, Any]:
+    # pc.min_max is generated at runtime and unknown to type checkers,
+    # call_function is the statically defined equivalent
+    result: Any = pc.call_function("min_max", [array])
+    return result["min"].as_py(), result["max"].as_py()
 
 
-def record_batch_member(rows: list[ExtractionRow]) -> RecordBatch:
-    return RecordBatch.from_arrays(
-        [
-            [r["osm_type"] for r in rows],
-            [r["osm_id"] for r in rows],
-            [r["valid_from"].timestamp() * 1000000 for r in rows],
-            [r["valid_to"].timestamp() * 1000000 for r in rows],
-            [r["osm_version"] for r in rows],
-            [r["osm_minor_version"] for r in rows],
-            [r["osm_edits"] for r in rows],
-            [r["user_id"] for r in rows],
-            [r["user_name"] for r in rows],
-            [r["changeset_id"] for r in rows],
-            [r["tags"] for r in rows],
-            [r["part_of"] for r in rows],
-            [r["part_of_role"] for r in rows],
-            [r["part_of_pos"] for r in rows],
-            [bbox(r) for r in rows],
-            [r["geom_type"] for r in rows],
-            [r["geom"] for r in rows],
-            [r["clipped"] for r in rows],
-        ],
-        schema=MEMBER_EXTRACTION_SCHEMA,
-    )
+@dataclass(frozen=True)
+class RowFormat:
+    """Output schema of an extraction and how to convert rows into it."""
+
+    schema: Schema
+
+    def to_record_batch(self, rows: list[ExtractionRow]) -> RecordBatch:
+        return RecordBatch.from_arrays(
+            [
+                [getter(r) for r in rows]
+                for getter in (
+                    _GETTERS.get(name) or itemgetter(name) for name in self.schema.names
+                )
+            ],
+            schema=self.schema,
+        )
+
+    @property
+    def dictionary_columns(self) -> list[str]:
+        return [name for name in self.schema.names if name in _DICTIONARY_COLUMNS]
+
+
+FEATURES = RowFormat(FEATURE_EXTRACTION_SCHEMA)
+MEMBERS = RowFormat(MEMBER_EXTRACTION_SCHEMA)
+CONTRIBUTIONS = RowFormat(CONTRIBUTION_EXTRACTION_SCHEMA)
 
 
 class Sink(ABC):
-    def __init__(self) -> None:
-        self.buffer = io.BytesIO()
+    """Encodes batches of rows into a byte stream.
 
-    def read_bytes(self) -> bytes:
+    Use as context manager: `write_batch` returns the bytes encoded so far,
+    `finish` closes the writer and returns the remaining bytes (footer or
+    end-of-stream marker). If the context is left without `finish` (e.g. on an
+    error) the writer is closed and the remaining bytes are discarded.
+    """
+
+    def __init__(self, row_format: RowFormat) -> None:
+        self.row_format = row_format
+        self.buffer = io.BytesIO()
+        self._closed = False
+
+    def write_batch(self, rows: list[ExtractionRow]) -> bytes:
+        if not rows:
+            return b""
+        self._write(self.row_format.to_record_batch(rows))
+        return self._take_bytes()
+
+    def finish(self) -> bytes:
+        self._close()
+        tail = self._take_bytes()
+        self.buffer.close()
+        logger.debug("finished sink, %d bytes remaining", len(tail))
+        return tail
+
+    def _take_bytes(self) -> bytes:
         content = self.buffer.getvalue()
         self.buffer.seek(0)
         self.buffer.truncate()
         return content
 
-    def write_batch(self, rows: list[ExtractionRow]) -> bytes:
-        if not rows:
-            return b""
-        return self.write_batch_(rows)
-
-    def get_schema(self) -> schema:
-        return FEATURE_EXTRACTION_SCHEMA
-
-    def convert_batch(self, rows: list[ExtractionRow]) -> RecordBatch:
-        return record_batch(rows)
+    def _close(self) -> None:
+        if not self._closed:
+            self._closed = True
+            self._close_writer()
 
     @abstractmethod
-    def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
-        pass
+    def _write(self, batch: RecordBatch) -> None: ...
 
     @abstractmethod
-    def close(self) -> None:
-        pass
+    def _close_writer(self) -> None: ...
 
-    def __enter__(self) -> Sink:
+    def __enter__(self) -> "Sink":
         return self
 
     def __exit__(
@@ -293,86 +295,60 @@ class Sink(ABC):
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> None:
-        self.close()
+        self._close()
 
 
 class ArrowSink(Sink):
-    def __init__(self) -> None:
-        super().__init__()
-        self.writer = new_stream(
+    def __init__(self, row_format: RowFormat) -> None:
+        super().__init__(row_format)
+        self.writer = RecordBatchStreamWriter(
             self.buffer,
-            self.get_schema().with_metadata({b"ohsome API": _api_meta()}),
+            row_format.schema.with_metadata({b"ohsome API": _api_meta()}),
         )
 
-    def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
-        batch = self.convert_batch(rows)
+    def _write(self, batch: RecordBatch) -> None:
         self.writer.write_batch(batch)
-        return self.read_bytes()
 
-    def close(self) -> None:
+    def _close_writer(self) -> None:
         self.writer.close()
 
 
 class ParquetSink(Sink):
-    # PERF: Current implementation result in copy of retrieved batches multiple times
-    #   -> Memory Issues?
-
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, row_format: RowFormat) -> None:
+        super().__init__(row_format)
         self.xmin = float("inf")
         self.ymin = float("inf")
         self.xmax = float("-inf")
         self.ymax = float("-inf")
-        self.writer = parquet.ParquetWriter(
+        self.writer = ParquetWriter(
             self.buffer,
-            schema=self.get_schema(),
+            schema=row_format.schema,
             compression="zstd",
+            use_dictionary=row_format.dictionary_columns,
         )
 
-    def write_batch_(self, rows: list[ExtractionRow]) -> bytes:
-        batch = self.convert_batch(rows)
-        # Which group size should we use?
-        self.writer.write(batch)
+    def _write(self, batch: RecordBatch) -> None:
+        # each write results in (at least) one row group
+        self.writer.write_batch(batch)
+        self._update_bbox(batch)
 
-        self.xmin = min(self.xmin, *(r["xmin"] for r in rows))
-        self.ymin = min(self.ymin, *(r["ymin"] for r in rows))
-        self.xmax = max(self.xmax, *(r["xmax"] for r in rows))
-        self.ymax = max(self.ymax, *(r["ymax"] for r in rows))
+    def _update_bbox(self, batch: RecordBatch) -> None:
+        bbox = batch.column("bbox")
+        xmin, _ = _min_max(bbox.field("xmin"))
+        ymin, _ = _min_max(bbox.field("ymin"))
+        _, xmax = _min_max(bbox.field("xmax"))
+        _, ymax = _min_max(bbox.field("ymax"))
+        if xmin is not None:
+            self.xmin = min(self.xmin, xmin)
+            self.ymin = min(self.ymin, ymin)
+            self.xmax = max(self.xmax, xmax)
+            self.ymax = max(self.ymax, ymax)
 
-        return self.read_bytes()
-
-    def _write_metadata(self) -> None:
+    def _close_writer(self) -> None:
         self.writer.add_key_value_metadata(
             {
                 b"geo": _geoparquet_meta(self.xmin, self.ymin, self.xmax, self.ymax),
                 b"ohsome API": _api_meta(),
             }
         )
-
-    def close(self) -> None:
-        self._write_metadata()
         self.writer.close()
-
-
-class MemberParquetSink(ParquetSink):
-    def get_schema(self) -> schema:
-        return MEMBER_EXTRACTION_SCHEMA
-
-    def convert_batch(self, rows: list[ExtractionRow]) -> RecordBatch:
-        return record_batch_member(rows)
-
-
-class MemberArrowSink(ArrowSink):
-    def get_schema(self) -> schema:
-        return MEMBER_EXTRACTION_SCHEMA
-
-    def convert_batch(self, rows: list[ExtractionRow]) -> RecordBatch:
-        return record_batch_member(rows)
-
-
-class ContributionParquetSink(ParquetSink):
-    def get_schema(self) -> schema:
-        return CONTRIBUTION_EXTRACTION_SCHEMA
-
-    def convert_batch(self, rows: list[ExtractionRow]) -> RecordBatch:
-        return record_batch_contribution(rows)

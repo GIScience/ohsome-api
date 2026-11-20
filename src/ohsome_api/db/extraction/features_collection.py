@@ -63,7 +63,11 @@ async def extract_features_collection(
         *filter_args,
         batch_size=CONFIG.ohsomedb.batch_size_extraction_collections,
     ):
-        yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
+        rows = [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
+        # release the asyncpg records before the next batch is fetched
+        del batch
+        yield rows
+        del rows
 
 
 async def extract_features_collection_members_collections(  # noqa: PLR0915

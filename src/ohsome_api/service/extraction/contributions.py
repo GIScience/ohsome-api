@@ -10,8 +10,8 @@ from ohsome_api.db.extraction.contributions import (
 from ohsome_api.db.extraction.contributions import (
     join_changesets_to_extraction_rows,
 )
-from ohsome_api.models import ExtractionRow
-from ohsome_api.parquet import ContributionParquetSink, Sink
+from ohsome_api.parquet import CONTRIBUTIONS, ParquetSink, Sink
+from ohsome_api.service.extraction.streaming import encode, map_batches, prepend
 
 
 async def extract_contributions(
@@ -24,19 +24,14 @@ async def extract_contributions(
 
     producer = extract_contributions_(ohsome_filter, aoi, start, end)
 
+    # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(producer)
 
-    async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
-        with sink_type() as sink:
-            yield sink.write_batch(await join_changesets_to_extraction_rows(first))
-
-            async for batch in producer:
-                yield sink.write_batch(await join_changesets_to_extraction_rows(batch))
-
-        # after sink is closed metadata and footer is written
-        yield sink.read_bytes()
-
-    return stream(first_batch)
+    batches = map_batches(
+        prepend(first_batch, producer),
+        join_changesets_to_extraction_rows,
+    )
+    return encode(sink_type, CONTRIBUTIONS, batches)
 
 
 async def extract_contributions_as_parquet(
@@ -50,5 +45,5 @@ async def extract_contributions_as_parquet(
         aoi,
         start,
         end,
-        ContributionParquetSink,
+        ParquetSink,
     )

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from importlib.metadata import version
 from typing import Annotated, Literal
@@ -17,6 +18,8 @@ from ohsome_api.request_models.time import (
     transform_time_timerange,
 )
 from ohsome_api.service.extraction import contributions
+
+logger = logging.getLogger("ohsome-api")
 
 VERSION = version("ohsome-api")
 router = APIRouter(

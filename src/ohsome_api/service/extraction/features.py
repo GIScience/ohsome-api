@@ -5,8 +5,8 @@ from ohsome_filter_to_sql import OhsomeFilter
 from shapely.geometry import MultiPolygon, Polygon
 
 from ohsome_api.db.extraction.features import extract_features as extract_features_
-from ohsome_api.models import ExtractionRow
-from ohsome_api.parquet import ArrowSink, ParquetSink, Sink
+from ohsome_api.parquet import FEATURES, ArrowSink, ParquetSink, Sink
+from ohsome_api.service.extraction.streaming import encode, prepend
 
 
 async def extract_features(
@@ -25,17 +25,7 @@ async def extract_features(
     # try to fetch first batch to check if we could get connection from database pool
     first_batch = await anext(producer)
 
-    async def stream(first: list[ExtractionRow]) -> AsyncIterator[bytes]:
-        with sink_type() as sink:
-            yield sink.write_batch(first)
-
-            async for batch in producer:
-                yield sink.write_batch(batch)
-
-        # after sink is closed metadata and footer is written
-        yield sink.read_bytes()
-
-    return stream(first_batch)
+    return encode(sink_type, FEATURES, prepend(first_batch, producer))
 
 
 async def extract_features_as_parquet(

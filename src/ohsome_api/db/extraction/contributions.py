@@ -50,7 +50,11 @@ async def extract_contributions(
         *filter_args,
         batch_size=CONFIG.ohsomedb.batch_size_extraction_features,
     ):
-        yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
+        rows = [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
+        # release the asyncpg records before the next batch is fetched
+        del batch
+        yield rows
+        del rows
 
 
 async def join_changesets_to_extraction_rows(
