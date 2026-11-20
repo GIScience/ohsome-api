@@ -162,7 +162,7 @@ async def extract_features_collection_members_collections(  # noqa: PLR0915
     return result
 
 
-async def extract_features_collection_members_features(
+async def extract_features_collection_members_features(  # noqa: PLR0915
     collections: list[ExtractionRow],
     ohsome_filter: OhsomeFilter,
     aoi: Polygon | MultiPolygon,
@@ -243,4 +243,8 @@ async def extract_features_collection_members_features(
         *filter_args,
         batch_size=CONFIG.ohsomedb.batch_size_extraction_features,
     ):
-        yield [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
+        rows = [ExtractionRow(cast(ExtractionRow, item)) for item in batch]
+        # release the asyncpg records before the next batch is fetched
+        del batch
+        yield rows
+        del rows
